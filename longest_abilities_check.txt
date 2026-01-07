@@ -1,0 +1,456 @@
+#1 [PL!N-bp4-025-L] VIVID WORLD (Length: 371)
+------------------------------------------------------------
+RAW: {{live_start.png|ライブ開始時}}ライブ終了時まで、エールによって公開される自分のカードが持つ[桃ブレード]、[赤ブレード]、[黄ブレード]、[緑ブレード]、[紫ブレード]、{{icon_b_all.png|ALLブレード}}は、すべて[青ブレード]になる。
+{{live_success.png|ライブ成功時}}エールにより公開された自分の『虹ヶ咲』のメンバーカードが持つハートの中に{{heart_01.png|heart01}}、{{heart_02.png|heart02}}、{{heart_03.png|heart03}}、{{heart_04.png|heart04}}、{{heart_05.png|heart05}}、{{heart_06.png|heart06}}がある場合、このカードのスコアを＋１する。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 2
+    Effects (2):
+      1. 1
+         Value=7 Target=4
+      2. 25
+         Params={'target_color': '青ブレード'} Value=1
+  Ability 2:
+    Trigger: 3
+    Conditions (1):
+      - 10 (Val: N/A, Neg: False)
+        Params: {'group': '虹ヶ咲'}
+    Effects (2):
+      1. 2
+         Value=1 Target=4
+      2. 6
+         Value=1
+================================================================================
+
+#2 [LL-bp3-001-R＋] 園田海未&津島善子&天王寺璃奈 (Length: 351)
+------------------------------------------------------------
+RAW: {{kidou.png|起動}}{{turn1.png|ターン1回}}自分の控え室にある「園田海未」と「津島善子」と「天王寺璃奈」を、合計6枚をシャッフルしてデッキの一番下に置く：エネルギーを6枚までアクティブにする。
+{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 7
+    Conditions (1):
+      - 1 (Val: N/A, Neg: False)
+    Effects (4):
+      1. 13
+         Value=1
+      2. 8
+         Params={'untap': True} Value=1
+      3. 11
+         Params={'target': 'discard'} Value=1
+      4. 15
+         Params={'shuffle': True, 'position': 'bottom', 'target_zone': 'discard', 'target_names': ['園田海未', '津島善子', '天王寺璃奈']} Value=6
+  Ability 2:
+    Trigger: 2
+    Effects (1):
+      1. 1
+         Value=3 Target=4
+         [OPTIONAL]
+================================================================================
+
+#3 [PL!HS-bp2-019-L] Bloom the smile, Bloom the dream! (Length: 303)
+------------------------------------------------------------
+RAW: {{live_start.png|ライブ開始時}}自分のステージに『蓮ノ空』のメンバーがいる場合、このカードを成功させるための必要ハートは、{{heart_01.png|heart01}}{{heart_01.png|heart01}}{{heart_00.png|heart0}}か、{{heart_04.png|heart04}}{{heart_04.png|heart04}}{{heart_00.png|heart0}}か、{{heart_05.png|heart05}}{{heart_05.png|heart05}}{{heart_00.png|heart0}}のうち、選んだ1つにしてもよい。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 2
+    Conditions (1):
+      - 10 (Val: N/A, Neg: False)
+        Params: {'group': '蓮ノ空', 'zone': 'STAGE'}
+    Effects (1):
+      1. 2
+         Value=1 Target=4
+         [OPTIONAL]
+================================================================================
+
+#4 [PL!SP-bp1-026-L] 未来予報ハレルヤ！ (Length: 296)
+------------------------------------------------------------
+RAW: {{live_start.png|ライブ開始時}}自分の、ステージと控え室に名前の異なる『Liella!』のメンバーが5人以上いる場合、このカードを使用するためのコストは{{heart_02.png|heart02}}{{heart_02.png|heart02}}{{heart_03.png|heart03}}{{heart_03.png|heart03}}{{heart_06.png|heart06}}{{heart_06.png|heart06}}になる。
+
+(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 2
+    Conditions (1):
+      - 9 (Val: N/A, Neg: False)
+        Params: {'group': 'Liella!', 'count': 5, 'distinct_names': True, 'zone': 'DISCARD'}
+    Effects (1):
+      1. 2
+         Value=1 Target=4
+  Ability 2:
+    Trigger: 6
+    Effects (1):
+      1. 16
+         Value=1
+================================================================================
+
+#5 [PL!SP-bp1-024-L] Tiny Stars (Length: 289)
+------------------------------------------------------------
+RAW: {{live_start.png|ライブ開始時}}ライブ終了時まで、自分のステージにいる「澁谷かのん」1人は{{heart_05.png|heart05}}{{icon_blade.png|ブレード}}を、「唐可可」1人は{{heart_01.png|heart01}}{{icon_blade.png|ブレード}}を得る。
+{{live_success.png|ライブ成功時}}自分のステージに「澁谷かのん」と「唐可可」がいる場合、カードを1枚引く。
+
+(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 2
+    Effects (2):
+      1. 1
+         Params={'target_name': '澁谷かのん'} Value=2 Target=11
+      2. 2
+         Params={'target_name': '澁谷かのん'} Value=1 Target=11
+  Ability 2:
+    Trigger: 3
+    Conditions (2):
+      - 2 (Val: N/A, Neg: False)
+        Params: {'name': '澁谷かのん', 'zone': 'STAGE'}
+      - 2 (Val: N/A, Neg: False)
+        Params: {'name': '唐可可', 'zone': 'STAGE'}
+    Effects (1):
+      1. 0
+         Value=1 Target=1
+  Ability 3:
+    Trigger: 6
+    Effects (1):
+      1. 16
+         Value=1
+================================================================================
+
+#6 [PL!-bp4-002-R＋] 絢瀬絵里 (Length: 283)
+------------------------------------------------------------
+RAW: {{jyouji.png|常時}}自分のライブ中のライブカードに、{{live_start.png|ライブ開始時}}能力も{{live_success.png|ライブ成功時}}能力も持たないカードがあるかぎり、{{heart_06.png|heart06}}{{heart_06.png|heart06}}を得る。
+{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の控え室から『μ's』のライブカードを1枚手札に加える。この能力は、自分の成功ライブカード置き場にあるカードのスコアの合計が６以上の場合のみ起動できる。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Effects (1):
+      1. 2
+         Value=1 Target=4
+  Ability 2:
+    Trigger: 7
+    Conditions (2):
+      - 1 (Val: N/A, Neg: False)
+      - 10 (Val: N/A, Neg: False)
+        Params: {'group': "μ's", 'zone': 'SUCCESS_LIVE'}
+    Effects (2):
+      1. 5
+         Value=1 Target=7
+      2. 11
+         Params={'target': 'discard'} Value=1
+================================================================================
+
+#7 [PL!-bp4-002-P] 絢瀬絵里 (Length: 283)
+------------------------------------------------------------
+RAW: {{jyouji.png|常時}}自分のライブ中のライブカードに、{{live_start.png|ライブ開始時}}能力も{{live_success.png|ライブ成功時}}能力も持たないカードがあるかぎり、{{heart_06.png|heart06}}{{heart_06.png|heart06}}を得る。
+{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の控え室から『μ's』のライブカードを1枚手札に加える。この能力は、自分の成功ライブカード置き場にあるカードのスコアの合計が６以上の場合のみ起動できる。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Effects (1):
+      1. 2
+         Value=1 Target=4
+  Ability 2:
+    Trigger: 7
+    Conditions (2):
+      - 1 (Val: N/A, Neg: False)
+      - 10 (Val: N/A, Neg: False)
+        Params: {'group': "μ's", 'zone': 'SUCCESS_LIVE'}
+    Effects (2):
+      1. 5
+         Value=1 Target=7
+      2. 11
+         Params={'target': 'discard'} Value=1
+================================================================================
+
+#8 [PL!-bp4-002-P＋] 絢瀬絵里 (Length: 283)
+------------------------------------------------------------
+RAW: {{jyouji.png|常時}}自分のライブ中のライブカードに、{{live_start.png|ライブ開始時}}能力も{{live_success.png|ライブ成功時}}能力も持たないカードがあるかぎり、{{heart_06.png|heart06}}{{heart_06.png|heart06}}を得る。
+{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の控え室から『μ's』のライブカードを1枚手札に加える。この能力は、自分の成功ライブカード置き場にあるカードのスコアの合計が６以上の場合のみ起動できる。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Effects (1):
+      1. 2
+         Value=1 Target=4
+  Ability 2:
+    Trigger: 7
+    Conditions (2):
+      - 1 (Val: N/A, Neg: False)
+      - 10 (Val: N/A, Neg: False)
+        Params: {'group': "μ's", 'zone': 'SUCCESS_LIVE'}
+    Effects (2):
+      1. 5
+         Value=1 Target=7
+      2. 11
+         Params={'target': 'discard'} Value=1
+================================================================================
+
+#9 [PL!-bp4-002-SEC] 絢瀬絵里 (Length: 283)
+------------------------------------------------------------
+RAW: {{jyouji.png|常時}}自分のライブ中のライブカードに、{{live_start.png|ライブ開始時}}能力も{{live_success.png|ライブ成功時}}能力も持たないカードがあるかぎり、{{heart_06.png|heart06}}{{heart_06.png|heart06}}を得る。
+{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の控え室から『μ's』のライブカードを1枚手札に加える。この能力は、自分の成功ライブカード置き場にあるカードのスコアの合計が７以上の場合のみ起動できる。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Effects (1):
+      1. 2
+         Value=1 Target=4
+  Ability 2:
+    Trigger: 7
+    Conditions (2):
+      - 1 (Val: N/A, Neg: False)
+      - 10 (Val: N/A, Neg: False)
+        Params: {'group': "μ's", 'zone': 'SUCCESS_LIVE'}
+    Effects (2):
+      1. 5
+         Value=1 Target=7
+      2. 11
+         Params={'target': 'discard'} Value=1
+================================================================================
+
+#10 [PL!-bp4-005-R＋] 星空 凛 (Length: 282)
+------------------------------------------------------------
+RAW: {{toujyou.png|登場}}自分の控え室からコスト2以下のメンバーカードを1枚手札に加える。
+{{jyouji.png|常時}}{{center.png|センター}}ライブの合計スコアを＋１する。
+{{live_start.png|ライブ開始時}}自分のステージに{{icon_blade.png|ブレード}}を5つ以上持つ『μ's』のメンバーがいない場合、このメンバーはセンターエリア以外にポジションチェンジする。(このメンバーを今いるエリア以外のエリアに移動させる。そのエリアにメンバーがいる場合、そのメンバーはこのメンバーがいたエリアに移動させる。)
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Effects (1):
+      1. 6
+         Value=1
+  Ability 2:
+    Trigger: 2
+    Conditions (2):
+      - 10 (Val: N/A, Neg: True)
+        Params: {'group': "μ's", 'zone': 'CENTER_STAGE'}
+      - 7 (Val: N/A, Neg: False)
+    Effects (1):
+      1. 10
+         Value=1
+================================================================================
+
+#11 [PL!-bp4-005-P] 星空 凛 (Length: 282)
+------------------------------------------------------------
+RAW: {{toujyou.png|登場}}自分の控え室からコスト2以下のメンバーカードを1枚手札に加える。
+{{jyouji.png|常時}}{{center.png|センター}}ライブの合計スコアを＋１する。
+{{live_start.png|ライブ開始時}}自分のステージに{{icon_blade.png|ブレード}}を5つ以上持つ『μ's』のメンバーがいない場合、このメンバーはセンターエリア以外にポジションチェンジする。(このメンバーを今いるエリア以外のエリアに移動させる。そのエリアにメンバーがいる場合、そのメンバーはこのメンバーがいたエリアに移動させる。)
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Effects (1):
+      1. 6
+         Value=1
+  Ability 2:
+    Trigger: 2
+    Conditions (2):
+      - 10 (Val: N/A, Neg: True)
+        Params: {'group': "μ's", 'zone': 'CENTER_STAGE'}
+      - 7 (Val: N/A, Neg: False)
+    Effects (1):
+      1. 10
+         Value=1
+================================================================================
+
+#12 [PL!-bp4-005-P＋] 星空凛 (Length: 282)
+------------------------------------------------------------
+RAW: {{toujyou.png|登場}}自分の控え室からコスト2以下のメンバーカードを1枚手札に加える。
+{{jyouji.png|常時}}{{center.png|センター}}ライブの合計スコアを＋１する。
+{{live_start.png|ライブ開始時}}自分のステージに{{icon_blade.png|ブレード}}を5つ以上持つ『μ's』のメンバーがいない場合、このメンバーはセンターエリア以外にポジションチェンジする。(このメンバーを今いるエリア以外のエリアに移動させる。そのエリアにメンバーがいる場合、そのメンバーはこのメンバーがいたエリアに移動させる。)
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Effects (1):
+      1. 6
+         Value=1
+  Ability 2:
+    Trigger: 2
+    Conditions (2):
+      - 10 (Val: N/A, Neg: True)
+        Params: {'group': "μ's", 'zone': 'CENTER_STAGE'}
+      - 7 (Val: N/A, Neg: False)
+    Effects (1):
+      1. 10
+         Value=1
+================================================================================
+
+#13 [PL!-bp4-005-SEC] 星空凛 (Length: 282)
+------------------------------------------------------------
+RAW: {{toujyou.png|登場}}自分の控え室からコスト2以下のメンバーカードを1枚手札に加える。
+{{jyouji.png|常時}}{{center.png|センター}}ライブの合計スコアを＋１する。
+{{live_start.png|ライブ開始時}}自分のステージに{{icon_blade.png|ブレード}}を5つ以上持つ『μ's』のメンバーがいない場合、このメンバーはセンターエリア以外にポジションチェンジする。(このメンバーを今いるエリア以外のエリアに移動させる。そのエリアにメンバーがいる場合、そのメンバーはこのメンバーがいたエリアに移動させる。)
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Effects (1):
+      1. 6
+         Value=1
+  Ability 2:
+    Trigger: 2
+    Conditions (2):
+      - 10 (Val: N/A, Neg: True)
+        Params: {'group': "μ's", 'zone': 'CENTER_STAGE'}
+      - 7 (Val: N/A, Neg: False)
+    Effects (1):
+      1. 10
+         Value=1
+================================================================================
+
+#14 [PL!SP-bp4-023-L] Dazzling Game (Length: 281)
+------------------------------------------------------------
+RAW: {{live_start.png|ライブ開始時}}ライブ終了時まで、自分のステージにいる、「澁谷かのん」「ウィーン・マルガレーテ」「鬼塚冬毬」のうちのメンバー1人と、これにより選んだメンバー以外の『Liella!』のメンバー1人は、{{icon_blade.png|ブレード}}を得る。
+{{live_start.png|ライブ開始時}}ライブ終了時まで、エールによって公開される自分のカードが持つ[桃ブレード]、[赤ブレード]、[黄ブレード]、[緑ブレード]、[青ブレード]、{{icon_b_all.png|ALLブレード}}は、すべて[紫ブレード]になる。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 2
+    Conditions (1):
+      - 10 (Val: N/A, Neg: True)
+        Params: {'group': 'Liella!', 'zone': 'STAGE'}
+    Effects (1):
+      1. 1
+         Params={'target_name': '澁谷かのん'} Value=1 Target=11
+  Ability 2:
+    Trigger: 2
+    Effects (2):
+      1. 1
+         Value=7 Target=4
+      2. 25
+         Params={'target_color': '紫ブレード'} Value=1
+================================================================================
+
+#15 [PL!N-bp1-027-L] Solitude Rain (Length: 279)
+------------------------------------------------------------
+RAW: {{live_start.png|ライブ開始時}}自分のステージにいる『虹ヶ咲』のメンバーが持つ{{heart_01.png|heart01}}、{{heart_04.png|heart04}}、{{heart_05.png|heart05}}、{{heart_02.png|heart02}}、{{heart_03.png|heart03}}、{{heart_06.png|heart06}}のうち1色につき、このカードのスコアを＋１する。
+
+(エールをすべて行った後、エールで出た{{icon_draw.png|ドロー}}1つにつき、カードを1枚引く。)
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 2
+    Conditions (1):
+      - 10 (Val: N/A, Neg: False)
+        Params: {'group': '虹ヶ咲', 'zone': 'STAGE'}
+    Effects (2):
+      1. 2
+         Value=1 Target=4
+      2. 6
+         Value=1
+  Ability 2:
+    Trigger: 6
+    Effects (2):
+      1. 0
+         Value=1 Target=1
+      2. 16
+         Value=1
+================================================================================
+
+#16 [PL!N-bp4-026-L] DIVE! (Length: 279)
+------------------------------------------------------------
+RAW: {{jidou.png|自動}}自分のメインフェイズにこのカードが控え室から手札に加えられたとき、自分の手札からカード名が「DIVE!」のライブカード1枚を表向きでライブカード置き場に置いてもよい。そうした場合、次のライブカードセットフェイズで自分がライブカード置き場に置けるカード枚数の上限が1枚減る。
+{{jidou.png|自動}}このカードが表向きでライブカード置き場に置かれたとき、ライブ終了時まで、自分のステージにいる『虹ヶ咲』のメンバー1人は、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 7
+    Effects (2):
+      1. 8
+         Params={'multiplier': True} Value=1
+         [OPTIONAL]
+      2. 11
+         Params={'target': 'discard'} Value=1
+         [OPTIONAL]
+  Ability 2:
+    Trigger: 7
+    Conditions (1):
+      - 10 (Val: N/A, Neg: False)
+        Params: {'group': '虹ヶ咲', 'zone': 'LIVE_ZONE'}
+    Effects (1):
+      1. 1
+         Value=2 Target=4
+================================================================================
+
+#17 [PL!N-bp1-012-R＋] 鐘 嵐珠 (Length: 276)
+------------------------------------------------------------
+RAW: {{jyouji.png|常時}}自分のライブ中のカードが3枚以上あり、その中に『虹ヶ咲』のライブカードを1枚以上含む場合、{{icon_all.png|ハート}}{{icon_all.png|ハート}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。
+{{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}：自分の控え室からライブカードを1枚手札に加える。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Conditions (1):
+      - 9 (Val: N/A, Neg: False)
+        Params: {'group': '虹ヶ咲', 'min': 1}
+    Effects (1):
+      1. 1
+         Value=2 Target=4
+  Ability 2:
+    Trigger: 7
+    Conditions (1):
+      - 1 (Val: N/A, Neg: False)
+    Effects (1):
+      1. 5
+         Value=1 Target=7
+================================================================================
+
+#18 [PL!N-bp1-012-P] 鐘 嵐珠 (Length: 276)
+------------------------------------------------------------
+RAW: {{jyouji.png|常時}}自分のライブ中のカードが3枚以上あり、その中に『虹ヶ咲』のライブカードを1枚以上含む場合、{{icon_all.png|ハート}}{{icon_all.png|ハート}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。
+{{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}：自分の控え室からライブカードを1枚手札に加える。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Conditions (1):
+      - 9 (Val: N/A, Neg: False)
+        Params: {'group': '虹ヶ咲', 'min': 1}
+    Effects (1):
+      1. 1
+         Value=2 Target=4
+  Ability 2:
+    Trigger: 7
+    Conditions (1):
+      - 1 (Val: N/A, Neg: False)
+    Effects (1):
+      1. 5
+         Value=1 Target=7
+================================================================================
+
+#19 [PL!N-bp1-012-P＋] 鐘 嵐珠 (Length: 276)
+------------------------------------------------------------
+RAW: {{jyouji.png|常時}}自分のライブ中のカードが3枚以上あり、その中に『虹ヶ咲』のライブカードを1枚以上含む場合、{{icon_all.png|ハート}}{{icon_all.png|ハート}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。
+{{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}：自分の控え室からライブカードを1枚手札に加える。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Conditions (1):
+      - 9 (Val: N/A, Neg: False)
+        Params: {'group': '虹ヶ咲', 'min': 1}
+    Effects (1):
+      1. 1
+         Value=2 Target=4
+  Ability 2:
+    Trigger: 7
+    Conditions (1):
+      - 1 (Val: N/A, Neg: False)
+    Effects (1):
+      1. 5
+         Value=1 Target=7
+================================================================================
+
+#20 [PL!N-bp1-012-SEC] 鐘 嵐珠 (Length: 276)
+------------------------------------------------------------
+RAW: {{jyouji.png|常時}}自分のライブ中のカードが3枚以上あり、その中に『虹ヶ咲』のライブカードを1枚以上含む場合、{{icon_all.png|ハート}}{{icon_all.png|ハート}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。
+{{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}：自分の控え室からライブカードを1枚手札に加える。
+------------------------------------------------------------
+  Ability 1:
+    Trigger: 6
+    Conditions (1):
+      - 9 (Val: N/A, Neg: False)
+        Params: {'group': '虹ヶ咲', 'min': 1}
+    Effects (1):
+      1. 1
+         Value=2 Target=4
+  Ability 2:
+    Trigger: 7
+    Conditions (1):
+      - 1 (Val: N/A, Neg: False)
+    Effects (1):
+      1. 5
+         Value=1 Target=7
+================================================================================
+

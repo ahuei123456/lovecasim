@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ラブカ Solo | ゲームボード</title>
+    <link rel="icon" href="/icon_blade.png">
+    <style>
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a2332;
+            --bg-zone: #232d3f;
+            --bg-zone-opponent: #2a2035;
+            --accent-pink: #ff6b9d;
+            --accent-blue: #4a9eff;
+            --accent-gold: #f5c542;
+            --accent-green: #4ade80;
+            --accent-purple: #a855f7;
+            --text: #f0f0f0;
+            --text-dim: #6b7a8f;
+            --border: #3d4a5c;
+            --card-width: 70px;
+            --card-height: 98px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1a2e 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            background: linear-gradient(90deg, var(--bg-secondary), #1e2a3d);
+            border-bottom: 2px solid var(--accent-pink);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.1rem;
+            background: linear-gradient(90deg, var(--accent-pink), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .info-bar {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+        }
+
+        .info-bar .stat {
+            background: var(--bg-zone);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .info-bar .stat strong {
+            color: var(--accent-blue);
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--bg-zone), #2a3a4d);
+            color: var(--text);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, var(--accent-blue), #3a7bd5);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-pink), #e05080);
+        }
+
+        /* Game Board Container */
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 10px;
+            padding: 10px;
+            height: calc(100vh - 52px);
+        }
+
+        .game-board {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+        }
+
+        /* Player Sections */
+        .player-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .player-section.opponent {
+            background: linear-gradient(180deg, var(--bg-zone-opponent), var(--bg-secondary));
+            border-color: #4a3050;
+        }
+
+        .player-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-label .score-badge {
+            background: var(--accent-gold);
+            color: #000;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        /* Zones Grid */
+        .zones-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .zone {
+            background: var(--bg-zone);
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid var(--border);
+            min-width: 80px;
+        }
+
+        .zone-title {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-align: center;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Stage - 3 Member Areas */
+        .stage-zone {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .stage-slots {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .member-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .member-slot {
+            width: var(--card-width);
+            height: var(--card-height);
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px dashed var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .member-slot.filled {
+            border-style: solid;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px rgba(74, 158, 255, 0.3);
+        }
+
+        .member-slot.tapped {
+            transform: rotate(90deg);
+            opacity: 0.6;
+        }
+
+        .area-label {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+        }
+
+        .attached-energy {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 80px;
+        }
+
+        /* Live Zone Styling */
+        .live-zone-cards {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .energy-mini {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-gold), #d4a800);
+            border: 1px solid #fff;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Card Styling */
+        .card {
+            width: var(--card-width);
+            height: var(--card-height);
+            background-clip: padding-box;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-dark));
+            border: 1px solid var(--border);
+            padding: 4px;
+            color: var(--text);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card .name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 3px;
+            font-size: 0.5rem;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card .cost {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--accent-pink);
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.55rem;
+            font-weight: bold;
+        }
+
+        .card.type-live .cost {
+            background: var(--accent-purple);
+        }
+
+        .card.hidden {
+            background: linear-gradient(145deg, #404050, #2a2a35);
+        }
+
+        .card.hidden::after {
+            content: '🂠';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+        }
+
+        .card.selected {
+            border: 2px solid var(--accent-gold);
+            transform: translateY(-8px);
+            box-shadow: 0 0 15px var(--accent-gold);
+        }
+
+        .card.selected::before {
+            content: 'Selected';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 2px 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-radius: 4px;
+            z-index: 10;
+        }
+
+        /* Stats Overlay */
+        .card .stats {
+            position: absolute;
+            bottom: 18px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 4px;
+            pointer-events: none;
+        }
+
+        .card.selected {
+            border: 2px solid var(--accent-gold);
+            box-shadow: 0 0 15px var(--accent-gold);
+        }
+
+        .card.mulligan-selected {
+            border: 2px solid var(--accent-pink);
+            box-shadow: 0 0 15px var(--accent-pink);
+            opacity: 0.7;
+        }
+
+        .card .stat-blade {
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffaa00;
+            font-size: 0.6rem;
+            padding: 1px 3px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .card .stat-hp {
+            background: rgba(0, 0, 0, 0.7);
+            color: #ff55aa;
+            font-size: 0.6rem;
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+
+        /* Tooltip for Ability */
+        .card:hover::after {
+            content: attr(data-text);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: white;
+            white-space: normal;
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+        }
+
+        .card:hover[data-text]:not([data-text=""])::after {
+            display: block;
+        }
+
+        .card-mini {
+            width: 45px;
+            height: 63px;
+        }
+
+        /* Deck Zones */
+        .deck-zone {
+            text-align: center;
+        }
+
+        .deck-stack {
+            width: var(--card-width);
+            height: var(--card-height);
+            margin: 5px auto;
+            background: linear-gradient(145deg, #4a5568, #2d3748);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 3px 3px 0 #1a1a2e, 5px 5px 0 #0f0f1a;
+        }
+
+        .deck-count {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-pink);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: bold;
+        }
+
+        .deck-stack.energy-deck {
+            background: linear-gradient(145deg, #5a4a20, #3a3010);
+        }
+
+        .deck-stack.energy-deck .deck-count {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        /* Energy Zone */
+        .energy-zone-cards {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 5px;
+        }
+
+        .energy-pip {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, var(--accent-gold), #d4a800);
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .energy-pip:hover {
+            transform: scale(1.1);
+        }
+
+        .energy-pip.tapped {
+            opacity: 0.35;
+            filter: grayscale(0.5);
+        }
+
+        /* Card Stacks (Discard, Success Lives, etc) */
+        .card-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .card-stack-horizontal {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            padding: 5px;
+            justify-content: center;
+        }
+
+        /* Hand Zone */
+        .hand-zone {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .hand-cards {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-height: 110px;
+        }
+
+        /* Live Zone */
+        .live-zone-cards {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            padding: 5px;
+            min-height: 110px;
+        }
+
+        /* Resolution Zone (shared) */
+        .resolution-zone {
+            background: linear-gradient(90deg, var(--bg-zone), #2a3545, var(--bg-zone));
+            border: 1px dashed var(--accent-purple);
+            text-align: center;
+        }
+
+        .resolution-cards {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 10px;
+            min-height: 50px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section h3 {
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .action-btn {
+            padding: 8px 10px;
+            background: var(--bg-zone);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .action-btn.pass {
+            background: linear-gradient(135deg, var(--accent-green), #30a060);
+            color: #000;
+            font-weight: 600;
+            border-color: var(--accent-green);
+        }
+
+        /* God Mode */
+        .god-mode {
+            background: linear-gradient(135deg, #2a1540, var(--bg-secondary));
+            border: 1px solid #6b3fa0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .god-mode h3 {
+            color: #b87aff;
+        }
+
+        .god-mode input,
+        .god-mode textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 6px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #6b3fa0;
+            border-radius: 5px;
+            color: var(--text);
+            font-family: monospace;
+            font-size: 0.75rem;
+        }
+
+        .god-mode .btn {
+            width: 100%;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #6b3fa0, #5030a0);
+        }
+
+        /* Log */
+        .log-section {
+            flex: 1;
+            min-height: 100px;
+        }
+
+        .log-list {
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            padding: 8px;
+        }
+
+        .log-entry {
+            padding: 2px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1>🎵 ラブカ Solo</h1>
+        <div class="info-bar">
+            <span class="stat">ターン: <strong id="turn">1</strong></span>
+            <span class="stat">フェーズ: <strong id="phase">MAIN</strong></span>
+            <span class="stat">スコア: <strong id="score">0 - 0</strong></span>
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="fetchState()">🔄 更新</button>
+            <button class="btn btn-primary" onclick="resetGame()">🎮 新規ゲーム</button>
+        </div>
+    </header>
+
+    <div class="game-container">
+        <div class="game-board">
+            <!-- OPPONENT SECTION -->
+            <div class="player-section opponent">
+                <div class="player-label">
+                    <span>👤 対戦相手 (Player 2)</span>
+                    <span class="score-badge" id="opp-score">0 ライブ</span>
+                </div>
+                <div class="zones-row">
+                    <!-- Opponent Decks -->
+                    <div class="zone deck-zone">
+                        <div class="zone-title">エネ山</div>
+                        <div class="deck-stack energy-deck">🂠<span class="deck-count" id="opp-energy-deck">9</span>
+                        </div>
+                    </div>
+                    <div class="zone">
+                        <div class="zone-title">エネルギー (<span id="opp-energy-count">0</span>)</div>
+                        <div class="energy-zone-cards" id="opp-energy"></div>
+                    </div>
+                    <!-- Opponent Stage -->
+                    <div class="zone stage-zone">
+                        <div class="zone-title">ステージ</div>
+                        <div class="stage-slots" id="opp-stage"></div>
+                    </div>
+                    <div class="zone deck-zone">
+                        <div class="zone-title">山札</div>
+                        <div class="deck-stack">🂠<span class="deck-count" id="opp-deck">48</span></div>
+                    </div>
+                    <div class="zone">
+                        <div class="zone-title">控え室 (<span id="opp-discard-count">0</span>)</div>
+                        <div class="card-stack" id="opp-discard"></div>
+                    </div>
+                </div>
+                <div class="zones-row" style="margin-top:8px">
+                    <div class="zone">
+                        <div class="zone-title">手札 (<span id="opp-hand-count">0</span>)</div>
+                        <div class="card-stack-horizontal" id="opp-hand"></div>
+                    </div>
+                    <div class="zone">
+                        <div class="zone-title">ライブ置場</div>
+                        <div class="live-zone-cards" id="opp-live"></div>
+                    </div>
+                    <div class="zone">
+                        <div class="zone-title">成功ライブ</div>
+                        <div class="card-stack-horizontal" id="opp-success"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESOLUTION ZONE (Shared) -->
+            <div class="zone resolution-zone">
+                <div class="zone-title">🔮 解決領域 (Resolution Zone)</div>
+                <div class="resolution-cards" id="resolution"></div>
+            </div>
+
+            <!-- PLAYER SECTION -->
+            <div class="player-section">
+                <div class="player-label">
+                    <span>⭐ あなた (Player 1)</span>
+                    <span class="score-badge" id="my-score">0 ライブ</span>
+                </div>
+                <div class="zones-row">
+                    <div class="zone">
+                        <div class="zone-title">成功ライブ</div>
+                        <div class="card-stack-horizontal" id="my-success"></div>
+                    </div>
+                    <div class="zone">
+                        <div class="zone-title">ライブ置場</div>
+                        <div class="live-zone-cards" id="my-live"></div>
+                    </div>
+                </div>
+                <div class="zones-row" style="margin-top:8px">
+                    <!-- Player Stage -->
+                    <div class="zone stage-zone">
+                        <div class="zone-title">ステージ</div>
+                        <div class="stage-slots" id="my-stage"></div>
+                    </div>
+                </div>
+                <div class="zones-row" style="margin-top:8px">
+                    <div class="zone hand-zone">
+                        <div class="zone-title">手札 (<span id="my-hand-count">0</span>)</div>
+                        <div class="hand-cards" id="my-hand"></div>
+                    </div>
+                </div>
+                <div class="zones-row" style="margin-top:8px">
+                    <div class="zone deck-zone">
+                        <div class="zone-title">エネ山</div>
+                        <div class="deck-stack energy-deck">🂠<span class="deck-count" id="my-energy-deck">9</span>
+                        </div>
+                    </div>
+                    <div class="zone">
+                        <div class="zone-title">エネルギー (<span id="my-energy-count">0</span>/12)</div>
+                        <div class="energy-zone-cards" id="my-energy"></div>
+                    </div>
+                    <div class="zone deck-zone">
+                        <div class="zone-title">山札</div>
+                        <div class="deck-stack">🂠<span class="deck-count" id="my-deck">48</span></div>
+                    </div>
+                    <div class="zone">
+                        <div class="zone-title">控え室 (<span id="my-discard-count">0</span>)</div>
+                        <div class="card-stack" id="my-discard"></div>
+                    </div>
+                    <div class="zone">
+                        <div class="zone-title">除外</div>
+                        <div class="card-stack" id="my-exclude"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>⚡ アクション</h3>
+                <div class="action-list" id="actions"></div>
+            </div>
+            <div class="sidebar-section god-mode">
+                <h3>🔮 God Mode</h3>
+                <input type="number" id="force-id" placeholder="Action ID">
+                <button class="btn" onclick="forceAction()">強制実行</button>
+                <textarea id="god-code" rows="2" placeholder="p.hand.append(p.main_deck.pop())"></textarea>
+                <button class="btn" onclick="execCode()">コード実行</button>
+            </div>
+            <div class="sidebar-section log-section">
+                <h3>📜 ログ</h3>
+                <div class="log-list" id="log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = null;
+        let logs = [];
+        let selectedHandIdx = -1; // -1 means no selection
+
+        function log(msg) {
+            logs.unshift(`[${new Date().toLocaleTimeString()}] ${msg}`);
+            if (logs.length > 50) logs.pop();
+            document.getElementById('log').innerHTML = logs.map(l => `<div class="log-entry">${l}</div>`).join('');
+        }
+
+        async function fetchState() {
+            try {
+                const res = await fetch('/api/state');
+                state = await res.json();
+                render();
+                log('State refreshed');
+            } catch (e) {
+                log('Error: ' + e.message);
+            }
+        }
+
+        function render() {
+            if (!state) return;
+            const p0 = state.players[0];  // Player (you)
+            const p1 = state.players[1];  // Opponent
+
+            // Header info
+            let phaseText = state.phase;
+            if (state.phase == -1) phaseText = "MULLIGAN (You)";
+            if (state.phase == 0) phaseText = "MULLIGAN (Opponent)";
+            if (state.phase == 1) phaseText = "ACTIVE";
+            if (state.phase == 2) phaseText = "ENERGY";
+            if (state.phase == 3) phaseText = "DRAW";
+            if (state.phase == 4) phaseText = "MAIN";
+
+            document.getElementById('turn').textContent = state.turn;
+            document.getElementById('phase').textContent = phaseText;
+            document.getElementById('score').textContent = `${p0.score} - ${p1.score}`;
+
+            // Opponent
+            document.getElementById('opp-score').textContent = `${p1.score} ライブ`;
+            document.getElementById('opp-deck').textContent = p1.deck_count;
+            document.getElementById('opp-energy-deck').textContent = 12 - p1.energy_count;
+            document.getElementById('opp-energy-count').textContent = p1.energy_count;
+            document.getElementById('opp-hand-count').textContent = p1.hand_count;
+            document.getElementById('opp-discard-count').textContent = p1.discard_count;
+            renderEnergy('opp-energy', p1.energy);
+            renderStage('opp-stage', p1.stage, false);
+            renderCards('opp-hand', p1.hand, false, true);
+            renderCards('opp-discard', p1.discard, false, true);
+            renderCards('opp-success', p1.success_lives, false, true);
+
+            // Player
+            document.getElementById('my-score').textContent = `${p0.score} ライブ`;
+            document.getElementById('my-deck').textContent = p0.deck_count;
+            document.getElementById('my-energy-deck').textContent = 12 - p0.energy_count;
+            document.getElementById('my-energy-count').textContent = `${p0.energy_untapped}/${p0.energy_count}`;
+            document.getElementById('my-hand-count').textContent = p0.hand_count;
+            document.getElementById('my-discard-count').textContent = p0.discard_count;
+            renderEnergy('my-energy', p0.energy);
+            renderStage('my-stage', p0.stage, true);
+
+            // Render Hand
+            // Mulligan selection OR standard selection
+            let selectedIndices = [];
+            if (state.phase < 1 || state.phase === Phase.MULLIGAN_P1 || state.phase === Phase.MULLIGAN_P2) {
+                // In mulligan phase, P0 might have selection
+                selectedIndices = p0.mulligan_selection || [];
+            } else {
+                if (selectedHandIdx !== -1) selectedIndices = [selectedHandIdx];
+            }
+
+            renderCards('my-hand', p0.hand, true, false, selectedIndices);
+
+            renderCards('my-discard', p0.discard);
+            renderLiveZone('my-live', p0.live_zone, true);
+            renderLiveZone('opp-live', p1.live_zone, false);
+            renderCards('my-success', p0.success_lives, false, true);
+
+            renderActions();
+        }
+
+        function playCard(idx) {
+            // Check if Mulligan Phase
+            if (state.phase < 1) { // -1 or 0 (Mulligan phases)
+                // Action 181-240: Toggle Hand[idx] for Mulligan
+                // Action = 181 + idx
+                const actionId = 181 + idx;
+                // Verify if legitimate (check if action exists in legal_actions list)
+                const action = state.legal_actions.find(a => a.id === actionId);
+                if (action) {
+                    doAction(actionId);
+                } else {
+                    log(`Cannot toggle card ${idx} in Mulligan`);
+                }
+                return;
+            }
+
+            // Standard Phase: Select card for later placement
+            if (selectedHandIdx === idx) {
+                selectedHandIdx = -1; // Deselect
+            } else {
+                selectedHandIdx = idx; // Select
+            }
+            render(); // Re-render to show selection
+        }
+
+        function onStageSlotClick(areaIdx) {
+            if (selectedHandIdx === -1) {
+                // If clicking an existing member, maybe use ability? (Actions 200-202)
+                const actionId = 200 + areaIdx;
+                const action = state.legal_actions.find(a => a.id === actionId);
+                if (action) {
+                    doAction(actionId);
+                }
+                return;
+            }
+
+            // Try to play selected card to this area
+            // Action ID = 1 + (card_idx * 3) + area_idx
+            // Range 1-180
+            const actionId = 1 + (selectedHandIdx * 3) + areaIdx;
+
+            const action = state.legal_actions.find(a => a.id === actionId);
+            if (action) {
+                log(`Playing Hand[${selectedHandIdx}] to Area ${areaIdx}`);
+                doAction(actionId);
+                selectedHandIdx = -1; // Reset selection after play
+            } else {
+                log(`Cannot play Hand[${selectedHandIdx}] to Area ${areaIdx} (Cost/Req?)`);
+            }
+        }
+
+        function renderCards(containerId, cards, clickable = false, mini = false, selectedIndices = []) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            el.innerHTML = '';
+            cards.forEach((card, idx) => {
+                const div = document.createElement('div');
+                const isSelected = selectedIndices.includes(idx);
+
+                // Logic for highlighting: Red for mulligan, Yellow for standard selection
+                let highlightClass = '';
+                if (isSelected) {
+                    highlightClass = (state.phase === Phase.MULLIGAN_P1 || state.phase === Phase.MULLIGAN_P2) ? ' mulligan-selected' : ' selected';
+                }
+
+                div.className = 'card' + (card.hidden ? ' hidden' : '') +
+                    (card.type === 'live' ? ' type-live' : '') +
+                    (mini ? ' card-mini' : '') +
+                    highlightClass;
+
+                if (card.text) div.setAttribute('data-text', card.text);
+
+                if (!card.hidden) {
+                    const imgPath = card.img ? `/img/${card.img}` : '';
+                    const imgHtml = imgPath ? `<img src="${imgPath}" onerror="this.style.display='none'">` : '';
+
+                    let statsHtml = '';
+                    if (card.type === 'member') {
+                        statsHtml = `
+                            <div class="stats">
+                                <div class="stat-blade">⚔ ${card.blade || 0}</div>
+                                <div class="stat-hp">♥ ${card.hp || 0}</div>
+                            </div>
+                        `;
+                    } else if (card.type === 'live') {
+                        statsHtml = `
+                            <div class="stats">
+                                <div class="stat-hp">★ ${card.score || 0}</div>
+                            </div>
+                        `;
+                    }
+
+                    div.innerHTML = `${imgHtml}<span class="cost">${card.cost !== undefined ? card.cost : '★'}</span>
+                                     <div class="name">${card.name || ''}</div>${statsHtml}`;
+                }
+                if (clickable) div.onclick = () => playCard(idx);
+                el.appendChild(div);
+            });
+        }
+
+        function renderStage(containerId, stage, clickable) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            el.innerHTML = '';
+            const labels = ['左', 'C', '右'];
+            for (let i = 0; i < 3; i++) {
+                const slot = stage[i];
+                const area = document.createElement('div');
+                area.className = 'member-area';
+                if (clickable) {
+                    area.style.cursor = 'pointer';
+                    area.onclick = () => onStageSlotClick(i);
+                }
+
+                const slotDiv = document.createElement('div');
+                slotDiv.className = 'member-slot' + (slot ? ' filled' : '') + (slot?.tapped ? ' tapped' : '');
+
+                // Highlight slot if it's a valid target for the selected card
+                if (clickable && selectedHandIdx !== -1) {
+                    const actionId = 1 + (selectedHandIdx * 3) + i;
+                    const isValid = state.legal_actions.some(a => a.id === actionId);
+                    if (isValid) {
+                        slotDiv.style.borderColor = 'var(--accent-green)';
+                        slotDiv.style.boxShadow = '0 0 10px var(--accent-green)';
+                    }
+                }
+
+                if (slot) {
+                    const imgPath = slot.img ? `/img/${slot.img}` : '';
+                    const imgHtml = imgPath ? `<img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '';
+                    slotDiv.innerHTML = `${imgHtml}<span class="cost">${slot.cost}</span><div class="name">${slot.name}</div>`;
+                }
+
+                const label = document.createElement('div');
+                label.className = 'area-label';
+                label.textContent = labels[i];
+
+                const energyDiv = document.createElement('div');
+                energyDiv.className = 'attached-energy';
+                if (slot && slot.energy > 0) {
+                    for (let e = 0; e < slot.energy; e++) {
+                        const pip = document.createElement('div');
+                        pip.className = 'energy-mini';
+                        pip.textContent = '⚡';
+                        energyDiv.appendChild(pip);
+                    }
+                }
+
+                area.appendChild(slotDiv);
+                area.appendChild(label);
+                area.appendChild(energyDiv);
+                el.appendChild(area);
+            }
+        }
+
+        function renderEnergy(containerId, energy) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            el.innerHTML = '';
+            energy.forEach((e, i) => {
+                const div = document.createElement('div');
+                div.className = 'energy-pip' + (e.tapped ? ' tapped' : '');
+                div.textContent = i + 1;
+                el.appendChild(div);
+            });
+        }
+
+        function renderLiveZone(containerId, liveCards, clickable) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            el.innerHTML = '';
+
+            // Always show 3 slots
+            for (let i = 0; i < 3; i++) {
+                const card = liveCards[i];
+                const slot = document.createElement('div');
+                slot.className = 'card card-mini' + (card ? ' type-live' : '');
+
+                if (card) {
+                    const imgPath = card.img ? `/img/${card.img}` : '';
+                    const imgHtml = imgPath ? `<img src="${imgPath}" onerror="this.style.display='none'">` : '';
+                    slot.innerHTML = `${imgHtml}<span class="cost">${card.cost || '★'}</span><div class="name">${card.name || ''}</div>`;
+                } else {
+                    slot.style.border = '2px dashed #555';
+                    slot.style.opacity = '0.5';
+                    slot.innerHTML = `<div class="name" style="top:50%;transform:translateY(-50%);">空き ${i + 1}</div>`;
+                }
+
+                // In LIVE_SET phase, clicking empty slot does nothing
+                // Clicking an occupied slot might trigger removal? (For now, no action)
+
+                el.appendChild(slot);
+            }
+        }
+
+        function renderActions() {
+            const el = document.getElementById('actions');
+            el.innerHTML = '';
+            if (!state.legal_actions) return;
+            state.legal_actions.forEach(a => {
+                const btn = document.createElement('button');
+                btn.className = 'action-btn' + (a.id === 0 ? ' pass' : '');
+                btn.textContent = `[${a.id}] ${a.desc}`;
+                btn.onclick = () => doAction(a.id);
+                el.appendChild(btn);
+            });
+        }
+
+        async function doAction(id) {
+            log(`Action: ${id}`);
+            const res = await fetch('/api/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action_id: id })
+            });
+            const data = await res.json();
+            if (data.success) {
+                state = data.state;
+                render();
+                log('Action completed');
+            } else {
+                log('Error: ' + data.error);
+            }
+        }
+
+        async function forceAction() {
+            const id = parseInt(document.getElementById('force-id').value);
+            log(`Force action: ${id}`);
+            const res = await fetch('/api/action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action_id: id, force: true })
+            });
+            const data = await res.json();
+            if (data.success) { state = data.state; render(); log('Forced'); }
+            else { log('Error: ' + data.error); }
+        }
+
+        async function execCode() {
+            const code = document.getElementById('god-code').value;
+            log(`Exec: ${code.substring(0, 30)}...`);
+            const res = await fetch('/api/exec', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            });
+            const data = await res.json();
+            if (data.success) { state = data.state; render(); log('Code executed'); }
+            else { log('Error: ' + data.error); }
+        }
+
+        async function resetGame() {
+            log('Resetting game...');
+            const res = await fetch('/api/reset', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) { state = data.state; render(); log('New game started'); }
+        }
+
+        // Initialize
+        fetchState();
+    </script>
+</body>
+
+</html>

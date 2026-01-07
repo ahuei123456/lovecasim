@@ -1,0 +1,54 @@
+{
+    "verified_cards": {
+        "LL-PR-004-PR": {
+            "name": "愛♡スクリ～ム！",
+            "status": "VERIFIED",
+            "notes": "Modal answer and negation verified in verify_edge_case_logic.py"
+        },
+        "PL!N-bp4-030-L": {
+            "name": "Daydream Mermaid",
+            "status": "VERIFIED",
+            "notes": "Trigger inheritance and success live zone check verified"
+        },
+        "PL!HS-bp2-026-L": {
+            "name": "みらくりえーしょん",
+            "status": "VERIFIED",
+            "notes": "Area-specific member locations verified"
+        },
+        "PL!SP-pb1-011-R": {
+            "name": "鬼塚冬毬",
+            "status": "VERIFIED",
+            "notes": "Negation logic (Except X) verified"
+        },
+        "PL!-sd1-006-SD": {
+            "name": "西木野 真姫",
+            "status": "VERIFIED",
+            "notes": "Optional effect logic (may) verified"
+        },
+        "PL!N-bp1-006-R＋": {
+            "name": "近江彼方",
+            "status": "VERIFIED",
+            "notes": "Trigger vs Condition (ON_PLAY vs Condition) verified"
+        },
+        "PL!SP-pb1-024-L": {
+            "name": "Tiny Stars",
+            "status": "VERIFIED",
+            "notes": "Split targeting with NAMED_MEMBER pattern verified (matches 11 cards)"
+        },
+        "PL!N-bp4-025-L": {
+            "name": "VIVID WORLD",
+            "status": "VERIFIED",
+            "notes": "Color transformation regex verified (matches 2 cards)"
+        },
+        "PL!SP-pb1-026-L": {
+            "name": "未来予報ハレルヤ！",
+            "status": "VERIFIED",
+            "notes": "Distinct name counting parameter verified (matches 8 cards)"
+        },
+        "LL-bp3-001-R＋": {
+            "name": "園田海未&津島善子&天王寺璃奈",
+            "status": "VERIFIED",
+            "notes": "Shuffle sum with specific named targets verified"
+        }
+    }
+}

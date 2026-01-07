@@ -1,0 +1,308 @@
+Setting up game with seed 42...
+Game Start!
+----------------------------------------
+Turn 1 | Phase ACTIVE | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase ENERGY | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase DRAW | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase MAIN | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(6) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 1 | Phase LIVE_SET | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase LIVE_SET | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 1 | Phase PERFORMANCE_P1 | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase PERFORMANCE_P2 | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 1 | Phase LIVE_RESULT | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase ACTIVE | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase ENERGY | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase DRAW | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(5)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(6)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase LIVE_SET | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(6)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 2 | Phase LIVE_SET | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(6)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase PERFORMANCE_P1 | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(6)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 2 | Phase PERFORMANCE_P2 | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(6)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase LIVE_RESULT | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(6)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 3 | Phase ACTIVE | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(6)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 3 | Phase ENERGY | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(6)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 3 | Phase DRAW | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(6)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 3 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(7)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 3 | Phase LIVE_SET | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(7)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 3 | Phase LIVE_SET | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(7)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 3 | Phase PERFORMANCE_P1 | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(7)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 3 | Phase PERFORMANCE_P2 | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(7)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 3 | Phase LIVE_RESULT | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(7)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 4 | Phase ACTIVE | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(7)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 4 | Phase ENERGY | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(7)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 4 | Phase DRAW | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(7)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 4 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(8)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 4 | Phase LIVE_SET | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(8)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 4 | Phase LIVE_SET | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(8)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 4 | Phase PERFORMANCE_P1 | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(8)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 4 | Phase PERFORMANCE_P2 | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(8)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 4 | Phase LIVE_RESULT | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(8)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 5 | Phase ACTIVE | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(8)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 5 | Phase ENERGY | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(8)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 5 | Phase DRAW | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(8)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 5 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(9)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 5 | Phase LIVE_SET | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(9)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 5 | Phase LIVE_SET | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(9)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 5 | Phase PERFORMANCE_P1 | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(9)
+Energy: P0(0/0) - P1(0/0)
+Action: P0 chooses 0
+----------------------------------------
+Turn 5 | Phase PERFORMANCE_P2 | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(9)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 5 | Phase LIVE_RESULT | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(9)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 6 | Phase ACTIVE | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(9)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 6 | Phase ENERGY | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(9)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 6 | Phase DRAW | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(9)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 6 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(7) - P1(10)
+Energy: P0(0/0) - P1(0/0)
+Action: P1 chooses 0
+========================================
+Game Over
+Winner: -1
+Final Score: P0(0) - P1(0)
+Total Steps: 50
+Duration: 0.0446s
