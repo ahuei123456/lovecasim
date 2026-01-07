@@ -227,6 +227,11 @@ class GameState:
         
         # Static caches (for performance and accessibility)
         # Should be set from server or data loader
+        
+        # Loop Detection (Rule 12.1)
+        # Using a simple hash of the serialization for history
+        self.state_history: List[int] = []
+        self.loop_draw = False
     
     def log_rule(self, rule_id: str, description: str):
         """Append a rule application entry to the log."""
@@ -249,6 +254,7 @@ class GameState:
         new.pending_effects = copy.deepcopy(self.pending_effects)
         new.pending_choices = self.pending_choices.copy()
         new.rule_log = self.rule_log.copy()
+        new.state_history = self.state_history.copy()
         return new
     
     @property
@@ -389,9 +395,14 @@ class GameState:
                                     if p.count_untapped_energy() < cost.value:
                                         can_pay = False
                                         break
-                                # Other cost types could be checked here
+                            # Check conditions (Rule 11 / Rule 9.6.2.2)
+                            conditions_met = True
+                            for cond in ab.conditions:
+                                if not self._check_condition(p, cond, context={'area': i}):
+                                    conditions_met = False
+                                    break
                             
-                            if can_pay:
+                            if can_pay and conditions_met:
                                 mask[200 + i] = True
                                 break # Currently only support one activated ability per card for selection simplicity
                                 
@@ -444,7 +455,36 @@ class GameState:
             
         # Rule 9.5.1: Final check timing after action resolution
         new_state._process_rule_checks()
-            
+        
+        # Rule 12.1: Infinite Loop Detection
+        # Skip for Mulligan phases
+        if new_state.phase not in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
+            try:
+                # Capture key state tuple
+                state_tuple = (
+                    new_state.phase,
+                    new_state.current_player,
+                    tuple(sorted(new_state.players[0].hand)),
+                    tuple(new_state.players[0].stage),
+                    tuple(tuple(x) for x in new_state.players[0].stage_energy),
+                    tuple(new_state.players[0].energy_zone),
+                    tuple(sorted(new_state.players[1].hand)),
+                    tuple(new_state.players[1].stage),
+                    tuple(tuple(x) for x in new_state.players[1].stage_energy),
+                    tuple(new_state.players[1].energy_zone),
+                )
+                state_hash = hash(state_tuple)
+                new_state.state_history.append(state_hash)
+                
+                if new_state.state_history.count(state_hash) >= 4:
+                     new_state.log_rule("Rule 12.1", "Infinite Loop detected. Draw.")
+                     new_state.game_over = True
+                     new_state.winner = 2 # Draw
+                     new_state.loop_draw = True
+            except Exception as e:
+                # If hashing fails, just ignore for now to prevent crash
+                pass
+
         return new_state
 
     def _process_rule_checks(self) -> None:
@@ -575,6 +615,12 @@ class GameState:
                  p.stage_energy[0].append(card)
                  print(f"Effect: Placed energy {card} under member")
 
+        elif effect.effect_type == EffectType.MOVE_MEMBER:
+              # Rule 11.9: Move Member
+              # We trigger a choice for moving.
+              self.pending_choices.append(("TARGET_MEMBER_SLOT", {"reason": "position_change", "count": 1}))
+              print("Triggered Position Change choice")
+
         elif effect.effect_type == EffectType.SWAP_ZONE:
              # Success Live <-> Hand
              pass
@@ -606,6 +652,75 @@ class GameState:
         # After resolution, check triggers again?
         pass
     
+    def _check_condition(self, player: PlayerState, cond: Condition, context: Dict[str, Any] = {}) -> bool:
+        """
+        Check if a specific condition (Rule 9.6.2.2/Rule 11) is met.
+        """
+        met = False
+        if cond.type == ConditionType.NONE:
+            met = True
+        elif cond.type == ConditionType.TURN_1:
+            met = (self.turn_number == 1)
+        elif cond.type == ConditionType.IS_CENTER:
+            # Context must provide 'area'
+            met = (context.get('area') == 1) # 1 is Center
+        elif cond.type == ConditionType.HAS_MEMBER:
+            # Check if player stage has specific member
+            name = cond.params.get('name')
+            area = cond.params.get('area') # 'LEFT_STAGE' etc.
+            
+            found = False
+            for i, cid in enumerate(player.stage):
+                if cid >= 0 and cid in self.member_db:
+                    m = self.member_db[cid]
+                    if name in m.name: # Logic: substring match or exact?
+                         # Area check
+                         if area == 'CENTER_STAGE' and i != 1: continue
+                         if area == 'LEFT_STAGE' and i != 0: continue
+                         if area == 'RIGHT_STAGE' and i != 2: continue
+                         found = True
+                         break
+            met = found
+        elif cond.type == ConditionType.COUNT_STAGE:
+            count = 0
+            for cid in player.stage:
+                if cid >= 0: count += 1
+            met = (count >= cond.params.get('min', 0))
+        elif cond.type == ConditionType.LIFE_LEAD:
+            my_life = len(player.success_lives)
+            opp_life = len(self.players[1 - player.player_id].success_lives)
+            met = (my_life > opp_life)
+        # TODO: Implement other condition types (HAS_COLOR, etc)
+        else:
+            met = True # Default lenient for now
+
+        if cond.is_negated:
+            return not met
+        return met
+
+    def _move_member(self, player: PlayerState, from_idx: int, to_idx: int) -> None:
+        """
+        Execute Position Change (Rule 11.9).
+        - Moves member from from_idx to to_idx.
+        - If target has a member, they SWAP (Rule 11.9.2).
+        - Energy moves WITH the member (Rule 4.5.5.3).
+        """
+        if from_idx == to_idx:
+            return
+
+        # Swap logic
+        # 1. Card IDs
+        player.stage[from_idx], player.stage[to_idx] = player.stage[to_idx], player.stage[from_idx]
+        
+        # 2. Energy (Rule 4.5.5.3)
+        player.stage_energy[from_idx], player.stage_energy[to_idx] = player.stage_energy[to_idx], player.stage_energy[from_idx]
+        
+        # 3. Tapped status (preserves state of the MEMBER, so we swap tapped status too)
+        # Rule 4.5.4: Members have orientation. Moving preserves it unless specified.
+        player.tapped_members[from_idx], player.tapped_members[to_idx] = player.tapped_members[to_idx], player.tapped_members[from_idx]
+        
+        self.log_rule("Rule 11.9", f"Position Change: Swapped slot {from_idx} and {to_idx}.")
+
     def _execute_action(self, action: int) -> None:
         """Internal: execute action on this state (mutates self)"""
         p = self.active_player
@@ -689,6 +804,17 @@ class GameState:
         if not ability:
             return
             
+        # Apply Condition Checks (Rule 11)
+        conditions_met = True
+        for cond in ability.conditions:
+             if not self._check_condition(p, cond, context={'area': area}):
+                 conditions_met = False
+                 break
+        
+        if not conditions_met:
+             print(f"Ability of {member.name} failed condition check.")
+             return
+
         # Pay costs (pass area for TAP_SELF/SACRIFICE_SELF)
         if not self._pay_costs(p, ability.costs, source_area=area):
             return
@@ -762,11 +888,40 @@ class GameState:
                     p.discard.append(card_id)
                     print(f"Player {p.player_id} discarded card {card_id} from hand")
                     
-        elif choice_type == "TARGET_MEMBER":
+        elif choice_type == "TARGET_MEMBER" or choice_type == "TARGET_MEMBER_SLOT":
             area = action - 263
             if 0 <= area < 3:
-                # Apply effect to member at area
-                pass
+                # Check target valid?
+                # params might have 'filter', etc.
+                
+                # Logic for Position Change (Rule 11.9)
+                if params.get('reason') == 'position_change':
+                    step = params.get('step', 'source')
+                    if step == 'source':
+                        # Valid source? Must have member?
+                        if p.stage[area] >= 0:
+                            # Push next step: Select Destination
+                            self.pending_choices.insert(0, ("TARGET_MEMBER_SLOT", {
+                                "reason": "position_change", 
+                                "step": "dest", 
+                                "source": area
+                            }))
+                            print(f"Position Change: Selected source area {area}")
+                        else:
+                             # Invalid source, retry?
+                             print("Invalid source for move (empty)")
+                             self.pending_choices.insert(0, (choice_type, params))
+                    elif step == 'dest':
+                        source = params.get('source')
+                        if source is not None and source != area:
+                            self._move_member(p, source, area)
+                        else:
+                            print("Invalid move (same area or missing source)")
+                
+                # Logic for Buffs
+                elif params.get('effect') == 'buff':
+                     # Apply buff to p.stage[area]
+                     pass
 
         elif choice_type == "MODAL":
             option_idx = action - 270
@@ -890,9 +1045,14 @@ class GameState:
             cost = max(0, cost - prev_card.cost)
             is_baton = True
             self.log_rule("Rule 9.6.2.1.1.2", f"Baton Touch applied. Cost reduced from {card.cost} to {cost} by {prev_card.name}.")
-            # Discard previous member (Rule 10.4 handled by overwrite in p.stage)
+            # Discard previous member
             p.discard.append(p.stage[area_idx])
-            # Energy stays (Rule 4.5.5 - implicit in p.stage_energy[area_idx] preservation)
+            
+            # Rule 4.5.5.4: When member leaves stage, energy under it goes to Energy Deck
+            if p.stage_energy[area_idx]:
+                 self.log_rule("Rule 4.5.5.4", f"Energy cards under {prev_card.name} returned to Energy Deck.")
+                 p.energy_deck.extend(p.stage_energy[area_idx])
+                 p.stage_energy[area_idx] = []
         
         # Pay cost (Rule 9.4)
         untapped = [i for i, tapped in enumerate(p.tapped_energy) if not tapped]
