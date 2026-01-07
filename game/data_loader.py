@@ -200,6 +200,7 @@ class CardDataLoader:
             score=score,
             required_hearts=reqs,
             abilities=abilities,
+            group=data.get('series', ''),
             img_path=self._resolve_img_path(data),
             ability_text=raw_ability,
             volume_icons=volume,

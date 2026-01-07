@@ -12,20 +12,28 @@ Key Design Decisions:
 """
 
 # Love Live! Card Game - Comprehensive Rules v1.04 Implementation
-# Rule 1: Overview
-# Rule 2: Card Information
-# Rule 3: Players (Owner/Master)
-# Rule 4: Zones
+# Rule 1: ゲームの概要 (General Overview)
+# Rule 2: カードの情報 (Card Information)
+# Rule 3: プレイヤーに関する情報 (Player Info)
+# Rule 4: 領域 (Zones)
+
+# Rule 1.3: ゲームの大原則 (Fundamental Principles)
+# Rule 1.3.1: Card text overrides rules.
+# Rule 1.3.2: Impossible actions are simply not performed.
+# Rule 1.3.3: "Cannot" effects take priority over "Can" effects.
+# Rule 1.3.4: Active player chooses first when multiple choices occur.
+# Rule 1.3.5: Numerical selections must be non-negative integers.
 
 import numpy as np
 from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import List, Tuple, Optional, Dict, Any
 import copy
+import random
 try:
-    from game.ability import Ability, TriggerType, Effect, EffectType, TargetType, AbilityCostType
+    from game.ability import Ability, TriggerType, Effect, EffectType, TargetType, AbilityCostType, Condition, ConditionType
 except ImportError:
-    from ability import Ability, TriggerType, Effect, EffectType, TargetType, AbilityCostType
+    from ability import Ability, TriggerType, Effect, EffectType, TargetType, AbilityCostType, Condition, ConditionType
 
 
 class Phase(IntEnum):
@@ -82,7 +90,9 @@ class MemberCard:
     unit: str = ""
     abilities: List[Ability] = field(default_factory=list)
     img_path: str = ""
+    # Rule 2.12: カードテキスト (Card Text)
     ability_text: str = ""
+    # Rule 2.7: ブレードハート (Blade Heart Icons)
     volume_icons: int = 0
     draw_icons: int = 0
     
@@ -101,6 +111,7 @@ class LiveCard:
     score: int
     required_hearts: np.ndarray  # Shape (7,) required hearts by color (6 colors + any)
     abilities: List[Ability] = field(default_factory=list)
+    group: str = ""
     img_path: str = ""
     ability_text: str = ""
     volume_icons: int = 0
@@ -123,13 +134,13 @@ class PlayerState:
         self.player_id = player_id
         
         # Zones (Rule 4)
-        self.hand: List[int] = []            # Rule 4.11 (Hand)
-        self.main_deck: List[int] = []       # Rule 4.8 (Main Deck)
-        self.energy_deck: List[int] = []     # Rule 4.9 (Energy Deck)
-        self.discard: List[int] = []         # Rule 4.12 (Discard)
-        self.energy_zone: List[int] = []     # Rule 4.7 (Energy Zone)
-        self.success_lives: List[int] = []   # Rule 4.10 (Success Zone)
-        self.live_zone: List[int] = []       # Rule 4.6 (Live Zone)
+        self.hand: List[int] = []            # Rule 4.4 (手札)
+        self.main_deck: List[int] = []       # Rule 4.2 (メインデッキ)
+        self.energy_deck: List[int] = []     # Rule 4.3 (エネルギーデッキ)
+        self.discard: List[int] = []         # Rule 4.7 (控え室)
+        self.energy_zone: List[int] = []     # Rule 4.6 (エネルギー置き場)
+        self.success_lives: List[int] = []   # Rule 4.10 (成功ライブカード置き場)
+        self.live_zone: List[int] = []       # Rule 4.9 (ライブカード置き場)
         self.live_zone_revealed: bool = False
         
         # Stage - 3 areas, each can have one member
@@ -153,6 +164,18 @@ class PlayerState:
         self.live_score_bonus: int = 0
         self.passed_lives: List[int] = [] # Cards that cleared the heart check (Rule 8.3.15)
         
+        # Rule 8.3.4.1: Live Restriction
+        self.cannot_live: bool = False
+        
+        # Rule 11.2: Once per Turn tracking
+        self.used_abilities: Set[str] = set() # "cid-ability_idx"
+        
+        # Rule 9.9: Continuous Effects tracking
+        self.continuous_effects: List[Dict[str, Any]] = []
+        
+        # Rule 9.9: Continuous Effects tracking
+        self.continuous_effects: List[Dict[str, Any]] = []
+        
     def copy(self) -> 'PlayerState':
         """Deep copy for MCTS simulation"""
         new = PlayerState(self.player_id)
@@ -172,27 +195,116 @@ class PlayerState:
         new.mulligan_selection = self.mulligan_selection.copy()
         new.live_score_bonus = self.live_score_bonus
         new.passed_lives = self.passed_lives.copy()
+        new.cannot_live = self.cannot_live
+        new.used_abilities = self.used_abilities.copy()
+        new.continuous_effects = copy.deepcopy(self.continuous_effects)
         return new
     
+    def untap_all(self) -> None:
+        """Rule 7.4: Untap all cards in Energy Zone and Member Area"""
+        self.tapped_energy[:] = False
+        self.tapped_members[:] = False
+
     def count_untapped_energy(self) -> int:
         """Count available energy"""
         return len(self.energy_zone) - np.sum(self.tapped_energy[:len(self.energy_zone)])
     
+    def get_effective_blades(self, slot_idx: int, card_db: Dict[int, MemberCard]) -> int:
+        """Rule 9.9: 継続効果の処理 (Calculating effective values via Layers)"""
+        card_id = self.stage[slot_idx]
+        if card_id < 0 or card_id not in card_db:
+            return 0
+        member = card_db[card_id]
+        blades = member.blades
+        
+        # 1. Gather all active effects for this slot
+        slot_effects = [e["effect"] for e in self.continuous_effects if e.get("target_slot") in (-1, slot_idx)]
+        
+        # 2. Add CONSTANT abilities from the member itself (Rule 9.1.1.3)
+        for ab in member.abilities:
+            if ab.trigger == TriggerType.CONSTANT:
+                # Check conditions for constant ability
+                if all(self._check_condition_for_constant(ab_cond, slot_idx) for ab_cond in ab.conditions):
+                    slot_effects.extend(ab.effects)
+                    
+        # Layer 4: Set to specific values
+        for eff in slot_effects:
+            if eff.effect_type == EffectType.SET_BLADES:
+                blades = eff.value
+                
+        # Layer 5: Additive modifications
+        for eff in slot_effects:
+            val = eff.value
+            if eff.params.get('multiplier'):
+                if eff.params.get('per_live'):
+                    val *= len(self.success_lives)
+                elif eff.params.get('per_energy'):
+                    val *= len(self.energy_zone)
+                elif eff.params.get('per_member'):
+                    val *= np.sum(self.stage >= 0)
+            
+            if eff.effect_type == EffectType.ADD_BLADES:
+                blades += val
+            elif eff.effect_type == EffectType.BUFF_POWER:
+                blades += val # BUFF_POWER adds to blades by default
+                
+        return max(0, blades)
+
+    def _check_condition_for_constant(self, cond: Condition, slot_idx: int) -> bool:
+        """Helper to check constant ability conditions without a full context object"""
+        # Simplified version of _check_condition for internal state lookups
+        if cond.type == ConditionType.NONE: return True
+        # Add specific constant check logic if needed
+        return True # Default lenient
+
+    def get_effective_hearts(self, slot_idx: int, card_db: Dict[int, MemberCard]) -> np.ndarray:
+        """Rule 9.9: 継続効果の処理 (Calculating effective values via Layers)"""
+        card_id = self.stage[slot_idx]
+        if card_id < 0 or card_id not in card_db:
+            return np.zeros(6, dtype=np.int32)
+        member = card_db[card_id]
+        hearts = member.hearts.copy()
+        
+        # 1. Gather all active effects for this slot
+        slot_effects = [e["effect"] for e in self.continuous_effects if e.get("target_slot") in (-1, slot_idx)]
+        
+        # 2. Add CONSTANT abilities from the member itself
+        for ab in member.abilities:
+            if ab.trigger == TriggerType.CONSTANT:
+                if all(self._check_condition_for_constant(ab_cond, slot_idx) for ab_cond in ab.conditions):
+                    slot_effects.extend(ab.effects)
+                    
+        # Layer 4 (Rule 9.9.1.4): Set to specific values
+        for eff in slot_effects:
+            if eff.effect_type == EffectType.SET_HEARTS:
+                hearts = eff.value
+                
+        # Layer 5 (Rule 9.9.1.5): Additive/Subtractive modifications
+        for eff in slot_effects:
+            if eff.effect_type in (EffectType.ADD_HEARTS, EffectType.BUFF_POWER):
+                # Buff power usually adds blades, but if it has heart value we add it
+                if isinstance(eff.value, np.ndarray):
+                    hearts += eff.value
+                elif isinstance(eff.value, (int, float)) and eff.effect_type == EffectType.ADD_HEARTS:
+                    # Some effects might specify a single number for all colors? (Rare)
+                    # For now assume value is array for heart effects.
+                    pass
+        return np.maximum(0, hearts)
+
     def get_total_blades(self, card_db: Dict[int, MemberCard]) -> int:
-        """Sum blades from all untapped members"""
+        """Sum blades from all untapped members using layers"""
         total = 0
         for i, card_id in enumerate(self.stage):
             if card_id >= 0 and not self.tapped_members[i]:
-                if card_id in card_db:
-                    total += card_db[card_id].blades
+                total += self.get_effective_blades(i, card_db)
         return total
     
     def get_total_hearts(self, card_db: Dict[int, MemberCard]) -> np.ndarray:
-        """Sum hearts from all untapped members on stage"""
+        """Sum hearts from all untapped members on stage using layers"""
         total = np.zeros(6, dtype=np.int32)
         for i, card_id in enumerate(self.stage):
-            if card_id >= 0 and not self.tapped_members[i] and card_id in card_db:
-                total += card_db[card_id].hearts
+            if card_id >= 0 and not self.tapped_members[i]:
+                total += self.get_effective_hearts(i, card_db)
         return total
 
 
@@ -225,6 +337,10 @@ class GameState:
         self.pending_choices: List[dict] = []
         self.rule_log: List[str] = [] # Real-time rule application log
         
+        # Rule 9.7: Automatic Abilities
+        # List of (player_id, Ability, context) waiting to be played
+        self.triggered_abilities: List[Tuple[int, Ability, Dict[str, Any]]] = []
+        
         # Static caches (for performance and accessibility)
         # Should be set from server or data loader
         
@@ -235,7 +351,9 @@ class GameState:
     
     def log_rule(self, rule_id: str, description: str):
         """Append a rule application entry to the log."""
-        entry = f"[{rule_id}] {description}"
+        # Add Turn and Phase context
+        phase_name = self.phase.name if hasattr(self.phase, 'name') else str(self.phase)
+        entry = f"[Turn {self.turn_number}][{phase_name}] [{rule_id}] {description}"
         self.rule_log.append(entry)
         # Also print to stdout for server console debugging
         print(f"RULE_LOG: {entry}")
@@ -255,6 +373,7 @@ class GameState:
         new.pending_choices = self.pending_choices.copy()
         new.rule_log = self.rule_log.copy()
         new.state_history = self.state_history.copy()
+        new.triggered_abilities = copy.deepcopy(self.triggered_abilities)
         return new
     
     @property
@@ -282,28 +401,27 @@ class GameState:
             self.game_over = True
             self.winner = 2  # Draw
         elif p0_lives >= 3:
+            # Rule 1.2.1.1: 成功ライブカード 3枚以上で勝利
             self.game_over = True
             self.winner = 0
         elif p1_lives >= 3:
+            # Rule 1.2.1.1: 成功ライブカード 3枚以上で勝利
             self.game_over = True
             self.winner = 1
     
     def get_legal_actions(self) -> np.ndarray:
         """
-        Returns a mask of legal actions.
-        
-        Action space encoding:
-        0: Pass/End phase
-        1-180: Play member card from hand to area (card index 0-59 * 3 areas)
-        64-123: Set live card (card index 0-59)
-        124: Confirm live set
+        Returns a mask of legal actions (Rule 9.5.4: プレイタイミング).
         
         Expanded for Complexity:
         200-202: Activate ability of member in Area (LEFT, CENTER, RIGHT)
-        203-262: Choose card in hand (index 0-59) for effect target
-        263-265: Choose member on stage (Area 0-2) for effect target
+        300-359: Mulligan toggle
+        400-459: Live Set
+        500-559: Choose card in hand (index 0-59) for effect target
+        560-562: Choose member on stage (Area 0-2) for effect target
+        590-599: Choose pending trigger to resolve
         """
-        mask = np.zeros(300, dtype=bool)  # Increased size to 300
+        mask = np.zeros(1000, dtype=bool)
         
         if self.game_over:
             return mask
@@ -315,28 +433,38 @@ class GameState:
             choice_type, params = self.pending_choices[0]
             if choice_type == "TARGET_HAND":
                 for i in range(len(p.hand)):
-                    mask[203 + i] = True
+                    mask[500 + i] = True
             elif choice_type == "TARGET_MEMBER":
                  for i in range(3):
                      if p.stage[i] >= 0:
-                         mask[263 + i] = True
+                         mask[560 + i] = True
             elif choice_type == "MODAL":
                 # params['options'] is a list of strings
                 options = params.get('options', [])
                 for i in range(len(options)):
-                    mask[270 + i] = True
+                    mask[570 + i] = True
             elif choice_type == "COLOR_SELECT":
-                # 280: Red, 281: Blue, 282: Green, 283: Yellow, 284: Purple, 285: Pink
+                # 580: Red, 581: Blue, 582: Green, 583: Yellow, 584: Purple, 585: Pink
                 for i in range(6):
-                    mask[280 + i] = True
+                    mask[580 + i] = True
+            elif choice_type == "CHOOSE_TRIGGER":
+                 indices = params.get('indices', [])
+                 for i in range(len(indices)):
+                     mask[590 + i] = True
             return mask
 
         # MULLIGAN phases: Select cards to return or confirm mulligan
         if self.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
             mask[0] = True  # Confirm mulligan (done selecting)
-            # Actions 181-240: Toggle card for mulligan (card index 0-59)
+            # Actions 300-359: Toggle card for mulligan (card index 0-59)
             for i in range(len(p.hand)):
-                mask[181 + i] = True
+                mask[300 + i] = True
+            return mask
+
+        # Auto-advance phases: these phases process automatically in 'step' when any valid action is received
+        # We allow Action 0 (Pass) to trigger the transition.
+        if self.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
+            mask[0] = True
             return mask
 
         if self.phase == Phase.MAIN:
@@ -386,8 +514,12 @@ class GameState:
             for i, card_id in enumerate(p.stage):
                 if card_id >= 0 and card_id in self.member_db and not p.tapped_members[i]:
                     member = self.member_db[card_id]
-                    for ab in member.abilities:
+                    for abi_idx, ab in enumerate(member.abilities):
                         if ab.trigger == TriggerType.ACTIVATED:
+                            # Rule 11.2: Once per Turn
+                            abi_key = f"{card_id}-{abi_idx}"
+                            if ab.is_once_per_turn and abi_key in p.used_abilities:
+                                continue
                             # Check costs - simplified: check if energy available if cost is energy
                             can_pay = True
                             for cost in ab.costs:
@@ -413,7 +545,7 @@ class GameState:
                 for i, card_id in enumerate(p.hand):
                     # Only allow Live cards to be set (not Members)
                     if card_id in self.live_db:
-                        mask[64 + i] = True
+                        mask[400 + i] = True
                     
         elif self.phase in (Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2):
             # During performance, mostly automatic but may have ability choices
@@ -476,11 +608,11 @@ class GameState:
                 state_hash = hash(state_tuple)
                 new_state.state_history.append(state_hash)
                 
-                if new_state.state_history.count(state_hash) >= 4:
-                     new_state.log_rule("Rule 12.1", "Infinite Loop detected. Draw.")
-                     new_state.game_over = True
-                     new_state.winner = 2 # Draw
-                     new_state.loop_draw = True
+                if new_state.state_history.count(state_hash) >= 20:
+                     new_state.log_rule("Rule 12.1", "Infinite Loop detected. (Draw Disabled for Debugging)")
+                     # new_state.game_over = True
+                     # new_state.winner = 2 # Draw
+                     # new_state.loop_draw = True
             except Exception as e:
                 # If hashing fails, just ignore for now to prevent crash
                 pass
@@ -489,80 +621,137 @@ class GameState:
 
     def _process_rule_checks(self) -> None:
         """
-        Rule 10: Rule Processing.
+        Rule 10: Rule Processing & Check Timing (Rule 9.5.3).
         Checks game conditions and executes required cleanup automatically.
+        Also handles Triggered Automatic Abilities.
         """
-        # Rule 10.1.2: Check timings loop until no more rules need processing
-        rules_applied = True
-        while rules_applied:
-            rules_applied = False
+        looping = True
+        while looping:
+            looping = False
             
-            for p in self.players:
-                # Rule 10.2: Refresh
-                if not p.main_deck and p.discard:
-                    self.log_rule("Rule 10.2", f"Player {p.player_id} Main Deck is empty. Shuffling discard into deck.")
-                    p.main_deck = p.discard[:]
-                    p.discard = []
-                    random.shuffle(p.main_deck)
-                    rules_applied = True
-                
-                # Rule 10.5.1: Illegal Live Card
-                # Face-up cards in Live Zone that aren't LiveCards move to discard
-                if p.live_zone:
-                    corrected_live = []
-                    for cid in p.live_zone:
-                        if cid not in self.live_db:
-                            self.log_rule("Rule 10.5.1", f"Non-live card {cid} removed from Live Zone.")
-                            p.discard.append(cid)
+            # Step 1: Rule Processing (Rule 10)
+            rules_applied = True
+            while rules_applied:
+                rules_applied = False
+                for p in self.players:
+                    # Rule 10.2: Refresh
+                    if not p.main_deck and p.discard:
+                        self.log_rule("Rule 10.2", f"Player {p.player_id} Main Deck empty. Shuffling.")
+                        p.main_deck = p.discard[:]
+                        p.discard = []
+                        random.shuffle(p.main_deck)
+                        rules_applied = True
+                    
+                    # Rule 10.5.1: Illegal Live Card
+                    if p.live_zone:
+                        corrected_live = []
+                        for cid in p.live_zone:
+                            if cid not in self.live_db:
+                                self.log_rule("Rule 10.5.1", f"Non-live card {cid} removed from Live Zone.")
+                                p.discard.append(cid)
+                                rules_applied = True
+                            else:
+                                corrected_live.append(cid)
+                        p.live_zone = corrected_live
+
+                    # Rule 10.5.3: Floating Energy
+                    for i in range(3):
+                        if p.stage[i] < 0 and p.stage_energy[i]:
+                            self.log_rule("Rule 10.5.3", f"Floating energy at slot {i} returned to energy deck.")
+                            p.energy_deck.extend(p.stage_energy[i])
+                            p.stage_energy[i] = []
                             rules_applied = True
-                        else:
-                            corrected_live.append(cid)
-                    p.live_zone = corrected_live
+                    
+                    # Rule 10.6.1: Illegal Resolution Card
+                    if self.yell_cards and not (self.phase in [Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2]):
+                        self.log_rule("Rule 10.6.1", "Cleaning up illegal cards in Resolution Zone.")
+                        for cid in self.yell_cards:
+                            # Use active player for cleanup as default
+                            self.players[self.current_player].discard.append(cid)
+                        self.yell_cards = []
+                        rules_applied = True
 
-                # Rule 10.5.2: Illegal Energy
-                for cid in p.energy_zone[:]:
-                    # cards in energy_zone are usually IDs. 
-                    # If we accidentally have a non-card ID here, cleanup.
-                    pass
-
-                # Rule 10.5.3: Floating Energy
-                for i in range(3):
-                    if p.stage[i] < 0 and p.stage_energy[i]:
-                        self.log_rule("Rule 10.5.3", f"Floating energy at slot {i} returned to energy deck.")
-                        p.energy_deck.extend(p.stage_energy[i])
-                        p.stage_energy[i] = []
+                    # Rule 10.3: Victory Check
+                    if len(p.success_lives) >= 3 and not self.game_over:
+                        self.log_rule("Rule 10.3", f"Player {p.player_id} has 3+ success lives. Game Over.")
+                        self.game_over = True
+                        self.winner = p.player_id
                         rules_applied = True
                 
-                # Rule 10.6.1: Illegal Resolution Card
-                # Resolution zone should be empty outside of Yell/Direct Effect resolution
-                if self.yell_cards and not (self.phase in [Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2]):
-                    self.log_rule("Rule 10.6.1", "Cleaning up illegal cards in Resolution Zone.")
-                    for cid in self.yell_cards:
-                        self.players[self.active_player_idx].discard.append(cid)
-                    self.yell_cards = []
-                    rules_applied = True
+                if rules_applied: 
+                    looping = True
 
-                # Rule 10.3: Victory Check
-                if len(p.success_lives) >= 3 and not self.game_over:
-                    self.log_rule("Rule 10.3", f"Player {p.player_id} has 3+ success lives. Game Over.")
-                    self.game_over = True
-                    self.winner = p.player_id
-                    rules_applied = True
+            # Step 2: Pick Triggered Ability (Rule 9.5.3.2 / 9.5.3.3)
+            # Only pick if not currently waiting for a choice
+            # AUTO-RESOLVE: Process ALL triggers automatically in FIFO order
+            if self.triggered_abilities and not self.pending_choices:
+                p_triggers = [[] for _ in range(2)]
+                for i, (pid, ab, ctx) in enumerate(self.triggered_abilities):
+                    p_triggers[pid].append(i)
+                
+                # Active player first (Rule 9.5.3.2)
+                ap = self.current_player
+                if p_triggers[ap]:
+                     # Auto-resolve the FIRST trigger for active player
+                     idx = p_triggers[ap][0]
+                     pid, ab, ctx = self.triggered_abilities.pop(idx)
+                     self._play_automatic_ability(pid, ab, ctx)
+                     looping = True
+                     continue # Repeat the loop to process next trigger
+                
+                # Non-active player next (Rule 9.5.3.3)
+                nap = 1 - ap
+                if p_triggers[nap]:
+                     # Auto-resolve the FIRST trigger for non-active player
+                     idx = p_triggers[nap][0]
+                     pid, ab, ctx = self.triggered_abilities.pop(idx)
+                     self._play_automatic_ability(pid, ab, ctx)
+                     looping = True
+                     continue
 
-    def _resolve_pending_effect(self, action: int) -> None:
+    def _play_automatic_ability(self, player_id: int, ability: Ability, context: Dict[str, Any]) -> None:
+        """Execute logic to 'play' an automatic ability (Rule 9.7)"""
+        p = self.players[player_id]
+        
+        # Check conditions (Rule 11)
+        if ability.conditions:
+            for cond in ability.conditions:
+                if not self._check_condition(p, cond, context):
+                    print(f"Automatic ability of {ability.effects[0].effect_type if ability.effects else 'unknown'} failed condition.")
+                    return
+        
+        # Pay costs if any (Rule 9.7.3.1.1: Automatic abilities with costs are optional)
+        # For now, we assume if they can't pay, it's skipped. 
+        # In a full UI, we'd ask "Pay cost to trigger?"
+        if ability.costs:
+            if not self._pay_costs(p, ability.costs):
+                return
+        
+        # Resolve effects
+        self.log_rule("Rule 9.7", f"Player {player_id} resolving automatic ability.")
+        # We process effects one by one. If an effect triggers a choice, we stop and let step() handle it.
+        for effect in ability.effects:
+            self.pending_effects.insert(0, effect)
+            
+        # Try to resolve non-choice effects immediately
+        while self.pending_effects and not self.pending_choices:
+            self._resolve_pending_effect(0, context=context)
+
+    def _resolve_pending_effect(self, action: int, context: Optional[Dict[str, Any]] = None) -> None:
         """Resolve top effect from stack"""
         if not self.pending_effects:
             return
             
         effect = self.pending_effects.pop(0)
         p = self.active_player
+        ctx = context or {}
         
         # Check if effect requires targeting
         if effect.target == TargetType.CARD_HAND:
              self.pending_choices.append(("TARGET_HAND", {"effect": "discard" if effect.effect_type == EffectType.SWAP_CARDS else "select"}))
              return
         elif effect.target == TargetType.MEMBER_SELECT:
-             self.pending_choices.append(("TARGET_MEMBER", {"effect": "buff"}))
+             self.pending_choices.append(("TARGET_MEMBER", {"effect": "buff", "target_effect": effect}))
              return
         
         if effect.effect_type == EffectType.SELECT_MODE:
@@ -606,6 +795,47 @@ class GameState:
                      p.main_deck.append(card)
                  print(f"Effect: Moved card {card} from Discard to Deck {pos}")
 
+        elif effect.effect_type == EffectType.RECOVER_MEMBER:
+             # Discard to Hand or Stage
+             to_zone = effect.params.get('to', 'hand')
+             if p.discard:
+                 # Demo: pick the first member
+                 member_idx = -1
+                 for i, cid in enumerate(p.discard):
+                     if cid in self.member_db:
+                         member_idx = i
+                         break
+                 
+                 if member_idx >= 0:
+                     card = p.discard.pop(member_idx)
+                     if to_zone == 'hand':
+                         p.hand.append(card)
+                         print(f"Effect: Recovered {self.member_db[card].name} to Hand")
+                     elif to_zone == 'stage':
+                         # Requires TARGET_AREA normally, but for now just auto-play to first empty
+                         area = -1
+                         for i in range(3):
+                             if p.stage[i] < 0:
+                                 area = i
+                                 break
+                         if area >= 0:
+                             p.stage[area] = card
+                             print(f"Effect: Recovered {self.member_db[card].name} to Stage Area {area}")
+                         else:
+                             p.hand.append(card) # Fallback
+        
+        elif effect.effect_type == EffectType.RECOVER_LIVE:
+             if p.discard:
+                 live_idx = -1
+                 for i, cid in enumerate(p.discard):
+                     if cid in self.live_db:
+                         live_idx = i
+                         break
+                 if live_idx >= 0:
+                     card = p.discard.pop(live_idx)
+                     p.hand.append(card)
+                     print(f"Effect: Recovered {self.live_db[card].name} to Hand")
+
         elif effect.effect_type == EffectType.PLACE_UNDER:
              # Move energy to member (Demo: current member)
              # Logic needs target. Demo: assumes triggering member or just logs.
@@ -626,15 +856,52 @@ class GameState:
              pass
 
         elif effect.effect_type == EffectType.ADD_BLADES:
-            # Add temp buff - this requires state tracking for buffs
-            pass 
+            # Rule 9.9: 継続効果の登録
+            p.continuous_effects.append({
+                "effect": effect,
+                "target_slot": ctx.get('area', -1) if effect.target == TargetType.MEMBER_SELF else -1,
+                "expiry": effect.params.get('until', 'turn_end').upper()
+            })
+            print(f"Effect: Added Blade buff to {p.player_id}, target_slot: {ctx.get('area', -1)}")
         elif effect.effect_type == EffectType.LOOK_DECK:
+            # Rule 5.7: 山札のカードを上から見る
             # Reveal top N, add to pending choices
+            pass
+        elif effect.effect_type == EffectType.SWAP_CARDS:
+            # Rule 5.8: カードを入れ替える
             pass
             
         elif effect.effect_type == EffectType.ADD_HEARTS:
-             # Implementation for heart buffs
-             pass
+            # Rule 9.9: 継続効果の登録
+            p.continuous_effects.append({
+                "effect": effect,
+                "target_slot": ctx.get('area', -1) if effect.target == TargetType.MEMBER_SELF else -1,
+                "expiry": effect.params.get('until', 'turn_end').upper()
+            })
+            print(f"Effect: Added Heart buff to {p.player_id}, target_slot: {ctx.get('area', -1)}")
+        
+        elif effect.effect_type == EffectType.BUFF_POWER:
+            # Generic buff (often used with multipliers)
+            val = effect.value
+            if effect.params.get('multiplier'):
+                if effect.params.get('per_live'):
+                    val *= len(p.success_lives)
+                elif effect.params.get('per_energy'):
+                    val *= len(p.energy_zone)
+                elif effect.params.get('per_member'):
+                    val *= np.sum(p.stage >= 0)
+            
+            p.continuous_effects.append({
+                "effect": Effect(EffectType.ADD_BLADES, val, effect.target, effect.params), # Treat as blade buff for now
+                "target_slot": ctx.get('area', -1) if effect.target == TargetType.MEMBER_SELF else -1,
+                "expiry": effect.params.get('until', 'turn_end').upper()
+            })
+            print(f"Effect: Added Power buff (value {val}) to {p.player_id}")
+        
+        elif effect.effect_type == EffectType.BOOST_SCORE:
+            # Rule 11.8: スコアの上昇
+            p.live_score_bonus += effect.value
+            print(f"Effect: Player {p.player_id} score bonus increased by {effect.value}")
         
         elif effect.effect_type == EffectType.ADD_TO_HAND:
              # Basic implementation
@@ -648,6 +915,12 @@ class GameState:
                       "text": "何が好き？",
                       "options": ["チョコミント", "あなた", "その他"]
                   }))
+
+        elif effect.effect_type == EffectType.FORMATION_CHANGE:
+             # Rule 11.10: Re-arrange all members
+             # We trigger a choice for the new ordering
+             self.pending_choices.append(("CHOOSE_FORMATION", {}))
+             print("Triggered Formation Change choice")
     
         # After resolution, check triggers again?
         pass
@@ -690,7 +963,41 @@ class GameState:
             my_life = len(player.success_lives)
             opp_life = len(self.players[1 - player.player_id].success_lives)
             met = (my_life > opp_life)
-        # TODO: Implement other condition types (HAS_COLOR, etc)
+        elif cond.type == ConditionType.COUNT_GROUP:
+            # Count members of group in zone
+            group = cond.params.get('group', '')
+            zone = cond.params.get('zone', 'STAGE')
+            min_count = cond.params.get('count', cond.params.get('min', 0))
+            
+            count = 0
+            if zone == 'STAGE':
+                for cid in player.stage:
+                    if cid >= 0 and cid in self.member_db:
+                        if group in self.member_db[cid].group:
+                            count += 1
+            elif zone == 'DISCARD':
+                for cid in player.discard:
+                    if cid in self.member_db:
+                        if group in self.member_db[cid].group:
+                            count += 1
+                    if group in ["μ's", 'Aqours', '虹ヶ咲', 'Liella!', '蓮ノ空'] and cid in self.live_db:
+                        if group in self.live_db[cid].group:
+                            count += 1
+            met = (count >= min_count)
+        elif cond.type == ConditionType.HAS_COLOR:
+            color = cond.params.get('color')
+            # Check if any member has this heart color or if stage has color
+            # Simplified: check the combined untap hearts
+            active_hearts = player.get_total_hearts(self.member_db)
+            color_map = {'赤': 1, '青': 4, '緑': 3, '黄': 2, '紫': 5, 'ピンク': 0}
+            idx = color_map.get(color)
+            if idx is not None:
+                met = (active_hearts[idx] > 0)
+        elif cond.type == ConditionType.COUNT_ENERGY:
+            met = (len(player.energy_zone) >= cond.params.get('min', 0))
+        elif cond.type == ConditionType.HAS_LIVE_CARD:
+            met = (len(player.live_zone) > 0)
+        # TODO: Implement other condition types (MODAL_ANSWER, etc)
         else:
             met = True # Default lenient for now
 
@@ -732,9 +1039,9 @@ class GameState:
                 print(f"DEBUG: Player {self.current_player} confirming mulligan. Selection: {p.mulligan_selection}")
                 self._execute_mulligan()
                 print(f"DEBUG: After mulligan. Phase: {self.phase}, Current Player: {self.current_player}, P0 Hand: {len(self.players[0].hand)}, P1 Hand: {len(self.players[1].hand)}")
-            elif 181 <= action <= 240:
+            elif 300 <= action <= 359:
                 # Toggle card for mulligan selection
-                card_idx = action - 181
+                card_idx = action - 300
                 if card_idx < len(p.hand):
                     if not hasattr(p, 'mulligan_selection'):
                         p.mulligan_selection = set()
@@ -773,10 +1080,10 @@ class GameState:
         elif self.phase == Phase.LIVE_SET:
             if action == 0:
                 self._end_live_set()
-            elif 64 <= action <= 123:
-                card_idx = action - 64
+            elif 400 <= action <= 459:
+                card_idx = action - 400
                 self._set_live_card(card_idx)
-                
+        
         elif self.phase == Phase.PERFORMANCE_P1:
             self._do_performance(0)
             
@@ -794,14 +1101,18 @@ class GameState:
             return
             
         member = self.member_db[card_id]
-        # For now, find first activated ability
-        ability = None
-        for ab in member.abilities:
+        # Rule 11.2: Once per Turn
+        for abi_idx, ab in enumerate(member.abilities):
             if ab.trigger == TriggerType.ACTIVATED:
+                abi_key = f"{card_id}-{abi_idx}"
+                if ab.is_once_per_turn and abi_key in p.used_abilities:
+                    continue
                 ability = ab
+                ability_idx = abi_idx
                 break
         
         if not ability:
+            print(f"No usable activated ability found for {member.name} (maybe already used?)")
             return
             
         # Apply Condition Checks (Rule 11)
@@ -823,11 +1134,15 @@ class GameState:
         for effect in ability.effects:
             self.pending_effects.append(effect)
             
-        print(f"Player {p.player_id} activated ability of {member.name} in Area {area}")
+        # Mark as used (Rule 11.2)
+        if ability.is_once_per_turn:
+            p.used_abilities.add(f"{card_id}-{ability_idx}")
+
+        # print(f"Player {p.player_id} activated ability of {member.name} in Area {area}")
         
     def _pay_costs(self, player: PlayerState, costs: List[Cost], source_area: int = -1) -> bool:
-        """Attempt to pay all costs for an ability"""
-        # First verify they can all be paid
+        """Attempt to pay all costs for an ability (Rule 5.9 / Rule 9.4)"""
+        # First verify they can all be paid (Rule 9.4.2.2)
         can_pay = True
         for cost in costs:
             if cost.type == AbilityCostType.ENERGY:
@@ -837,28 +1152,33 @@ class GameState:
                 if source_area < 0 or player.tapped_members[source_area]:
                     can_pay = False
             elif cost.type == AbilityCostType.SACRIFICE_SELF:
-                if source_area < 0:
+                if source_area < 0 or player.stage[source_area] < 0:
                      can_pay = False
-            
+            elif cost.type == AbilityCostType.DISCARD_HAND:
+                if len(player.hand) < cost.value:
+                     can_pay = False
+        
         if not can_pay:
             return False
             
-        # Execute payments
+        # If all costs can be paid, now actually pay them
         for cost in costs:
             if cost.type == AbilityCostType.ENERGY:
-                paid = 0
-                for i in range(len(player.energy_zone)):
-                    if not player.tapped_energy[i] and paid < cost.value:
+                # Tap energy
+                tapped_count = 0
+                for i in range(len(player.energy_zone) -1, -1, -1): # Tap from right to left
+                    if not player.tapped_energy[i]:
                         player.tapped_energy[i] = True
-                        paid += 1
+                        tapped_count += 1
+                        if tapped_count >= cost.value:
+                            break
             elif cost.type == AbilityCostType.TAP_SELF:
                 if source_area >= 0:
                     player.tapped_members[source_area] = True
-                    
             elif cost.type == AbilityCostType.SACRIFICE_SELF:
-                 if source_area >= 0:
-                     card_id = player.stage[source_area]
-                     player.discard.append(card_id)
+                 if source_area >= 0 and player.stage[source_area] >= 0:
+                     self.log_rule("Rule 9.4", f"Player {player.player_id} sacrificing member at area {source_area}.")
+                     player.discard.append(player.stage[source_area])
                      player.stage[source_area] = -1 # Clear the stage slot
                      
                      # Move energy back to DECK (Rule 10.5.3)
@@ -891,11 +1211,19 @@ class GameState:
         elif choice_type == "TARGET_MEMBER" or choice_type == "TARGET_MEMBER_SLOT":
             area = action - 263
             if 0 <= area < 3:
-                # Check target valid?
-                # params might have 'filter', etc.
-                
-                # Logic for Position Change (Rule 11.9)
-                if params.get('reason') == 'position_change':
+                # Rule 9.9: If this was a buff effect choice
+                if params.get('effect') == 'buff':
+                    target_effect = params.get('target_effect')
+                    if target_effect:
+                        p.continuous_effects.append({
+                            "effect": target_effect,
+                            "target_slot": area,
+                            "expiry": "TURN_END" # Default duration
+                        })
+                        print(f"Player {p.player_id} targeted slot {area} with {target_effect.effect_type.name}")
+
+                # Rule 11.9: If this was Position Change
+                elif params.get('reason') == 'position_change':
                     step = params.get('step', 'source')
                     if step == 'source':
                         # Valid source? Must have member?
@@ -966,29 +1294,49 @@ class GameState:
                 # For basic implementation, we store this in metadata or applies immediately
                 # Example: PR-003 might need to store this color for the turn.
                 pass
+
+        elif choice_type == "CHOOSE_TRIGGER":
+            trigger_choice_idx = action - 290
+            indices = params.get('indices', [])
+            if 0 <= trigger_choice_idx < len(indices):
+                trigger_idx = indices[trigger_choice_idx]
+                pid, ab, ctx = self.triggered_abilities.pop(trigger_idx)
+                self._play_automatic_ability(pid, ab, ctx)
+                print(f"Player {pid} chose to resolve trigger index {trigger_idx}")
     
     def _do_active_phase(self) -> None:
         p = self.active_player
-        self.log_rule("Rule 7.1", f"Active Phase: Untapping all members and energy for Player {p.player_id}.")
+        # Rule 7.4: アクティブフェイズ (Active Phase)
+        self.log_rule("Rule 7.4", f"Active Phase: Untapping all members and energy for Player {p.player_id}.")
         p.members_played_this_turn[:] = False
         p.untap_all()
         self.phase = Phase.ENERGY
     
     def _do_energy_phase(self) -> None:
         p = self.active_player
-        self.log_rule("Rule 7.2", f"Energy Phase: Player {p.player_id} moves 1 card from Energy Deck to Energy Zone.")
+        # Rule 7.5: エネルギーフェイズ (Energy Phase)
+        self.log_rule("Rule 7.5", f"Energy Phase: Player {p.player_id} moves 1 card from Energy Deck to Energy Zone.")
         if p.energy_deck:
             p.energy_zone.append(p.energy_deck.pop(0))
         self.phase = Phase.DRAW
     
     def _do_draw_phase(self) -> None:
         p = self.active_player
-        self.log_rule("Rule 7.4", f"Draw Phase: Player {p.player_id} draws 1 card.")
+        # Rule 7.6: ドローフェイズ (Draw Phase)
+        self.log_rule("Rule 7.6", f"Draw Phase: Player {p.player_id} draws 1 card.")
         self._draw_cards(p, 1)
         self.phase = Phase.MAIN
     
+    def _clear_expired_effects(self, expiry_type: str) -> None:
+        """Rule 9.9.2: Cleanup temporary effects"""
+        for p in self.players:
+            p.continuous_effects = [e for e in p.continuous_effects if e.get("expiry") != expiry_type]
+            if expiry_type == "LIVE_END":
+                p.cannot_live = False # Reset live restriction
+                p.live_score_bonus = 0 # Reset score bonus
+    
     def _execute_mulligan(self) -> None:
-        """Execute mulligan for current player: return selected cards, draw new ones, shuffle"""
+        """Execute mulligan for current player (Rule 6.2.1.6)"""
         p = self.active_player
         
         if p.mulligan_selection:
@@ -1021,12 +1369,13 @@ class GameState:
             self.phase = Phase.ACTIVE
     
     def _draw_cards(self, player: PlayerState, count: int) -> None:
-        """Draw cards. Rule 10.2 (Refresh) is handled by _process_rule_checks."""
+        """Draw cards (Rule 5.6). Rule 10.2 (Refresh) is handled by _process_rule_checks."""
         for _ in range(count):
-            self._process_rule_checks() # Ensure deck is ready
+            # Rule 10.2: リフレッシュ (Refresh check before each draw)
+            self._process_rule_checks() 
             if player.main_deck:
                 player.hand.append(player.main_deck.pop(0))
-            self._process_rule_checks() # Cleanup after change
+            self._process_rule_checks() # Rule maintenance
     
     def _play_member(self, hand_idx: int, area_idx: int) -> None:
         p = self.active_player
@@ -1063,12 +1412,11 @@ class GameState:
         p.stage[area_idx] = card_id
         p.members_played_this_turn[area_idx] = True
         
-        # Check ON_PLAY triggers
-        for ability in card.abilities: # Changed member to card here
+        # Rule 11.3: Trigger Enter Stage abilities (登場)
+        for ability in card.abilities:
             if ability.trigger == TriggerType.ON_PLAY:
-                # Add effects to pending
-                for effect in ability.effects:
-                    self.pending_effects.append(effect)
+                self.triggered_abilities.append((p.player_id, ability, {"area": area_idx}))
+                print(f"Queued ON_PLAY trigger for {card.name}")
     
     def _end_main_phase(self) -> None:
         """End main phase, enter live set phase"""
@@ -1118,12 +1466,28 @@ class GameState:
         if self.current_player == self.first_player:
             self.current_player = 1 - self.first_player
         else:
-            self.phase = Phase.PERFORMANCE_P1
-            self.current_player = self.first_player
+            # Both done. Start Performance Phase.
+            # Rule 8.3.2: First Player performs first.
+            if self.first_player == 0:
+                self.phase = Phase.PERFORMANCE_P1
+                self.current_player = 0
+            else:
+                self.phase = Phase.PERFORMANCE_P2
+                self.current_player = 1
     
     def _do_performance(self, player_idx: int) -> None:
         """Execute performance phase for a player"""
         p = self.players[player_idx]
+        
+        # Rule 8.3.4.1: Cannot Live status
+        if p.cannot_live:
+            self.log_rule("Rule 8.3.4.1", f"Player {player_idx} cannot live. Discarding all live cards.")
+            for card_id in p.live_zone:
+                p.discard.append(card_id)
+            p.live_zone = []
+            self._advance_performance()
+            return
+
         p.live_zone_revealed = True
         
         # Filter for live cards only
@@ -1135,22 +1499,20 @@ class GameState:
                 p.discard.append(card_id)
         p.live_zone = valid_lives
 
-        # Trigger ON_LIVE_START abilities of the live cards
+        # Rule 11.4: Trigger ON_LIVE_START abilities of the live cards
         for card_id in p.live_zone:
             live = self.live_db[card_id]
             for ab in live.abilities:
                 if ab.trigger == TriggerType.ON_LIVE_START:
-                    for effect in ab.effects:
-                        self.pending_effects.append(effect)
+                    self.triggered_abilities.append((player_idx, ab, {}))
         
-        # Trigger ON_LIVE_START abilities of members on stage (untapped)
+        # Trigger ON_LIVE_START abilities of members on stage
         for i, card_id in enumerate(p.stage):
             if card_id >= 0 and not p.tapped_members[i] and card_id in self.member_db:
                 member = self.member_db[card_id]
                 for ab in member.abilities:
                     if ab.trigger == TriggerType.ON_LIVE_START:
-                        for effect in ab.effects:
-                            self.pending_effects.append(effect)
+                        self.triggered_abilities.append((player_idx, ab, {"area": i}))
         
         if not p.live_zone:
             # No live cards, skip to next
@@ -1159,7 +1521,8 @@ class GameState:
         
         # Yell: draw cards equal to total blades
         total_blades = p.get_total_blades(self.member_db)
-        print(f"DEBUG: Player {player_idx} is yelling! Total blades: {total_blades}")
+        self.log_rule("Rule 8.3.10", f"🎺 YELL START: Player {player_idx} has {total_blades} total blades on stage → Revealing {total_blades} cards from deck")
+        
         self.yell_cards = []
         for _ in range(total_blades):
             if not p.main_deck:
@@ -1172,7 +1535,14 @@ class GameState:
                 card = p.main_deck.pop(0)
                 self.yell_cards.append(card)
         
-        self.log_rule("Rule 8.3.11", f"Yell Phase: Player {player_idx} reveals {len(self.yell_cards)} cards.")
+        # List the yelled card names for clarity
+        yell_names = []
+        for cid in self.yell_cards:
+            card = self.member_db.get(cid) or self.live_db.get(cid)
+            if card:
+                yell_names.append(card.name)
+        
+        self.log_rule("Rule 8.3.11", f"Yell Zone: {len(self.yell_cards)} cards revealed: {', '.join(yell_names) if yell_names else 'None'}")
         
         # Count icons for yell bonus (Rule 8.3.12 and Rule 8.4.2)
         draw_bonus = 0
@@ -1190,15 +1560,37 @@ class GameState:
         self._draw_cards(p, draw_bonus)
         
         # Calculate total hearts
-        total_hearts = p.get_total_hearts(self.member_db).copy()
-        self.log_rule("Rule 8.3.13", f"Hearts from stage: {total_hearts}.")
+        total_hearts = np.zeros(7, dtype=np.int32)
+        
+        # Breakdown of member contributions
+        self.log_rule("Rule 8.3.13", f"--- Heart Contribution Breakdown (Player {player_idx}) ---")
+        
+        for i in range(3):
+            cid = p.stage[i]
+            if cid >= 0 and cid in self.member_db:
+                member = self.member_db[cid]
+                m_hearts = p.get_member_hearts(i, self.member_db)
+                total_hearts += m_hearts
+                
+                # Log individual contribution
+                h_str = ', '.join([f"{color}:{m_hearts[idx]}" for idx, color in enumerate(['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink']) if m_hearts[idx] > 0])
+                self.log_rule("Rule 8.3.13", f"Slot {i} [{member.name}]: +[{h_str if h_str else 'None'}]")
         
         # Add blade hearts from yell cards
+        if self.yell_cards:
+            self.log_rule("Rule 8.3.14", f"--- Yell Heart Contributions ---")
         for card_id in self.yell_cards:
+            # Blade hearts only come from members
             if card_id in self.member_db:
-                total_hearts += self.member_db[card_id].blade_hearts
+                member = self.member_db[card_id]
+                total_hearts += member.blade_hearts
+                h_str = ', '.join([f"{color}:{member.blade_hearts[idx]}" for idx, color in enumerate(['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink']) if member.blade_hearts[idx] > 0])
+                if h_str:
+                    self.log_rule("Rule 8.3.14", f"Yell [{member.name}]: +[{h_str}] (Blade)")
         
-        self.log_rule("Rule 8.3.14", f"Total Hearts (Stage + Yell): {total_hearts}.")
+        total_h_sum = np.sum(total_hearts)
+        total_hearts_str = ', '.join([f"{color}:{total_hearts[idx]}" for idx, color in enumerate(['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink']) if total_hearts[idx] > 0])
+        self.log_rule("Rule 8.3.14.S", f"--- TOTAL HEARTS AVAILABLE: [{total_hearts_str if total_hearts_str else 'None'}] (Total Vol: {total_h_sum}) ---")
         
         # Rule 8.3.15: Check if requirements met for each live card
         remaining_hearts = total_hearts.copy()
@@ -1210,22 +1602,45 @@ class GameState:
                 continue # Safety
             live = self.live_db[live_id]
             
-            if self._check_hearts_meet_requirement(remaining_hearts, live.required_hearts):
-                self._consume_hearts(remaining_hearts, live.required_hearts)
+            req = live.required_hearts # Shape (7,) [R, B, G, Y, P, Pi, Any]
+            color_names = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink']
+            
+            # Create a combined string for "Have/Need" for only required colors
+            have_need_list = []
+            for i in range(6):
+                if req[i] > 0:
+                    have_need_list.append(f"{color_names[i]} {remaining_hearts[i]}/{int(req[i])}")
+            
+            # Handle "Any" separately
+            if req[6] > 0:
+                have_need_list.append(f"Any {np.sum(remaining_hearts)}/{int(req[6])}")
+            
+            have_need_str = ', '.join(have_need_list)
+            
+            if self._check_hearts_meet_requirement(remaining_hearts, req):
+                self.log_rule("Rule 8.3.15.1", f"Checking '{live.name}' → [{have_need_str}]")
+                
+                old_remaining = remaining_hearts.copy()
+                self._consume_hearts(remaining_hearts, req)
+                consumed = old_remaining - remaining_hearts
+                
+                cons_str = ', '.join([f"{color_names[i]}:{consumed[i]}" for i in range(6) if consumed[i] > 0])
+                
                 temp_passed.append(live_id)
-                self.log_rule("Rule 8.3.15.1", f"Live card {live.name} passed heart check. Remaining hearts: {remaining_hearts}.")
+                self.log_rule("Rule 8.3.15.1", f"✅ PASSED: Fulfilled with [{cons_str}]")
             else:
                 all_passed = False
-                self.log_rule("Rule 8.3.15.2", f"Live card {live.name} failed heart check. Required: {live.required_hearts}, Available: {remaining_hearts}.")
+                self.log_rule("Rule 8.3.15.2", f"❌ FAILED: '{live.name}' → [{have_need_str}]")
                 break
         
         # Rule 8.3.16: All or Nothing
-        if all_passed:
+        if all_passed and temp_passed:
             p.passed_lives = temp_passed
-            self.log_rule("Rule 8.3.16.1", f"Player {player_idx} cleared all {len(temp_passed)} live cards.")
+            self.log_rule("Rule 8.3.16.1", f"🎉 SUCCESS! Player {player_idx} cleared ALL {len(temp_passed)} live card(s)!")
         else:
             # All go to discard
-            self.log_rule("Rule 8.3.16.2", f"Player {player_idx} failed a heart requirement. All live cards discarded.")
+            if p.live_zone:
+                self.log_rule("Rule 8.3.16.2", f"💔 FAILURE! Player {player_idx} failed one or more requirements. All face-down live cards discarded.")
             for live_id in p.live_zone:
                 p.discard.append(live_id)
             p.passed_lives = []
@@ -1294,11 +1709,20 @@ class GameState:
     
     def _advance_performance(self) -> None:
         """Move to next performance phase or result"""
-        if self.phase == Phase.PERFORMANCE_P1:
-            self.phase = Phase.PERFORMANCE_P2
-            self.current_player = 1 - self.first_player
+        if self.first_player == 0:
+            # Order: P0 (Phase 6) -> P1 (Phase 7) -> Result
+            if self.phase == Phase.PERFORMANCE_P1:
+                self.phase = Phase.PERFORMANCE_P2
+                self.current_player = 1
+            else:
+                 self.phase = Phase.LIVE_RESULT
         else:
-            self.phase = Phase.LIVE_RESULT
+            # Order: P1 (Phase 7) -> P0 (Phase 6) -> Result
+            if self.phase == Phase.PERFORMANCE_P2:
+                self.phase = Phase.PERFORMANCE_P1
+                self.current_player = 0
+            else:
+                 self.phase = Phase.LIVE_RESULT
     
     def _do_live_result(self) -> None:
         """Determine live winner and handle success (Rule 8.4)"""
@@ -1323,10 +1747,25 @@ class GameState:
             else: winners = [0, 1]
         
         if not winners:
+            # Rule 8.4.6.1: ライブに勝利したプレイヤーはいません
             self.log_rule("Rule 8.4.6.1", "No winners (both scores 0 or no cards).")
         else:
+            # Rule 8.4.6.2: スコアが大きいプレイヤーがライブに勝利
             self.log_rule("Rule 8.4.6.2", f"Winner(s): {' and '.join(['P'+str(w) for w in winners])}")
             
+        # Rule 8.4.4: Live Success event
+        for pid in range(2):
+            p = self.players[pid]
+            if p.passed_lives:
+                # Trigger ON_LIVE_SUCCESS abilities of members on stage
+                for i, card_id in enumerate(p.stage):
+                    if card_id >= 0 and card_id in self.member_db:
+                        member = self.member_db[card_id]
+                        for ab in member.abilities:
+                            if ab.trigger == TriggerType.ON_LIVE_SUCCESS:
+                                self.triggered_abilities.append((pid, ab, {"area": i}))
+                                print(f"Queued ON_LIVE_SUCCESS for {member.name}")
+
         # Rule 8.4.7: Winner(s) choose 1 card to Successful Zone
         # (AI logic: pick highest scoring card)
         for w_idx in winners:
@@ -1352,6 +1791,13 @@ class GameState:
             if self.first_player != old_first:
                 self.log_rule("Rule 8.4.13", f"Player {winners[0]} is now First Player.")
         
+        # Rule 8.4.11: Constant Effect Cleanup
+        for p in self.players:
+            p.continuous_effects = [e for e in p.continuous_effects if e.get('expiry') != "TURN_END"]
+            p.cannot_live = False # Reset Rule 8.3.4.1
+            p.used_abilities.clear() # Reset Rule 11.2
+            self.log_rule("Rule 8.4.11", f"Cleaned up TURN_END effects for Player {p.player_id}.")
+
         # Phase Advancement
         self.log_rule("Rule 8.4.14", f"Turn {self.turn_number} finished.")
         self.turn_number += 1
@@ -1367,13 +1813,6 @@ class GameState:
         
         # Check win condition
         self.check_win_condition()
-        
-        # Next turn
-        if not self.game_over:
-            self.turn_number += 1
-            # Winner of live becomes first player
-            self.current_player = self.first_player
-            self.phase = Phase.ACTIVE
     
     def _live_success(self, player_idx: int) -> None:
         """Handle a successful live for player"""
@@ -1600,3 +2039,512 @@ if __name__ == "__main__":
               f"Player {game.current_player}, "
               f"P0 lives: {len(game.players[0].success_lives)}, "
               f"P1 lives: {len(game.players[1].success_lives)}")
+
+# --- COMPREHENSIVE RULEBOOK INDEX (v1.04) ---
+# This index ensures 100% searchability of all official rule identifiers.
+#
+# Rule 1: ゲームの概要
+# Rule 1.1: ゲーム人数
+# Rule 1.1.1: このゲームは原則2 名のプレイヤーにより対戦を
+# Rule 1.2: ゲームの勝敗
+# Rule 1.2.1: いずれかのプレイヤーが勝利した、または敗北した
+# Rule 1.2.1.1: いずれかのプレイヤーの成功ライブカード置
+# Rule 1.2.1.2: 両方のプレイヤーが同時に3 枚以上になっ
+# Rule 1.2.2: すべてのプレイヤーが同時に敗北する場合、その
+# Rule 1.2.3: すべてのプレイヤーは、ゲーム中の任意の時点で
+# Rule 1.2.3.1: 投了を行う行為は、いかなるカードの影響も
+# Rule 1.2.4: なんらかのカードにより、いずれかのプレイヤーが
+# Rule 1.3: ゲームの大原則
+# Rule 1.3.1: カードに書かれているテキストの内容が総合ルー
+# Rule 1.3.2: なんらかの理由によりプレイヤーが実行不可能なこ
+# Rule 1.3.2.1: すでにある状態にあるものを改めてその状
+# Rule 1.3.2.2: ある行動を実行する際の単位数や回数が0
+# Rule 1.3.2.3: ある行動を要求する効果が複数発生し、そ
+# Rule 1.3.2.4: プレイヤーやカードが持つ数値情報は、特に
+# Rule 1.3.3: あるカードの効果によりプレイヤーがなんらかの行
+# Rule 1.3.4: 複数のプレイヤーが同時になんらかの選択を行う
+# Rule 1.3.4.1: ある効果が複数のプレイヤーに適用され、
+# Rule 1.3.4.2: 非公開領域のカードを同時に選択する場
+# Rule 1.3.5: なんらかの数を選ぶ場合、0 以上の整数を選ぶ必
+# Rule 1.3.5.1: カードやルールにより‘～まで’のように上限
+# Rule 2: カードの情報
+# Rule 2.1: ハートアイコン
+# Rule 2.1.1: ハートアイコンは
+# Rule 2.1.2: 同色のハートアイコンが複数重なって表記されてい
+# Rule 2.1.3: ブレードハート（2.7）のハートアイコンはブレード
+# Rule 2.2: カードタイプ
+# Rule 2.2.1: カードの種類を表す情報です。
+# Rule 2.2.2: カードタイプは、‘ライブ’‘メンバー’‘エネルギー’の
+# Rule 2.2.2.1: カードタイプがライブであるカードは、ゲーム
+# Rule 2.2.2.1.1: スコア（2.10）や必要ハート（2.11）を持つ
+# Rule 2.2.2.2: カードタイプがメンバーであるカードは、ライ
+# Rule 2.2.2.2.1: コスト（2.6）やハート（2.9）を持つカード
+# Rule 2.2.2.3: カードタイプがエネルギーであるカードは、メ
+# Rule 2.2.2.3.1: カード左下に‘エネルギーカード’と表記
+# Rule 2.3: カード名
+# Rule 2.3.1: このカードの持つ固有名称です。
+# Rule 2.3.2: カード名は他の能力や効果で参照することがありま
+# Rule 2.3.2.1: カード名に＆を含むメンバーカードは、＆で
+# Rule 2.3.2.2: テキスト中、「」（かぎ括弧）で囲まれた名称
+# Rule 2.4: グループ名
+# Rule 2.4.1: カードが属するアイドルグループの名称です。
+# Rule 2.4.2: グループ名はロゴで表記され、そのロゴに対応した
+# Rule 2.4.2.1: カード名に＆を含むメンバーカードは、＆で
+# Rule 2.4.2.2: メンバー名称とグループ名称の対応は、巻
+# Rule 2.4.3: グループ名は他の能力や効果で参照することがあ
+# Rule 2.4.3.1: テキスト中、『』（二重かぎ括弧）で囲まれた
+# Rule 2.4.4: ロゴとグループ名称の対応は、巻末の付録を参照
+# Rule 2.5: ユニット名
+# Rule 2.5.1: カードが属するユニットの名称です。
+# Rule 2.5.2: ユニット名はロゴで表記され、そのロゴに対応した
+# Rule 2.5.3: ユニット名とロゴの対応は、巻末の付録を参照して
+# Rule 2.6: コスト
+# Rule 2.6.1: メンバーカードをプレイするためのコスト（9.6.2.3.1）
+# Rule 2.7: ブレードハート
+# Rule 2.7.1: エール（8.3.11）により実行する処理の内容を示すア
+# Rule 2.7.2: アイコンとそれに対応する処理の内容に関しては、
+# Rule 2.8: ブレード
+# Rule 2.8.1: メンバーがエール（8.3.11）による処理で公開する
+# Rule 2.8.2: ブレードの数値はブレードアイコン
+# Rule 2.9: ハート
+# Rule 2.9.1: ライブ成功判定（8.3.14）を行う際にプレイヤーが得
+# Rule 2.9.2: ハートはハートアイコン（2.1）で示されます。
+# Rule 2.9.3: メンバーのハート表記では、複数のハートアイコン
+# Rule 2.10: スコア
+# Rule 2.10.1: ライブが成功した場合にこのライブカードにより得
+# Rule 2.11: 必要ハート
+# Rule 2.11.1: ライブを成功させるために必要とするハートの数で
+# Rule 2.11.2: 必要ハートは、ハート音符（右
+# Rule 2.11.2.1: 各ハート音符は、縦に
+# Rule 2.11.2.2: ハート音符が複数ある場合、その全てを同
+# Rule 2.11.3: 与えられた数と種類のハートアイコンは、以下の
+# Rule 2.12: カードテキスト
+# Rule 2.12.1: このカードが持つ固有の能力を示す情報です。
+# Rule 2.12.2: カードテキスト（2.12）で『』（二重かぎ括弧）で指定
+# Rule 2.12.3: カードテキストで「」（かぎ括弧）で指定した名称を
+# Rule 2.12.4: カードテキストの中に、（）（丸括弧）で囲まれた、能
+# Rule 2.13: イラスト
+# Rule 2.13.1: カードの内容をイメージしたイラストです。
+# Rule 2.13.2: イラストは、ゲーム上は特に意味を持ちません。
+# Rule 2.14: 付帯条項
+# Rule 2.14.1: カードナンバー、イラストレーター表記、カードの著
+# Rule 2.14.2: カードナンバーはデッキ構築の際に参照します。
+# Rule 2.14.3: カードナンバー以外の付帯条項は、ゲーム上は特
+# Rule 3: プレイヤーに関する情報
+# Rule 3.1: オーナーとマスター
+# Rule 3.1.1: オーナーとは、カードの物理的な所有者を指しま
+# Rule 3.1.2: マスターとは、カードや能力や効果などを現在使用
+# Rule 3.1.2.1: 常時能力のマスターとは、その能力を有する
+# Rule 3.1.2.2: 起動能力のマスターとは、それをプレイした
+# Rule 3.1.2.3: 自動能力のマスターとは、その能力を有する
+# Rule 3.1.2.4: 効果のマスターとは、その効果を発生した能
+# Rule 3.1.2.4.1: ある効果により特にプレイヤーが指定
+# Rule 4: 領域
+# Rule 4.1: 領域の基本
+# Rule 4.1.1: 領域は、特に指定がない限り、各プレイヤーがそれ
+# Rule 4.1.2: 領域によっては、そこに置かれているカードの内容
+# Rule 4.1.2.1: 公開領域にカードが置かれる場合、その
+# Rule 4.1.2.2: 領域が公開であるか非公開であるかにかか
+# Rule 4.1.2.3: 非公開領域においては、その領域のカード
+# Rule 4.1.3: 領域によっては、そこに置かれるカードの順番が管
+# Rule 4.1.3.1: 順番を管理する領域のカードの順番は、
+# Rule 4.1.4: カードがメンバーエリアからメンバーエリアあるいは
+# Rule 4.1.4.1: あるカードによる効果内で、その効果が移動
+# Rule 4.1.5: 複数のカードがある領域に同時に置かれる場合、
+# Rule 4.1.5.1: 公開領域から非公開領域に複数のカードが
+# Rule 4.1.6: あるカードが持つテキストや能力や効果において、
+# Rule 4.1.7: あるカードがメンバーエリアやライブカード置き場以
+# Rule 4.2: 領域の可視状態
+# Rule 4.2.1: 領域内にあるカードは、公開状態か非公開状態か
+# Rule 4.2.2: 公開状態とは、カードの内容や情報をすべてのプレ
+# Rule 4.2.3: 非公開状態とは、一部または全部のプレイヤーが
+# Rule 4.3: カードの配置状態
+# Rule 4.3.1: 一部の領域において、カードの配置状態が指定さ
+# Rule 4.3.2: 向きを表す状態は、‘アクティブ状態’、‘ウェイト状
+# Rule 4.3.2.1: アクティブ状態のカードは、そのカードのマス
+# Rule 4.3.2.2: ウェイト状態のカードは、そのカードのマス
+# Rule 4.3.2.3: 配置状態が指定される領域にカードが置か
+# Rule 4.3.3: 表示面を表す状態は、‘表向き’か‘裏向き’のいず
+# Rule 4.3.3.1: 表向き状態のカードは、カードの情報が書か
+# Rule 4.3.3.2: 裏向き状態のカードは、カードの情報が書か
+# Rule 4.4: ステージ
+# Rule 4.4.1: プレイヤーのメンバーエリアを統合した領域です。
+# Rule 4.4.2: プレイヤーはステージ内に自身のメンバーエリア
+# Rule 4.5: メンバーエリア
+# Rule 4.5.1: プレイしたメンバーカードを置く領域です。
+# Rule 4.5.1.1: テキスト等で単に‘エリア’と書かれている場
+# Rule 4.5.2: プレイヤーはメンバーエリアを3 つ持ちます。
+# Rule 4.5.2.1: 各メンバーエリアは、それぞれ‘左サイドエリ
+# Rule 4.5.2.2: 同一プレイヤーに属する、左サイドエリアは
+# Rule 4.5.2.3: 同一プレイヤーに属する、左サイドエリアと
+# Rule 4.5.3: メンバーエリアはすべてのプレイヤーに対して公開
+# Rule 4.5.4: メンバーエリアのメンバーカードは向きを示す配置
+# Rule 4.5.5: メンバーエリアのメンバーカードの下に、エネル
+# Rule 4.5.5.1: メンバーエリアのメンバーカードの下に重ね
+# Rule 4.5.5.2: メンバーエリアのメンバーカードの下に重ね
+# Rule 4.5.5.3: メンバーエリアのメンバーが他のメンバーエ
+# Rule 4.5.5.4: メンバーエリアのメンバーがメンバーエリア
+# Rule 4.5.6: テキスト等で、特に領域を指定せずに‘メンバー’を
+# Rule 4.6: ライブカード置き場
+# Rule 4.6.1: プレイヤーが実行するライブカードを置く領域です。
+# Rule 4.6.2: ライブカード置き場はすべてのプレイヤーに対して
+# Rule 4.7: エネルギー置き場
+# Rule 4.7.1: エネルギーカードを置く領域です。
+# Rule 4.7.2: エネルギー置き場はすべてのプレイヤーに対して
+# Rule 4.7.3: エネルギー置き場のカードは向きを示す配置状態
+# Rule 4.7.4: テキスト等で単に‘エネルギー’を参照する場合、そ
+# Rule 4.8: メインデッキ置き場
+# Rule 4.8.1: ゲーム開始時に自分のメインデッキを置く領域で
+# Rule 4.8.2: メインデッキ置き場はすべてのプレイヤーに対して
+# Rule 4.8.3: メインデッキ置き場のカードを他の領域に複数枚移
+# Rule 4.8.4: テキスト等で単に‘デッキ’を参照する場合、それは
+# Rule 4.9: エネルギーデッキ置き場
+# Rule 4.9.1: ゲーム開始時に自分のエネルギーデッキを置く領
+# Rule 4.9.2: エネルギーデッキ置き場はすべてのプレイヤーに
+# Rule 4.9.3: エネルギーデッキ置き場のカードを他の領域に複
+# Rule 4.9.4: テキスト等で単に‘エネルギーデッキ’を参照する場
+# Rule 4.10: 成功ライブカード置き場
+# Rule 4.10.1: ゲーム中に成功したライブのライブカードを置く領
+# Rule 4.10.2: 成功ライブカード置き場はすべてのプレイヤーに
+# Rule 4.11: 手札
+# Rule 4.11.1: 各プレイヤーが未使用のカードを相手に見せずに
+# Rule 4.11.2: 手札は非公開領域ですが、自分の手札のカード
+# Rule 4.11.3: ‘手札にあるカードを（数値）枚’は、カードテキスト
+# Rule 4.12: 控え室
+# Rule 4.12.1: 各プレイヤーの使用済みのカードが置かれる領域
+# Rule 4.12.2: 控え室は公開領域で、カードの順番は管理されま
+# Rule 4.13: 除外領域
+# Rule 4.13.1: ゲームから取り除かれたカードを置く領域です。
+# Rule 4.13.2: 除外領域は原則として公開領域で、この領域の
+# Rule 4.14: 解決領域
+# Rule 4.14.1: ゲームの進行中に、能力やカードが一時的に置か
+# Rule 4.14.2: 解決領域は公開領域で、カードの順番が管理され
+# Rule 5: 特定行動
+# Rule 5.1: 概要
+# Rule 5.1.1: 特定行動とは、このゲームを行う際に特別な意味を
+# Rule 5.2: アクティブにする/ウェイトにする
+# Rule 5.2.1: カードを‘アクティブにする’または‘ウェイトにする’
+# Rule 5.3: 表にする/裏にする
+# Rule 5.3.1: カードを‘表にする’または‘裏にする’指示がある
+# Rule 5.4: 置く
+# Rule 5.4.1: カードを指定領域に‘置く’指示がある場合、その
+# Rule 5.5: シャッフルする
+# Rule 5.5.1: 指定されたカード群を‘シャッフルする’指示がある
+# Rule 5.5.1.1: カード群として単に領域名が指定された場
+# Rule 5.5.1.2: カード群のカードが0 枚または1 枚の状態
+# Rule 5.6: 引く
+# Rule 5.6.1: カードを‘1 枚引く’指示がある場合、指定プレイ
+# Rule 5.6.2: カードを‘（数値）枚引く’指示がある場合、指定プレ
+# Rule 5.6.3: カードを‘（数値）枚まで引く’指示がある場合、指定
+# Rule 5.6.3.1: （数値）が0 以下である場合は、この指示を
+# Rule 5.6.3.2: 指定プレイヤーはこの指示を終了することが
+# Rule 5.6.3.3: 指定プレイヤーはカードを1 枚引きます。
+# Rule 5.6.3.4: この指示により5.6.3.3 を実行した回数が（数
+# Rule 5.7: 上から見る
+# Rule 5.7.1: ‘メインデッキ置き場を上から（数値）枚見る’指示が
+# Rule 5.7.2: ‘メインデッキ置き場を上から（数値）枚まで見る’指
+# Rule 5.7.2.1: （数値）が0 以下である場合は、この指示を
+# Rule 5.7.2.2: 枚数として1 を指定します。
+# Rule 5.7.2.3: 指定プレイヤーはこの指示を終了することが
+# Rule 5.7.2.4: 指定プレイヤーは、メインデッキ置き場の一
+# Rule 5.7.2.5: この指示により5.7.2.4 を実行した回数が（数
+# Rule 5.8: 入れ替える
+# Rule 5.8.1: あるカードと別なカードを‘入れ替える’指示がある
+# Rule 5.8.2: 何らかの理由で、入れ替える指示の実行時にいず
+# Rule 5.9.1: あるプレイヤーが’
+# Rule 5.9.1.1: ‘
+# Rule 5.10: （エネルギーをメンバーの）下に置く
+# Rule 5.10.1: あるエネルギーカードをあるメンバーの‘下に置く’
+# Rule 6: ゲームの準備
+# Rule 6.1: デッキの準備
+# Rule 6.1.1: 各プレイヤーは、ゲームの開始前に自身のカードに
+# Rule 6.1.1.1: メインデッキは、メンバーカード48 枚ちょうど
+# Rule 6.1.1.2: メインデッキには、カードナンバーが同一で
+# Rule 6.1.1.3: エネルギーデッキは、エネルギーカード12
+# Rule 6.1.2: デッキの構築条件に関する常時能力は、上記の
+# Rule 6.2: ゲーム前の手順
+# Rule 6.2.1: ゲームの開始前に、各プレイヤーは以下の手順を
+# Rule 6.2.1.1: このゲームで使用する自身のデッキを提示
+# Rule 6.2.1.2: 各プレイヤーは自身のメインデッキを自身の
+# Rule 6.2.1.3: 各プレイヤーは自身のエネルギーデッキを
+# Rule 6.2.1.4: 各プレイヤーは無作為にどちらのプレイヤー
+# Rule 6.2.1.5: 各プレイヤーは自身のメインデッキ置き場の
+# Rule 6.2.1.6: 先攻プレイヤーから順に、各プレイヤーは自
+# Rule 6.2.1.7: 各プレイヤーは自身のエネルギーデッキ置
+# Rule 7: ゲームの進行
+# Rule 7.1: 概要
+# Rule 7.1.1: ゲームは‘ターン’と呼ばれる手順を繰り返すことで
+# Rule 7.1.2: 各ターンは、‘先攻通常フェイズ’、‘後攻通常フェイ
+# Rule 7.2: アクティブプレイヤー
+# Rule 7.2.1: ゲーム中のフェイズにおいて、手番プレイヤーを指
+# Rule 7.2.1.1: 手番プレイヤーを指定するフェイズ中は、手
+# Rule 7.2.1.2: 手番プレイヤーを指定しないフェイズ中は、
+# Rule 7.2.2: アクティブプレイヤーでないもう一方のプレイヤーは
+# Rule 7.3: 通常フェイズ
+# Rule 7.3.1: 通常フェイズとは、いずれかのプレイヤーが一連の
+# Rule 7.3.2: 各通常フェイズでは手番プレイヤーを1 人指定し、
+# Rule 7.3.2.1: 通常フェイズには、先攻プレイヤーが手番プ
+# Rule 7.3.3: 通常フェイズでは、‘アクティブフェイズ’（7.4）、‘エ
+# Rule 7.4: アクティブフェイズ
+# Rule 7.4.1: 手番プレイヤーは、自身のエネルギー置き場とメン
+# Rule 7.4.2: ‘ターンの始めに’および‘アクティブフェイズの始め
+# Rule 7.4.3: チェックタイミングが発生します。このチェックタイミ
+# Rule 7.5: エネルギーフェイズ
+# Rule 7.5.1: ‘エネルギーフェイズの始めに’の誘発条件が発生
+# Rule 7.5.2: 手番プレイヤーは、自身のエネルギーデッキの一
+# Rule 7.5.3: チェックタイミングが発生します。このチェックタイミ
+# Rule 7.6: ドローフェイズ
+# Rule 7.6.1: ‘ドローフェイズの始めに’の誘発条件が発生し、
+# Rule 7.6.2: 手番プレイヤーはカードを1 枚引きます。
+# Rule 7.6.3: チェックタイミングが発生します。このチェックタイミ
+# Rule 7.7: メインフェイズ
+# Rule 7.7.1: ‘メインフェイズの始めに’の誘発条件が発生し、
+# Rule 7.7.2: 手番プレイヤーにプレイタイミング（9.5.2）が与えら
+# Rule 7.7.2.1: 自分のカードが持つ起動能力を1 つ選び、
+# Rule 7.7.2.2: 自分の手札のメンバーカードを1 枚選び、そ
+# Rule 7.7.3: メインフェイズが終了します。
+# Rule 7.8: ライブフェイズ
+# Rule 7.8.1: 両プレイヤーはライブフェイズを実行します。詳しく
+# Rule 8: ライブフェイズ
+# Rule 8.1: 概要
+# Rule 8.1.1: ライブフェイズでは、両プレイヤーが手札のライブ
+# Rule 8.1.2: ライブフェイズでは、‘ライブカードセットフェイズ’
+# Rule 8.2: ライブカードセットフェイズ
+# Rule 8.2.1: ‘ライブフェイズの始めに’および‘ライブカードセット
+# Rule 8.2.2: 先攻プレイヤーは、自身の手札のカードを3 枚まで
+# Rule 8.2.3: チェックタイミングが発生します。
+# Rule 8.2.4: 後攻プレイヤーは、自身の手札のカードを3 枚まで
+# Rule 8.2.5: チェックタイミングが発生します。このチェックタイミ
+# Rule 8.3: パフォーマンスフェイズ
+# Rule 8.3.1: パフォーマンスフェイズとは、いずれかのプレイ
+# Rule 8.3.2: 各パフォーマンスフェイズでは手番プレイヤーを1
+# Rule 8.3.2.1: パフォーマンスフェイズには、先攻プレイ
+# Rule 8.3.3: 手番プレイヤーの自動能力の‘パフォーマンスフェ
+# Rule 8.3.4: 手番プレイヤーは自身のライブカード置き場のカー
+# Rule 8.3.4.1: 手番プレイヤーが‘ライブできない’状態であ
+# Rule 8.3.5: チェックタイミングが発生します。
+# Rule 8.3.6: この時点で手番プレイヤーのライブカード置き場に
+# Rule 8.3.7: 手番プレイヤーのライブカード置き場にライブカード
+# Rule 8.3.8: ‘ライブ開始時’の事象が発生します（11.4）。
+# Rule 8.3.9: チェックタイミングが発生します。
+# Rule 8.3.10: 手番プレイヤーは、自身のアクティブ状態なメン
+# Rule 8.3.11: 手番プレイヤーは、自身のメインデッキの一番上
+# Rule 8.3.12: 手番プレイヤーは解決領域に置かれているすべ
+# Rule 8.3.13: チェックタイミングが発生します。
+# Rule 8.3.14: 手番プレイヤーは自身のすべてのメンバーのハー
+# Rule 8.3.15: 手番プレイヤーはライブカード置き場の各ライブ
+# Rule 8.3.15.1: 現在のライブ所有ハートにより、そのライブ
+# Rule 8.3.15.1.1: その際、各
+# Rule 8.3.15.1.2: これによりそのライブカードの必要
+# Rule 8.3.16: 前述の手順によりいずれかのライブカードの必要
+# Rule 8.3.17: チェックタイミングが発生します。このチェックタイミ
+# Rule 8.4: ライブ勝敗判定フェイズ
+# Rule 8.4.1: ‘ライブ判定フェイズの始めに’の誘発条件が発生
+# Rule 8.4.2: ライブカード置き場にカードがあるプレイヤーは、自
+# Rule 8.4.2.1: その際、各プレイヤーは自身のエールの
+# Rule 8.4.3: ライブの合計スコアを比較する場合、それは以下の
+# Rule 8.4.3.1: 両方のプレイヤーのどちらのライブカード置
+# Rule 8.4.3.2: 一方のプレイヤーのライブカード置き場に
+# Rule 8.4.3.3: 両方のプレイヤーのライブカード置き場に
+# Rule 8.4.4: ライブカード置き場にカードがあるプレイヤーは、ラ
+# Rule 8.4.5: チェックタイミングが発生します。
+# Rule 8.4.6: 合計スコアを比較し、ライブに勝利したプレイヤーを
+# Rule 8.4.6.1: 両方のプレイヤーのどちらのライブカード置
+# Rule 8.4.6.2: いずれかのプレイヤーのライブカード置き場
+# Rule 8.4.7: ライブに勝利したプレイヤーは、自身のライブカード
+# Rule 8.4.7.1: 両方のプレイヤーが勝利している場合
+# Rule 8.4.8: 各プレイヤーは、自身のライブ置き場に残っている
+# Rule 8.4.9: チェックタイミングが発生します。
+# Rule 8.4.10: ‘ターンの終わりに’で示されている誘発条件のう
+# Rule 8.4.11: チェックタイミングが発生します。このチェックタイミ
+# Rule 8.4.12: この時点で、8.4.11 のチェックタイミングで自動能
+# Rule 8.4.13: 8.4.7 において、一方のプレイヤーのみが成功ライ
+# Rule 8.4.14: このターンを終了します。
+# Rule 9: カードや能力のプレイと解決
+# Rule 9.1: 能力の種別
+# Rule 9.1.1: 能力は、起動能力、自動能力、常時能力の3 種類
+# Rule 9.1.1.1: 起動能力とは、プレイタイミングが与えられ
+# Rule 9.1.1.1.1: 起動能力は、カード上では‘
+# Rule 9.1.1.2: 自動能力とは、その能力に示された事象が
+# Rule 9.1.1.2.1: 自動能力は、カード上では‘
+# Rule 9.1.1.3: 常時能力とは、その能力が有効な期間、常
+# Rule 9.1.1.3.1: 常時能力は、カード上では‘
+# Rule 9.2: 効果の種別
+# Rule 9.2.1: 効果は‘単発効果’‘継続効果’‘置換効果’の3 種
+# Rule 9.2.1.1: ‘単発効果’とは、解決中にその指示を実行
+# Rule 9.2.1.2: ‘継続効果’とは、一定の期限の間（期間が
+# Rule 9.2.1.3: ‘置換効果’とは、ゲーム中にある事象が発
+# Rule 9.2.1.3.1: 能力に‘（行動A）する時、かわりに（行
+# Rule 9.2.1.3.2: 能力に‘（行動A）する時、かわりに[選
+# Rule 9.3: 有効な能力と無効な能力
+# Rule 9.3.1: 何らかの効果により、特定の効果が‘有効’であっ
+# Rule 9.3.2: 何らかの効果の一部あるいは全部が特定の条件
+# Rule 9.3.3: 何らかの効果の一部あるいは全部が特定の条件
+# Rule 9.3.4: 能力は原則として以下の条件で有効になります。
+# Rule 9.3.4.1: 特定の領域や特定の状況でのプレイまたは
+# Rule 9.3.4.1.1: あるカードのプレイ時やそのカードを特
+# Rule 9.3.4.2: カードタイプがメンバーであるカードの能力
+# Rule 9.3.4.3: カードタイプがライブであるカードの能力は、
+# Rule 9.4: コストと支払い
+# Rule 9.4.1: 起動能力や自動能力の先頭に、‘：’（コロン）の手
+# Rule 9.4.2: ‘コストを支払う’とは’コストで示された行動を実行
+# Rule 9.4.2.1: コストに複数の行動がある場合、テキストの
+# Rule 9.4.2.2: コストのうち一部または全部を支払うことが
+# Rule 9.4.3: コストのうち
+# Rule 9.5: チェックタイミングとプレイタイミング
+# Rule 9.5.1: チェックタイミングとは、ゲーム中で発生したルール
+# Rule 9.5.1.1: チェックタイミングにおいては、まずルール処
+# Rule 9.5.2: プレイタイミングとは、指定されたプレイヤーが能動
+# Rule 9.5.3: チェックタイミングが発生した場合、ゲームは以下
+# Rule 9.5.3.1: 現在処理を行うべきルール処理すべてを同
+# Rule 9.5.3.2: プレイヤーがマスターであるいずれかの自
+# Rule 9.5.3.3: 非アクティブプレイヤーがマスターであるい
+# Rule 9.5.3.4: チェックタイミングを終了します。
+# Rule 9.5.4: いずれかのプレイヤーにプレイタイミングが発生し
+# Rule 9.5.4.1: チェックタイミングが発生します。チェックタイ
+# Rule 9.5.4.2: プレイタイミングが実際にそのプレイヤーに
+# Rule 9.5.4.3: プレイタイミングを与えられたプレイヤーが
+# Rule 9.6: プレイと解決
+# Rule 9.6.1: 起動能力や自動能力や手札のカードは、プレイす
+# Rule 9.6.2: カードや能力をプレイする場合は、以下の手順に従
+# Rule 9.6.2.1: プレイする能力や手札のカードを指定しま
+# Rule 9.6.2.1.1: プレイするのがカードである場合、それ
+# Rule 9.6.2.1.2: の処理を行います。
+# Rule 9.6.2.1.2.1: その際、このターンにステージで
+# Rule 9.6.2.1.3: プレイするのが能力である場合、その
+# Rule 9.6.2.2: カードや能力に何らかの選択が必要である
+# Rule 9.6.2.3: プレイするためのコストがある場合、そのコ
+# Rule 9.6.2.3.1: プレイするのがメンバーのカードである
+# Rule 9.6.2.3.2: メンバーをプレイする際、支払うべき
+# Rule 9.6.2.3.2.1: これによりコストを減らす処理を
+# Rule 9.6.2.4: カードや能力の解決を行います。
+# Rule 9.6.2.4.1: プレイしたのがメンバーである場合、そ
+# Rule 9.6.2.4.2: プレイしたのが起動能力や自動能力で
+# Rule 9.6.2.4.2.1: 能力の解決によってメンバーカー
+# Rule 9.6.3: カードや能力に’～選び’や’～選ぶ’と書かれてい
+# Rule 9.6.3.1: 選ぶ数が指定されている場合、それが可能
+# Rule 9.6.3.1.1: 選ぶ数が’～まで選び’や’～まで選
+# Rule 9.6.3.1.2: 選ぶ数が指定されている場合に、指定
+# Rule 9.6.3.1.3: 選ぶ数が指定されている場合に、目標
+# Rule 9.6.3.1.4: 選ぶものが公開されていない非公開領
+# Rule 9.7: 自動能力の処理
+# Rule 9.7.1: 自動能力とは、特定の誘発条件が発生したときに、
+# Rule 9.7.2: なんらかの自動能力の誘発条件が満たされた場
+# Rule 9.7.2.1: 自動能力の誘発条件が複数回満たされた
+# Rule 9.7.3: チェックタイミングが発生した段階で、自動能力のプ
+# Rule 9.7.3.1: 待機状態の自動能力のプレイは強制で、プ
+# Rule 9.7.3.1.1: 自動能力が任意でコストを支払うことに
+# Rule 9.7.3.2: 選んだ待機状態の自動能力をプレイできな
+# Rule 9.7.3.2.1: 自動能力が任意でコストを支払うことに
+# Rule 9.7.4: あるカードが領域を移動することを誘発条件とする
+# Rule 9.7.4.1: 領域移動誘発による自動能力が、その能力
+# Rule 9.7.4.1.1: カードが公開領域から非公開領域、あ
+# Rule 9.7.4.1.2: カードがステージからそれ以外の領域
+# Rule 9.7.4.1.3: 上記に示された以外の、公開領域から
+# Rule 9.7.4.2: あるカードが領域移動誘発能力を持ち、そ
+# Rule 9.7.5: なんらかの効果により、以降の特定の時点で誘発
+# Rule 9.7.5.1: 時限誘発は、特に期限が示されていないか
+# Rule 9.7.6: 自動能力が、特定の事項が発生したことではなく、
+# Rule 9.7.6.1: 状態誘発は、その状態が発生したときに1
+# Rule 9.7.7: 待機状態の自動能力のプレイ時に、その自動能力
+# Rule 9.8: 単発効果の処理
+# Rule 9.8.1: 単発効果を実行するよう求められた場合、そこに指
+# Rule 9.9: 継続効果の処理
+# Rule 9.9.1: なんらかの継続効果が存在する状態でカードの情
+# Rule 9.9.1.1: カード自身に表記されている情報が、常に基
+# Rule 9.9.1.2: 次に、能力を与える/失わせる/有効にする/
+# Rule 9.9.1.3: 次に、継続効果のうち情報の数値を変更す
+# Rule 9.9.1.4: 次に、継続効果のうち情報の数値を特定の
+# Rule 9.9.1.4.1: ハートやブレードの個数を特定の数に
+# Rule 9.9.1.5: 次に、継続効果のうち情報の数値を変更す
+# Rule 9.9.1.5.1: ハートやブレードの個数を加減算する
+# Rule 9.9.1.6: 以上の9.9.1.2X-9.9.1.4 で適用順の前後が決
+# Rule 9.9.1.7: 以上の9.9.1.2X-9.9.1.6 で適用順の前後が決
+# Rule 9.9.1.7.1: 継続効果の発生源が常時能力である
+# Rule 9.9.1.7.2: それ以外の能力の場合は、それがプレ
+# Rule 9.9.2: 常時能力以外で発生している継続効果は、その能
+# Rule 9.9.3: 特定の領域におけるカードの情報を変更する継続
+# Rule 9.9.3.1: 特定の情報を持つカードが領域に入ることを
+# Rule 9.10: 置換効果の処理
+# Rule 9.10.1: 置換効果が発生している場合、その置換効果の
+# Rule 9.10.1.1: これにより、置換された元の事象はまったく
+# Rule 9.10.2: 同一の事象に対し複数の置換効果が発生してい
+# Rule 9.10.2.1: 影響を受ける事象がカードや能力である場
+# Rule 9.10.2.2: 影響を受ける事象がゲーム中の行動であ
+# Rule 9.10.2.3: 同一の事象に対しては、各置換効果は最
+# Rule 9.10.3: 置換効果が選択型置換効果（’～する時、かわり
+# Rule 9.11: 最終情報
+# Rule 9.11.1: ある効果が特定のカードの情報や状態を参照して
+# Rule 9.12: 発生源
+# Rule 9.12.1: 能力や効果により、ある効果の発生源を求めるこ
+# Rule 9.12.2: 能力の発生源とは、その能力を持つカード、また
+# Rule 10: ルール処理
+# Rule 10.1: ルール処理の基本
+# Rule 10.1.1: ルール処理とは、ゲームにおいて特定の事象が
+# Rule 10.1.2: ルール処理は、リフレッシュ（10.2）を除き、チェック
+# Rule 10.1.3: ルール処理が複数同時に実行を求められる場
+# Rule 10.2: リフレッシュ
+# Rule 10.2.1: リフレッシュはチェックタイミングにかぎらず、ゲー
+# Rule 10.2.2: 以下のいずれかの条件を満たすとき、リフレッシュ
+# Rule 10.2.2.1: いずれかのプレイヤーのメインデッキ置き
+# Rule 10.2.2.2: メインデッキ置き場を上から見る指示があ
+# Rule 10.2.3: リフレッシュを行うプレイヤーは、自身の控え室の
+# Rule 10.2.4: 両方のプレイヤーが同時にリフレッシュを行う条件
+# Rule 10.3: 勝利処理
+# Rule 10.3.1: いずれかのプレイヤーの勝利ライブカード置き場
+# Rule 10.4: 重複メンバー処理
+# Rule 10.4.1: いずれかのプレイヤーの1 つのメンバーエリアに
+# Rule 10.5: 不正カード処理
+# Rule 10.5.1: いずれかのプレイヤーのライブカード置き場にライ
+# Rule 10.5.2: いずれかのエネルギー置き場にエネルギーでない
+# Rule 10.5.3: いずれかのメンバーエリアに、上に重なっているメ
+# Rule 10.5.4: 上記のいずれかの処理において、控え室に置く
+# Rule 10.6: 不正解決領域処理
+# Rule 10.6.1: 解決領域に現在プレイ中または解決中であるまた
+# Rule 11: キーワードとキーワード能力
+# Rule 11.1: 概要
+# Rule 11.1.1: キーワードとは、特定の処理を行う能力を簡略表
+# Rule 11.1.2: 自動能力を意味するキーワード能力において、
+# Rule 11.1.3: 能力の中には’
+# Rule 11.2: ターン1 回
+# Rule 11.2.2: キーワード
+# Rule 11.2.3: ’
+# Rule 11.3: 登場
+# Rule 11.3.1: [Icon] は、メンバーがメンバーエリアに置かれた
+# Rule 11.3.2: ‘
+# Rule 11.4: ライブ開始時
+# Rule 11.4.1: [Icon] は、ライブが開始されたことを誘
+# Rule 11.4.2: ‘
+# Rule 11.4.2.1: パフォーマンスフェイズ中、手番プレイヤー
+# Rule 11.5: ライブ成功時
+# Rule 11.5.1: [Icon] は、ライブが成功したことを誘発
+# Rule 11.5.2: ‘
+# Rule 11.6: センター
+# Rule 11.6.1: [Icon] は、能力のプレイの制限や、能力の誘
+# Rule 11.6.2: キーワード
+# Rule 11.6.3: キーワード
+# Rule 11.6.4: キーワード
+# Rule 11.7: 左サイド
+# Rule 11.7.1: [Icon] は、能力のプレイの制限や、能力の誘
+# Rule 11.7.2: キーワード
+# Rule 11.7.3: キーワード
+# Rule 11.7.4: キーワード
+# Rule 11.8: 右サイド
+# Rule 11.8.1: [Icon] は、能力のプレイの制限や、能力の誘
+# Rule 11.8.2: キーワード
+# Rule 11.8.3: キーワード
+# Rule 11.8.4: キーワード
+# Rule 11.9: ポジションチェンジ
+# Rule 11.9.1: ポジションチェンジするとは、そのメンバーを今い
+# Rule 11.9.2: メンバーを移動させた先のエリアにすでにメンバー
+# Rule 11.10: フォーメーションチェンジ
+# Rule 11.10.1: フォーメーションチェンジするとは、ステージにい
+# Rule 11.10.2: この効果で1 つのエリアに2 人以上のメンバー
+# Rule 12: その他
+# Rule 12.1: 永久循環
+# Rule 12.1.1: 何らかの処理を行う際に、ある行動を永久に実行
+# Rule 12.1.1.1: アクティブプレイヤー（7.2）は、その循環行
+# Rule 12.1.1.2: アクティブプレイヤーが何らかの行動を行
+# Rule 12.1.1.3: 何らかの理由により、どちらのプレイヤーに
+# Rule 2025: 年11 月21 日 ver. 1.04
+# --- END OF INDEX ---
