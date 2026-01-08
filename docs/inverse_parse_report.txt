@@ -1,0 +1,226 @@
+======================================================================
+INVERSE PARSING VALIDATION REPORT
+Total Cards: 1329
+Cards with Semantic Gaps: 198
+======================================================================
+
+GAP SUMMARY (sorted by frequency):
+  opponent: 51 cards
+  member: 42 cards
+  heart: 41 cards
+  blade: 22 cards
+  live: 20 cards
+  score: 18 cards
+  discard: 12 cards
+  center: 12 cards
+  energy: 9 cards
+  reveal: 7 cards
+  hand: 6 cards
+  deck: 6 cards
+  card count: 3 cards
+
+======================================================================
+DETAILED GAPS (First 30):
+
+[PL!-sd1-009-SD] 矢澤 にこ
+  Original: {{live_start.png|ライブ開始時}}自分の控え室に『μ's』のカードが25枚以上ある場合、ライブ終了時まで、「{{jyouji.png|常時}}ライブの合計スコアを＋１する。」を得る。
+  Parsed:   [Constant] if μ's count >= 25 → Buff member power/blade by 1 (until live/turn end) (during live) → Boost score by 1 for live
+  Gaps:
+    - Missing 'discard' (pattern: 控え室)
+
+[PL!-sd1-022-SD] 僕らは今のなかで
+  Original: {{live_start.png|ライブ開始時}}自分の成功ライブカード置き場にあるカード1枚につき、このカードを成功させるための必要ハートは{{heart_00.png|heart0}}{{heart_00.png|heart0}}少なくなる。
+  Parsed:   [Live Start] → Buff member power/blade by 1 (until live/turn end)
+  Gaps:
+    - Missing 'heart' (pattern: ハート)
+
+[PL!HS-PR-020-PR] 徒町 小鈴
+  Original: {{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：自分の控え室にあるメンバーカード2枚を好きな順番でデッキの一番上に置く。
+  Parsed:   [Live Start] → (Optional) Send 2 card(s) to discard from deck → (Optional) Reorder 1 Live card(s) in deck (top)
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!HS-PR-022-PR] 桂城 泉
+  Original: {{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：自分の控え室にあるメンバーカード2枚を好きな順番でデッキの一番上に置く。
+  Parsed:   [Live Start] → (Optional) Send 2 card(s) to discard from deck → (Optional) Reorder 1 Live card(s) in deck (top)
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!SP-bp1-026-L] 未来予報ハレルヤ！
+  Original: {{live_start.png|ライブ開始時}}自分の、ステージと控え室に名前の異なる『Liella!』のメンバーが5人以上いる場合、このカードを使用するためのコストは{{heart_02.png|heart02}}{{heart_02.png|heart02}}{{heart_03.png|he...
+  Parsed:   [Live Start] if Liella! count >= 5 → [Rule clarification for heart/blade requirements]
+  Gaps:
+    - Missing 'discard' (pattern: 控え室)
+    - Missing 'member' (pattern: メンバー)
+
+[PL!HS-bp1-006-R＋] 藤島 慈
+  Original: {{toujyou.png|登場}}カードを2枚引き、手札を1枚控え室に置く。
+{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：自分のステージにほかのメンバーがいる場合、好きなハートの色を1つ指定する。ライブ終了時まで、そのハートを1つ得る。
+  Parsed:   [On Play] Cost: Discard 1 card(s) from hand → Draw 2 card(s) from deck to hand → Send 2 card(s) to discard from hand | [Live Start] Cost: Discard 1 ca...
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!HS-bp1-006-P] 藤島 慈
+  Original: {{toujyou.png|登場}}カードを2枚引き、手札を1枚控え室に置く。
+{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：自分のステージにほかのメンバーがいる場合、好きなハートの色を1つ指定する。ライブ終了時まで、そのハートを1つ得る。
+  Parsed:   [On Play] Cost: Discard 1 card(s) from hand → Draw 2 card(s) from deck to hand → Send 2 card(s) to discard from hand | [Live Start] Cost: Discard 1 ca...
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!HS-bp1-006-P＋] 藤島 慈
+  Original: {{toujyou.png|登場}}カードを2枚引き、手札を1枚控え室に置く。
+{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：自分のステージにほかのメンバーがいる場合、好きなハートの色を1つ指定する。ライブ終了時まで、そのハートを1つ得る。
+  Parsed:   [On Play] Cost: Discard 1 card(s) from hand → Draw 2 card(s) from deck to hand → Send 2 card(s) to discard from hand | [Live Start] Cost: Discard 1 ca...
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!HS-bp1-006-SEC] 藤島 慈
+  Original: {{toujyou.png|登場}}カードを2枚引き、手札を1枚控え室に置く。
+{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：自分のステージにほかのメンバーがいる場合、好きなハートの色を1つ指定する。ライブ終了時まで、そのハートを1つ得る。
+  Parsed:   [On Play] Cost: Discard 1 card(s) from hand → Draw 2 card(s) from deck to hand → Send 2 card(s) to discard from hand | [Live Start] Cost: Discard 1 ca...
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!HS-bp1-019-L] Dream Believers
+  Original: (エールで出た{{icon_score.png|スコア}}1つにつき、成功したライブのスコアの合計に1を加算する。)
+  Parsed:   [Constant] → [Rule clarification for score]
+  Gaps:
+    - Missing 'live' (pattern: ライブ)
+
+[PL!HS-bp1-022-L] AWOKE
+  Original: {{live_success.png|ライブ成功時}}エールにより公開された自分のカードの中に『蓮ノ空』のメンバーカードが10枚以上ある場合、このカードのスコアを＋１する。
+
+(エールをすべて行った後、エールで出た{{icon_draw.png|ドロー}}1つにつき、カードを1枚引く。)
+  Parsed:   [Live Success] if 蓮ノ空 count >= 10 → Process cheer-revealed cards for live → Boost score by 1 for live → Draw 1 card(s) from deck to hand
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!HS-bp1-023-L] ド！ド！ド！
+  Original: {{live_success.png|ライブ成功時}}ライブの合計スコアが相手より高く、かつ自分のステージに『蓮ノ空』のメンバーがいる場合、自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く。
+
+(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード...
+  Parsed:   [Live Success] for 蓮ノ空 members if opponent has → Add 1 card(s) to energy zone from deck → Tap 1 opponent's member(s) on stage → Tap 1 opponent's membe...
+  Gaps:
+    - Missing 'score' (pattern: スコア)
+
+[PL!N-sd1-025-SD] Colorful Dreams! Colorful Smiles!
+  Original: (エールで出た{{icon_score.png|スコア}}1つにつき、成功したライブのスコアの合計に1を加算する。)
+  Parsed:   [Constant] → [Rule clarification for score]
+  Gaps:
+    - Missing 'live' (pattern: ライブ)
+
+[PL!N-sd1-028-SD] Dream with You
+  Original: {{live_start.png|ライブ開始時}}自分のステージにいるメンバーが持つ{{icon_blade.png|ブレード}}の合計が10以上の場合、このカードのスコアを＋１する。
+
+(エールをすべて行った後、エールで出た{{icon_draw.png|ドロー}}1つにつき、カードを1枚引く。)
+  Parsed:   [Live Start] → Boost score by 1 for live → Draw 1 card(s) from deck to hand
+  Gaps:
+    - Missing 'blade' (pattern: ブレード)
+    - Missing 'member' (pattern: メンバー)
+
+[PL!SP-sd1-001-SD] 澁谷かのん
+  Original: {{toujyou.png|登場}}自分のエネルギー6枚につき、カードを1枚引く。
+  Parsed:   [On Play] → Draw 6 card(s) from deck to hand
+  Gaps:
+    - Missing 'energy' (pattern: エネルギー)
+
+[PL!SP-sd1-002-SD] 唐 可可
+  Original: {{toujyou.png|登場}}手札からコスト4以下の『Liella!』のメンバーカードを1枚ステージに登場させてもよい。
+（この効果で既にメンバーがいるエリアにも登場できる。ただし、このターンにステージに登場したメンバーがいるエリアには登場できない。）
+  Parsed:   [On Play] for Liella! members | [On Play] | [On Play]
+  Gaps:
+    - Missing 'card count' (pattern: \d+枚)
+    - Missing 'hand' (pattern: 手札)
+
+[PL!SP-sd1-023-SD] WE WILL!!
+  Original: (エールで出た{{icon_score.png|スコア}}1つにつき、成功したライブのスコアの合計に1を加算する。)
+  Parsed:   [Constant] → [Rule clarification for score]
+  Gaps:
+    - Missing 'live' (pattern: ライブ)
+
+[PL!SP-pb1-003-R] 嵐 千砂都
+  Original: {{toujyou.png|登場}}自分のステージにいるメンバーが『5yncri5e!』のみの場合、自分と対戦相手は、センターエリアのメンバーを左サイドエリアに、左サイドエリアのメンバーを右サイドエリアに、右サイドエリアのメンバーをセンターエリアに、それぞれ移動させる。
+  Parsed:   [On Play] for 5yncri5e! members if positioned in center → Move member to different zone
+  Gaps:
+    - Missing 'opponent' (pattern: 相手)
+
+[PL!SP-pb1-003-P＋] 嵐 千砂都
+  Original: {{toujyou.png|登場}}自分のステージにいるメンバーが『5yncri5e!』のみの場合、自分と対戦相手は、センターエリアのメンバーを左サイドエリアに、左サイドエリアのメンバーを右サイドエリアに、右サイドエリアのメンバーをセンターエリアに、それぞれ移動させる。
+  Parsed:   [On Play] for 5yncri5e! members if positioned in center → Move member to different zone
+  Gaps:
+    - Missing 'opponent' (pattern: 相手)
+
+[PL!SP-pb1-006-R] 桜小路きな子
+  Original: {{jidou.png|自動}}このメンバーが登場か、エリアを移動するたび、ライブ終了時まで、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。
+(対戦相手のカードの効果でも発動する。)
+  Parsed:   [On Play] → Gain 1 Blade(s) for member (during live) → Move member to different zone (during live)
+  Gaps:
+    - Missing 'opponent' (pattern: 相手)
+
+[PL!SP-pb1-006-P＋] 桜小路きな子
+  Original: {{jidou.png|自動}}このメンバーが登場か、エリアを移動するたび、ライブ終了時まで、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。
+(対戦相手のカードの効果でも発動する。)
+  Parsed:   [On Play] → Gain 1 Blade(s) for member (during live) → Move member to different zone (during live)
+  Gaps:
+    - Missing 'opponent' (pattern: 相手)
+
+[PL!SP-pb1-020-N] 鬼塚夏美
+  Original: {{jidou.png|自動}}このメンバーがエリアを移動するたび、カードを1枚引く。
+(対戦相手のカードの効果でも発動する。)
+  Parsed:   [When Leaves] → Draw 1 card(s) from deck to hand → Move member to different zone
+  Gaps:
+    - Missing 'opponent' (pattern: 相手)
+
+[PL!SP-pb1-023-L] ディストーション
+  Original: {{live_start.png|ライブ開始時}}自分のステージに名前の異なる『CatChu!』のメンバーが2人以上いる場合、エネルギーを6枚までアクティブにする。その後、自分のエネルギーがすべてアクティブ状態の場合、このカードのスコアを＋１する。
+  Parsed:   [Live Start] if CatChu! count >= 2 → Activate 6 energy | [Activated] → Boost score by 1 for live
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!SP-pb1-024-L] ニュートラル
+  Original: {{live_start.png|ライブ開始時}}自分のステージに名前の異なる『KALEIDOSCORE』のメンバーが2人以上いる場合、このカードのスコアを＋１する。
+  Parsed:   [Live Start] if KALEIDOSCORE count >= 2 → Boost score by 1 for live
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!SP-pb1-025-L] Jellyfish
+  Original: {{live_start.png|ライブ開始時}}自分のステージにいる、このターン中に登場、またはエリアを移動した『5yncri5e!』のメンバー1人につき、このカードを成功させるための必要ハートを{{heart_00.png|heart0}}減らす。
+  Parsed:   [On Play] for 5yncri5e! members → Buff member power/blade by 1 (until live/turn end) → Move member to different zone
+  Gaps:
+    - Missing 'heart' (pattern: ハート)
+
+[PL!S-bp2-004-R] 黒澤ダイヤ
+  Original: {{jidou.png|自動}}［ターン1回］エールにより公開された自分のカードの中にライブカードがないとき、それらのカードをすべて控え室に置いてもよい。これにより1枚以上のカードが控え室に置かれた場合、そのエールで得たブレードハートを失い、もう一度エールを行う。
+  Parsed:   [When Leaves] if once per turn → (Optional) Process cheer-revealed cards for live → (Optional) Send 1 card(s) to discard from zone | [Activated] if di...
+  Gaps:
+    - Missing 'blade' (pattern: ブレード)
+    - Missing 'heart' (pattern: ハート)
+
+[PL!S-bp2-004-P] 黒澤ダイヤ
+  Original: {{jidou.png|自動}}［ターン1回］エールにより公開された自分のカードの中にライブカードがないとき、それらのカードをすべて控え室に置いてもよい。これにより1枚以上のカードが控え室に置かれた場合、そのエールで得たブレードハートを失い、もう一度エールを行う。
+  Parsed:   [When Leaves] if once per turn → (Optional) Process cheer-revealed cards for live → (Optional) Send 1 card(s) to discard from zone | [Activated] if di...
+  Gaps:
+    - Missing 'blade' (pattern: ブレード)
+    - Missing 'heart' (pattern: ハート)
+
+[PL!S-bp2-008-R＋] 小原鞠莉
+  Original: {{toujyou.png|登場}}自分の控え室からライブカードを1枚までデッキの一番下に置く。
+{{jyouji.png|常時}}自分のステージのエリアすべてに『Aqours』のメンバーが登場しており、かつ名前が異なる場合、「{{live_success.png|ライブ成功時}}エールにより公開さ...
+  Parsed:   [On Play] → Send 1 card(s) to discard from deck → Move 1 card(s) to deck (bottom) | [On Play] if Aqours count >= 1 → Process cheer-revealed cards for ...
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!S-bp2-008-P] 小原鞠莉
+  Original: {{toujyou.png|登場}}自分の控え室からライブカードを1枚までデッキの一番下に置く。
+{{jyouji.png|常時}}自分のステージのエリアすべてに『Aqours』のメンバーが登場しており、かつ名前が異なる場合、「{{live_success.png|ライブ成功時}}エールにより公開さ...
+  Parsed:   [On Play] → Send 1 card(s) to discard from deck → Move 1 card(s) to deck (bottom) | [On Play] if Aqours count >= 1 → Process cheer-revealed cards for ...
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+
+[PL!S-bp2-008-P＋] 小原鞠莉
+  Original: {{toujyou.png|登場}}自分の控え室からライブカードを1枚までデッキの一番下に置く。
+{{jyouji.png|常時}}自分のステージのエリアすべてに『Aqours』のメンバーが登場しており、かつ名前が異なる場合、「{{live_success.png|ライブ成功時}}エールにより公開さ...
+  Parsed:   [On Play] → Send 1 card(s) to discard from deck → Move 1 card(s) to deck (bottom) | [On Play] if Aqours count >= 1 → Process cheer-revealed cards for ...
+  Gaps:
+    - Missing 'member' (pattern: メンバー)
+

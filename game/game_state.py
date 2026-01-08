@@ -139,7 +139,7 @@ class MemberCard:
     name: str
     cost: int
     hearts: np.ndarray  # Shape (6,) for each color count
-    blade_hearts: np.ndarray  # Shape (6,) blade hearts by color
+    blade_hearts: np.ndarray  # Shape (7,) blade hearts by color (Index 6 = ALL)
     blades: int
     group: str = ""
     unit: str = ""
@@ -171,9 +171,13 @@ class LiveCard:
     ability_text: str = ""
     volume_icons: int = 0
     draw_icons: int = 0
+    blade_hearts: np.ndarray = field(default_factory=lambda: np.zeros(7, dtype=np.int32))
     
     def total_required(self) -> int:
-        return int(np.sum(self.required_hearts))
+        return int(np.sum(self.required_hearts[:6])) # Exclude star/any
+        
+    def total_blade_hearts(self) -> int:
+        return int(np.sum(self.blade_hearts))
 
 
 @dataclass
@@ -192,7 +196,7 @@ class PlayerState:
         'members_played_this_turn', 'mulligan_selection', 'baton_touch_limit',
         'baton_touch_count', 'negate_next_effect', 'restrictions',
         'live_score_bonus', 'passed_lives', 'cannot_live', 'used_abilities',
-        'continuous_effects', 'hand_buffer'
+        'continuous_effects', 'hand_buffer', 'meta_rules'
     )
     
     def __init__(self, player_id: int):
@@ -246,6 +250,9 @@ class PlayerState:
         # Rule 9.9: Continuous Effects tracking
         self.continuous_effects: List[Dict[str, Any]] = []
         
+        # Meta-Rules (e.g., ALL Blade as Any)
+        self.meta_rules: Set[str] = set()
+        
         # Pre-allocated buffer for JIT
         self.hand_buffer: np.ndarray = np.zeros(100, dtype=np.int32)
     
@@ -283,6 +290,7 @@ class PlayerState:
         self.cannot_live = False
         self.used_abilities.clear()
         self.continuous_effects.clear()
+        self.meta_rules.clear()
         
     def copy(self) -> 'PlayerState':
         """Optimized copy using object pool"""
@@ -712,6 +720,32 @@ class GameState:
                     mask[660:660+card_count] = True
                 else:
                     mask[0] = True  # Empty discard, allow pass
+            
+            elif choice_type == "SELECT_FORMATION_SLOT" or choice_type == "SELECT_ORDER":
+                # 700-759: Item selection from a list
+                cards = params.get('cards', params.get('available_members', []))
+                card_count = min(len(cards), 60)
+                if card_count > 0:
+                    mask[700:700+card_count] = True
+                else:
+                    mask[0] = True
+            
+            elif choice_type == "SELECT_SWAP_SOURCE":
+                # 600-659: Reuse list selection range
+                cards = params.get('cards', [])
+                card_count = min(len(cards), 60)
+                if card_count > 0:
+                    mask[600:600+card_count] = True
+                else:
+                    mask[0] = True
+            
+            elif choice_type == "SELECT_SWAP_TARGET":
+                # 500-559: Target hand range
+                if len(p.hand) > 0:
+                    for i in range(len(p.hand)):
+                        mask[500 + i] = True
+                else:
+                    mask[0] = True
         
         # MULLIGAN phases: Select cards to return or confirm mulligan
         elif self.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
@@ -799,7 +833,8 @@ class GameState:
             
         elif self.phase == Phase.LIVE_SET:
             mask[0] = True
-            if len(p.live_zone) < 3:
+            # Check live restriction (Rule 8.3.4.1 / Cluster 3)
+            if 'live' not in p.restrictions and len(p.live_zone) < 3:
                 for i, card_id in enumerate(p.hand):
                     # Only allow Live cards to be set (not Members)
                     if card_id in self.live_db:
@@ -893,6 +928,29 @@ class GameState:
             while rules_applied:
                 rules_applied = False
                 for p in self.players:
+                    # Update Meta Rules (Continuous Effects from Stage and Live Zone)
+                    p.meta_rules.clear()
+                    # 1. Members on stage
+                    for i, cid in enumerate(p.stage):
+                        if cid >= 0 and cid in self.member_db:
+                            m = self.member_db[cid]
+                            for ab in m.abilities:
+                                if ab.trigger == TriggerType.CONSTANT:
+                                    for eff in ab.effects:
+                                        if eff.effect_type == EffectType.META_RULE:
+                                            p.meta_rules.add(eff.params.get('type'))
+                                            
+                    # 2. Cards in Live Zone and Success Lives (Some rules are on Live cards)
+                    for zone in [p.live_zone, p.success_lives]:
+                        for cid in zone:
+                            if cid in self.live_db:
+                                l = self.live_db[cid]
+                                for ab in l.abilities:
+                                    if ab.trigger == TriggerType.CONSTANT:
+                                        for eff in ab.effects:
+                                            if eff.effect_type == EffectType.META_RULE:
+                                                p.meta_rules.add(eff.params.get('type'))
+
                     # Rule 10.2: Refresh
                     if not p.main_deck and p.discard:
                         self.log_rule("Rule 10.2", f"Player {p.player_id} Main Deck empty. Shuffling.")
@@ -1127,6 +1185,27 @@ class GameState:
                  if self.verbose: print(f"Effect: Cheer reveal: {card}")
              return
 
+        if effect.target == TargetType.MEMBER_NAMED:
+            # Rule 11.8: Target member by name
+            name = effect.params.get('target_name', '')
+            found_slot = -1
+            for i, cid in enumerate(p.stage):
+                if cid >= 0 and cid in self.member_db:
+                    if name in self.member_db[cid].name:
+                        found_slot = i
+                        break
+            if found_slot >= 0:
+                ctx = ctx.copy() if ctx else {}
+                ctx['area'] = found_slot
+                # Convert target type effectively so target_slot logic works
+                # but we use a local target variable to avoid mutating the effect object
+                target_for_logic = TargetType.MEMBER_SELF
+            else:
+                if self.verbose: print(f"Named target '{name}' not found on stage.")
+                return
+        else:
+            target_for_logic = effect.target
+
         if effect.effect_type == EffectType.DRAW:
             self._draw_cards(p, effect.value)
             
@@ -1184,9 +1263,17 @@ class GameState:
 
         elif effect.effect_type == EffectType.ADD_BLADES:
             # Rule 9.9: 継続効果の登録
+            val = effect.value
+            if effect.params.get('multiplier'):
+                if effect.params.get('per_live'):
+                    val *= len(p.success_lives)
+                elif effect.params.get('per_energy'):
+                    val *= len(p.energy_zone)
+                elif effect.params.get('per_member'):
+                    val *= np.sum(p.stage >= 0)
             p.continuous_effects.append({
-                "effect": effect,
-                "target_slot": ctx.get('area', -1) if effect.target == TargetType.MEMBER_SELF else -1,
+                "effect": Effect(EffectType.ADD_BLADES, val, effect.target, effect.params),
+                "target_slot": ctx.get('area', -1) if target_for_logic == TargetType.MEMBER_SELF else -1,
                 "expiry": effect.params.get('until', 'turn_end').upper()
             })
         elif effect.effect_type == EffectType.LOOK_DECK:
@@ -1264,9 +1351,17 @@ class GameState:
             
         elif effect.effect_type == EffectType.ADD_HEARTS:
             # Rule 9.9: 継続効果の登録
+            val = effect.value
+            if effect.params.get('multiplier'):
+                if effect.params.get('per_live'):
+                    val *= len(p.success_lives)
+                elif effect.params.get('per_energy'):
+                    val *= len(p.energy_zone)
+                elif effect.params.get('per_member'):
+                    val *= np.sum(p.stage >= 0)
             p.continuous_effects.append({
-                "effect": effect,
-                "target_slot": ctx.get('area', -1) if effect.target == TargetType.MEMBER_SELF else -1,
+                "effect": Effect(EffectType.ADD_HEARTS, val, effect.target, effect.params),
+                "target_slot": ctx.get('area', -1) if target_for_logic == TargetType.MEMBER_SELF else -1,
                 "expiry": effect.params.get('until', 'turn_end').upper()
             })
         
@@ -1282,14 +1377,28 @@ class GameState:
                     val *= np.sum(p.stage >= 0)
             
             p.continuous_effects.append({
-                "effect": Effect(EffectType.ADD_BLADES, val, effect.target, effect.params), # Treat as blade buff for now
-                "target_slot": ctx.get('area', -1) if effect.target == TargetType.MEMBER_SELF else -1,
+                "effect": Effect(EffectType.ADD_BLADES, val, target_for_logic, effect.params), # Treat as blade buff for now
+                "target_slot": ctx.get('area', -1) if target_for_logic == TargetType.MEMBER_SELF else -1,
                 "expiry": effect.params.get('until', 'turn_end').upper()
             })
         
         elif effect.effect_type == EffectType.BOOST_SCORE:
             # Rule 11.8: スコアの上昇
-            p.live_score_bonus += effect.value
+            # Check for replacement effects (Cluster 4)
+            final_val = effect.value
+            for ce in p.continuous_effects:
+                if ce['effect'].effect_type == EffectType.REPLACE_EFFECT and ce['effect'].params.get('replaces') == 'score_boost':
+                    final_val = ce['effect'].value
+                    if self.verbose: print(f"REPLACE: Score boost replaced to {final_val}")
+                    break
+            p.live_score_bonus += final_val
+        
+        elif effect.effect_type == EffectType.REPLACE_EFFECT:
+            # Cluster 4: Store replacement effect for later use
+            p.continuous_effects.append({
+                "effect": effect,
+                "expiry": effect.params.get('until', 'live_end').upper()
+            })
         
         elif effect.effect_type == EffectType.SET_SCORE:
             # Set absolute score
@@ -1328,6 +1437,21 @@ class GameState:
              if effect.params.get('from') == 'discard' and p.discard:
                   p.hand.append(p.discard.pop())
         
+        elif effect.effect_type == EffectType.TRIGGER_REMOTE:
+             # Cluster 5: Remote Ability Triggering
+             zone = effect.params.get('from', 'discard')
+             if zone == 'discard':
+                 # Create choice to select a card from discard
+                 members_in_discard = [cid for cid in p.discard if cid in self.member_db]
+                 if members_in_discard:
+                     self.pending_choices.append(("SELECT_FROM_DISCARD", {
+                         'cards': members_in_discard,
+                         'count': 1,
+                         'filter': 'member_with_ability',
+                         'destination': 'trigger_ability'
+                     }))
+                     if self.verbose: print(f"TRIGGER_REMOTE: Select member from discard to trigger ability.")
+
 
         elif effect.effect_type == EffectType.ENERGY_CHARGE:
              # Rule 4.10: エネルギー置き場にカードを置く
@@ -1421,7 +1545,52 @@ class GameState:
                       "count": effect.value
                   }))
              else:
-                  if self.verbose: print(f"PLACE_UNDER failed: invalid target area {target_area} or source")
+                   if self.verbose: print(f"PLACE_UNDER failed: invalid target area {target_area} or source")
+        
+        elif effect.effect_type == EffectType.SEARCH_DECK:
+             # Rule 5.7: 山札からカードを選ぶ
+             group = effect.params.get('group')
+             cost_max = effect.params.get('cost_max')
+             
+             targets = []
+             for cid in p.main_deck:
+                 if cid in self.member_db:
+                     m = self.member_db[cid]
+                     if group and group not in m.group: continue
+                     if cost_max is not None and m.cost > cost_max: continue
+                     targets.append(cid)
+                 elif cid in self.live_db:
+                     l = self.live_db[cid]
+                     if group and group not in l.group: continue
+                     targets.append(cid)
+             
+             if targets:
+                 self.pending_choices.append(("SELECT_FROM_LIST", {
+                     "cards": targets,
+                     "reason": "search_deck",
+                     "shuffle": True # Standard rule
+                 }))
+             else:
+                 # Search failed, but usually we still shuffle? 
+                 # Comprehensive rules 5.7.1: 山札をシャッフルする
+                 random.shuffle(p.main_deck)
+                 if self.verbose: print(f"Search failed: No matching cards for {group}. Deck shuffled.")
+
+        elif effect.effect_type == EffectType.FORMATION_CHANGE:
+             # Rule 11.10: Re-arrange all members
+             members = []
+             for i in range(3):
+                 if p.stage[i] >= 0:
+                     members.append((i, p.stage[i]))
+             
+             if members:
+                 self.pending_choices.append(("SELECT_FORMATION_SLOT", {
+                     "slot_index": 0,
+                     "available_members": members,
+                     "new_stage": [-1, -1, -1]
+                 }))
+             else:
+                 if self.verbose: print("No members to rearrange.")
 
     
         # After resolution, check triggers again?
@@ -1465,26 +1634,45 @@ class GameState:
             my_life = len(player.success_lives)
             opp_life = len(self.players[1 - player.player_id].success_lives)
             met = (my_life > opp_life)
-        elif cond.type == ConditionType.COUNT_GROUP:
+        elif cond.type == ConditionType.COUNT_GROUP or cond.type == ConditionType.GROUP_FILTER:
             # Count members of group in zone
-            group = cond.params.get('group', '')
+            group = cond.params.get('group', '').strip('『』')
             zone = cond.params.get('zone', 'STAGE')
-            min_count = cond.params.get('count', cond.params.get('min', 0))
+            min_count = cond.params.get('count', cond.params.get('min', 1 if cond.type == ConditionType.GROUP_FILTER else 0))
             
+            # Alias mapping for groups (since cards.json series field is long)
+            aliases = {
+                "μ's": "ラブライブ！",
+                "Aqours": "ラブライブ！サンシャイン!!",
+                "虹ヶ咲": "ラブライブ！虹ヶ咲学園スクールアイドル同好会",
+                "Liella!": "ラブライブ！スーパースター!!",
+                "蓮ノ空": "ラブライブ！蓮ノ空女学院スクールアイドルクラブ"
+            }
+            target_groups = {group}
+            if group in aliases:
+                target_groups.add(aliases[group])
+
             count = 0
+            cards_to_check = []
             if zone == 'STAGE':
                 for cid in player.stage:
-                    if cid >= 0 and cid in self.member_db:
-                        if group in self.member_db[cid].group:
-                            count += 1
+                    if cid >= 0: cards_to_check.append(cid)
             elif zone == 'DISCARD':
-                for cid in player.discard:
-                    if cid in self.member_db:
-                        if group in self.member_db[cid].group:
-                            count += 1
-                    if group in ["μ's", 'Aqours', '虹ヶ咲', 'Liella!', '蓮ノ空'] and cid in self.live_db:
-                        if group in self.live_db[cid].group:
-                            count += 1
+                cards_to_check = player.discard
+            elif cond.params.get('context') == 'revealed':
+                cards_to_check = self.looked_cards
+
+            for cid in cards_to_check:
+                if cid in self.member_db:
+                    m = self.member_db[cid]
+                    # Check both group (series) and unit
+                    match = any(tg in m.group for tg in target_groups) or any(tg == m.unit for tg in target_groups)
+                    if match: count += 1
+                elif cid in self.live_db:
+                    l = self.live_db[cid]
+                    if any(tg in l.group for tg in target_groups):
+                        count += 1
+            
             met = (count >= min_count)
         elif cond.type == ConditionType.HAS_COLOR:
             color = cond.params.get('color')
@@ -1966,6 +2154,18 @@ class GameState:
                      if self.verbose: print(f"Returned {len(cards)} cards to deck bottom")
                 # For basic implementation, we store this in metadata or applies immediately
                 # Example: PR-003 might need to store this color for the turn.
+                
+                if params.get('reason') == 'search_deck':
+                    # Rule 5.7.1: Remove card from deck, then shuffle
+                    # selected is already added to p.hand in 1957
+                    # We must find and remove it from p.main_deck
+                    if selected in p.main_deck:
+                        p.main_deck.remove(selected)
+                    
+                    if params.get('shuffle', False):
+                        random.shuffle(p.main_deck)
+                        if self.verbose: print("Deck shuffled after search.")
+                
                 pass
         
         elif choice_type == "SELECT_FROM_DISCARD":
@@ -2026,6 +2226,7 @@ class GameState:
             if not members:
                 if self.verbose: print("No members to rearrange.")
             else:
+                if self.verbose: print(f"Formation Change: members to rearrange: {members}")
                 # Start selection for Slot 0 (Left)
                 # We pass the list of 'available' members (by their current/original index or id)
                 self.pending_choices.append(("SELECT_FORMATION_SLOT", {
@@ -2041,35 +2242,28 @@ class GameState:
              available = params.get('available_members', [])
              new_stage = params.get('new_stage', [-1, -1, -1])
              
-             idx = action - 700 # Reuse 700 range or define new? Let's use 700 (SELECT_MEMBER-ish)
+             idx = action - 700 
              
              if 0 <= idx < len(available):
                  selected = available.pop(idx) # (orig_idx, cid)
                  new_stage[slot_index] = selected[1]
-                 if self.verbose: print(f"Formation: Puts {selected[1]} into slot {slot_index}")
+                 if self.verbose: print(f"Formation: Puts member {selected[1]} into slot {slot_index}. Remaining: {len(available)}")
                  
                  # Next slot?
                  next_slot = slot_index + 1
-                 if next_slot < 3:
-                     # Skip if we run out of members (unlikely if we started full, but possible if empty slots existed)
-                     # Actually we should fill empty slots with -1 if we ran out of members.
-                     if not available:
-                         # No more members, rest are empty
-                         for k in range(next_slot, 3):
-                             new_stage[k] = -1
-                         # Apply Change
-                         p.stage = new_stage
-                         if self.verbose: print(f"Formation Change Complete: {p.stage}")
-                     else:
-                         self.pending_choices.insert(0, ("SELECT_FORMATION_SLOT", {
-                             "slot_index": next_slot,
-                             "available_members": available,
-                             "new_stage": new_stage
-                         }))
+                 if next_slot < 3 and available:
+                     self.pending_choices.insert(0, ("SELECT_FORMATION_SLOT", {
+                         "slot_index": next_slot,
+                         "available_members": available,
+                         "new_stage": new_stage
+                     }))
                  else:
-                     # All slots filled (or processed)
-                     p.stage = new_stage
-                     if self.verbose: print(f"Formation Change Complete: {p.stage}")
+                     # All slots filled or no more members
+                     # Fill remaining slots with -1 if any
+                     for k in range(next_slot, 3):
+                         new_stage[k] = -1
+                     np.copyto(p.stage, new_stage)
+                     if self.verbose: print(f"Formation Change Complete. New Stage: {p.stage}")
         
         elif choice_type == "SELECT_SWAP_SOURCE":
              # Select card from Success Live to return to hand
@@ -2411,12 +2605,26 @@ class GameState:
         # Count icons for yell bonus (Rule 8.3.12 and Rule 8.4.2)
         draw_bonus = 0
         yell_score_bonus = 0
+        total_hearts = np.zeros(7, dtype=np.int32)
+        blade_hearts_padded = np.zeros(7, dtype=np.int32) # Pre-init for Meta Rule
+
         for card_id in self.yell_cards:
             # Check both Member and Live DBs
             card = self.member_db.get(card_id) or self.live_db.get(card_id)
             if card:
                 if hasattr(card, 'total_blade_hearts'):
+                    # Standard: Add all blade hearts to draw
                     draw_bonus += card.total_blade_hearts()
+                    
+                    # META RULE: If heart_rule active, Convert ALL Blade (Index 6) to Any Heart
+                    # b_all is mapped to index 6 by data_loader
+                    if 'heart_rule' in p.meta_rules and hasattr(card, 'blade_hearts') and card.blade_hearts.size > 6:
+                        all_blade_count = card.blade_hearts[6]
+                        if all_blade_count > 0:
+                            draw_bonus -= all_blade_count # Remove from draw
+                            blade_hearts_padded[6] += all_blade_count # Add to Any Heart
+                            self.log_rule("Meta Rule", f"ALL Blade on {card.name} treated as Any Heart.")
+
                 draw_bonus += card.draw_icons
                 yell_score_bonus += card.volume_icons
                 
@@ -2424,8 +2632,7 @@ class GameState:
         self._draw_cards(p, draw_bonus)
         
         # Calculate total hearts
-        total_hearts = np.zeros(7, dtype=np.int32)
-        blade_hearts_padded = np.zeros(7, dtype=np.int32) # Scope fix
+        # (Variables initialized above)
         
         # Breakdown of member contributions
         self.log_rule("Rule 8.3.13", f"--- Heart Contribution Breakdown (Player {player_idx}) ---")

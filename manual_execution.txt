@@ -1,0 +1,80 @@
+================================================================================
+MANUAL EXECUTION GUIDE - Agent Tournament
+Run with Antigravity closed to maximize available RAM
+================================================================================
+
+PREREQUISITES:
+- Close Antigravity and any other heavy applications
+- Ensure venv_gpu is set up (or use regular venv for CPU-only)
+
+--------------------------------------------------------------------------------
+STEP 1: Open PowerShell/Terminal
+--------------------------------------------------------------------------------
+
+cd c:\Users\trios\.gemini\antigravity\scratch\loveca-copy
+
+--------------------------------------------------------------------------------
+STEP 2: Activate Virtual Environment
+--------------------------------------------------------------------------------
+
+For GPU runs:
+  .\venv_gpu\Scripts\Activate.ps1
+
+For CPU-only (no PyTorch needed):
+  .\venv\Scripts\Activate.ps1
+
+--------------------------------------------------------------------------------
+STEP 3: Run CPU-Only Benchmark (No NNAgent)
+--------------------------------------------------------------------------------
+
+OPTION A - Standard (full game rules):
+  python tools/agent_tournament_cpu.py --games_per_pair 10
+
+OPTION B - FAST (simplified, ~10x faster):
+  python tools/agent_tournament_fast.py --games_per_pair 100
+
+Force max workers:
+  python tools/agent_tournament_fast.py --games_per_pair 100 --workers 11
+
+--------------------------------------------------------------------------------
+PERFORMANCE COMPARISON
+--------------------------------------------------------------------------------
+
+Standard version (agent_tournament_cpu.py):
+  - Uses full GameState with all rules/abilities
+  - Creates deep copy every step()
+  - ~0.5-1 second per game
+
+FAST version (agent_tournament_fast.py):
+  - Mutable game state (no copies)
+  - Simplified rules (no abilities)
+  - Only 3 agents: TrueRandom, Random, Smart
+  - Expected: ~50-100ms per game (~10x speedup)
+
+--------------------------------------------------------------------------------
+STEP 4: Run GPU Benchmark (When NNAgent is ready)
+--------------------------------------------------------------------------------
+
+GPU vs CPU comparison benchmark:
+  python tools/agent_tournament.py --benchmark
+
+--------------------------------------------------------------------------------
+EXPECTED OUTPUT
+--------------------------------------------------------------------------------
+
+The script will print:
+- Worker count and initial RAM usage
+- Progress as games complete
+- Final ELO ratings table
+- Matchup win rate matrix
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+- CPU-only version runs ONLY heuristic agents (no neural network)
+- GPU version requires NNAgent and PyTorch with CUDA
+- Closing Antigravity frees ~2-4GB RAM for more workers
+- Each worker uses ~50-100MB RAM for game state
+
+================================================================================

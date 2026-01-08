@@ -1,0 +1,34 @@
+﻿Benchmarking 30 games using 11 workers...
+
+Running TRUE ORIGINAL (Deepcopy)...
+  Total Time: 10.27s
+  Avg Rate:   342.3 ms/game
+  Throughput: 2.9 games/sec
+  Winrate:    46.7%
+
+Running OPTIMIZED (Fast Copy)...
+  Total Time: 6.42s
+  Avg Rate:   214.0 ms/game
+  Throughput: 4.7 games/sec
+  Winrate:    46.7%
+
+Running HYBRID (In-place)...
+  Total Time: 7.42s
+  Avg Rate:   247.3 ms/game
+  Throughput: 4.0 games/sec
+  Winrate:    20.0%
+
+Running FAST (Simple Rules)...
+  Total Time: 5.98s
+  Avg Rate:   199.3 ms/game
+  Throughput: 5.0 games/sec
+  Winrate:    50.0%
+
+======================================================================
+Method                         | ms/game    | Throughput | Consistency
+----------------------------------------------------------------------
+TRUE ORIGINAL (Deepcopy)       | 342.3      | 2.9        | 100%
+OPTIMIZED (Fast Copy)          | 214.0      | 4.7        | 100%
+HYBRID (In-place)              | 247.3      | 4.0        | DIFFERENT
+FAST (Simple Rules)            | 199.3      | 5.0        | N/A (Simple)
+======================================================================

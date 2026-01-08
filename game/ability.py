@@ -70,6 +70,8 @@ class EffectType(IntEnum):
     ACTIVATE_MEMBER = 29 # アクティブにする - untap/make active a member
     ADD_TO_HAND = 30     # 手札に加える - add card to hand (from any zone)
     COLOR_SELECT = 31    # Specify a heart color
+    REPLACE_EFFECT = 34  # Replacement effect (代わりに)
+    TRIGGER_REMOTE = 35  # Trigger ability from another zone (Cluster 5)
 
 class ConditionType(IntEnum):
     NONE = 0
@@ -150,6 +152,7 @@ class AbilityParser:
         if len(blocks) == 1:
             blocks = text.split('\n')
         
+        last_ability = None
         for block in blocks:
             block = block.strip()
             if not block:
@@ -158,7 +161,6 @@ class AbilityParser:
             # Split block into sentences
             sentences = [s for s in block.split('。') if s.strip()]
             
-            last_ability = None
             for i, line in enumerate(sentences):
                 line = line.strip()
                 if not line:
@@ -207,6 +209,7 @@ class AbilityParser:
                 is_continuation = (
                     line.startswith('・') or 
                     line.startswith('-') or 
+                    line.startswith('－') or
                     any(line.startswith(kw) for kw in ['回答が', '選んだ場合', '条件が', 'それ以外', 'その', 'それら', '残り', 'そし', 'その後', 'そこから', 'もよい', 'を自分', '（', '('])
                 )
                 
@@ -215,7 +218,7 @@ class AbilityParser:
                 
                 # Fallback trigger for first sentence
                 if trigger == TriggerType.NONE and i == 0 and not is_continuation and not has_explicit_trigger:
-                    if any(kw in line for kw in ['引', 'スコア', 'プラス', '＋', 'ブレード', 'ハート', '控', '戻', 'エネ', 'デッキ', '山札']):
+                    if any(kw in line for kw in ['引', 'スコア', 'プラス', '＋', 'ブレード', 'ハート', '控', '戻', 'エネ', 'デッキ', '山札', '見る', '公開', '選ぶ', '選ぶ。']):
                         trigger = TriggerType.ACTIVATED
                 
                 content = line
@@ -247,6 +250,11 @@ class AbilityParser:
                     match = re.search(r'(\d+)枚以上', content)
                     if match:
                         conditions.append(Condition(ConditionType.COUNT_SUCCESS_LIVE, {'min': int(match.group(1))}))
+
+                # ALL Blade Rule (Meta Rule)
+                if 'ALLブレード' in content and 'ハートとして扱う' in content:
+                    trigger = TriggerType.CONSTANT
+                    effects.append(Effect(EffectType.META_RULE, target=TargetType.PLAYER, params={'type': 'heart_rule'}))
 
                 # --- Condition Parsing ---
                 # Group count
@@ -386,10 +394,14 @@ class AbilityParser:
                 
                 if any(kw in content for kw in ['につき', '枚数', '1人につき', '人につき']):
                     eff_params = {'multiplier': True}
-                    if 'ライブカード' in content: eff_params['per_live'] = True
+                    if '成功ライブカード' in content or 'ライブカード' in content: eff_params['per_live'] = True
                     elif 'エネ' in content: eff_params['per_energy'] = True
                     elif 'メンバー' in content or '人につき' in content: eff_params['per_member'] = True
-                    effects.append(Effect(EffectType.BUFF_POWER, 1, params=eff_params))
+                    # Attach to the LAST effect if applicable
+                    if effects and effects[-1].effect_type in (EffectType.ADD_BLADES, EffectType.ADD_HEARTS, EffectType.BUFF_POWER):
+                        effects[-1].params.update(eff_params)
+                    else:
+                        effects.append(Effect(EffectType.BUFF_POWER, 1, params=eff_params))
                 
                 if (match := re.search(r'[+＋](\d+)', content)) and not any(kw in content for kw in ['ブレード', 'ハート', 'スコア']):
                     effects.append(Effect(EffectType.BUFF_POWER, int(match.group(1))))
@@ -416,6 +428,11 @@ class AbilityParser:
                     src = 'hand' if '手札' in content else 'discard'
                     effects.append(Effect(EffectType.RECOVER_MEMBER, count, TargetType.CARD_DISCARD, {'auto_play': True, 'from': src}))
                 
+                # Cluster 5: Remote Ability Triggering
+                if '能力' in content and any(kw in content for kw in ['発動させる', '発動する']):
+                    zone = 'discard' if '控え室' in content else 'stage'
+                    effects.append(Effect(EffectType.TRIGGER_REMOTE, 1, params={'from': zone}))
+
                 if '控' in content and any(kw in content for kw in ['置', '送']):
                     count = int(match.group(1)) if (match := re.search(r'(?:手札|から).*?(\d+)枚', content)) else int(match.group(1)) if (match := re.search(r'(\d+)枚', content)) else 1
                     src = 'deck' if 'デッキ' in content else 'hand' if '手札' in content else None
@@ -444,7 +461,13 @@ class AbilityParser:
                         if 'メンバー' in content: effects[-1].params['filter'] = 'member'
                         if 'ライブ' in content: effects[-1].params['filter'] = 'live'
                 
-                if '以下から1つを選ぶ' in content: effects.append(Effect(EffectType.SELECT_MODE, 1))
+                if match := re.search(r'以下から(\d+|１|２|３|４|５|一|二|三|四|五)(つ|枚|回)を選ぶ', content):
+                    val_str = match.group(1)
+                    # Simple mapping for common Japanese numerals
+                    val_map = {'１': 1, '２': 2, '３': 3, '４': 4, '５': 5, '一': 1, '二': 2, '三': 3, '四': 4, '五': 5}
+                    val = int(val_map.get(val_str, val_str)) if not val_str.isdigit() else int(val_str)
+                    effects.append(Effect(EffectType.SELECT_MODE, val))
+                elif '以下から1つを選ぶ' in content: effects.append(Effect(EffectType.SELECT_MODE, 1))
                 if any(kw in content for kw in ['ハートの色を1つ指定', '好きなハートの色を']): effects.append(Effect(EffectType.COLOR_SELECT, 1))
                 if 'メンバーの下に' in content and '置' in content: effects.append(Effect(EffectType.PLACE_UNDER, 1))
                 if '聞く' in content: effects.append(Effect(EffectType.FLAVOR_ACTION, 1))
@@ -456,9 +479,21 @@ class AbilityParser:
                 if '公開' in content and any(kw in content for kw in ['置き場', '加える']): effects.append(Effect(EffectType.SWAP_ZONE, 1))
                 if '手札に加える' in content and not effects: effects.append(Effect(EffectType.DRAW, 1, params={'generic_add': True}))
                 
+                # Replacement Effects (代わりに - Cluster 4)
+                if '代わりに' in content:
+                    # Find the replacement value (e.g., 'スコアを＋２' -> 2)
+                    match = re.search(r'代わりに.*?[+＋](\d+)', content)
+                    if match:
+                        effects.append(Effect(EffectType.REPLACE_EFFECT, int(match.group(1)), params={'replaces': 'score_boost'}))
+
                 if (content.startswith('（') and content.endswith('）')) or (content.startswith('(') and content.endswith(')')):
-                     effects.append(Effect(EffectType.META_RULE, 1))
-                     trigger = TriggerType.CONSTANT
+                     # If the whole sentence is in parens, it's often reminder text
+                     if not effects:
+                         effects.append(Effect(EffectType.META_RULE, 1))
+                         trigger = TriggerType.CONSTANT
+                     else:
+                         # Ensure reminder text within a block doesn't add accidental effects
+                         pass 
 
                 # Final touches
                 is_opt = 'てもよい' in content
@@ -494,7 +529,7 @@ class AbilityParser:
                          
                 elif effects or conditions or costs:
                     if last_ability:
-                        if line.startswith('・') and any(e.effect_type == EffectType.SELECT_MODE for e in last_ability.effects):
+                        if (line.startswith('・') or line.startswith('-') or line.startswith('－')) and any(e.effect_type == EffectType.SELECT_MODE for e in last_ability.effects):
                             last_ability.modal_options.append(effects)
                         else:
                             last_ability.effects.extend(effects)

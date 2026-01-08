@@ -1,0 +1,215 @@
+﻿Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 22
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 10
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 9
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 11
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 13
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 4
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Error: Not enough energy to pay cost 15
+Benchmarking 30 games using 11 workers...
+
+Running TRUE ORIGINAL (Deepcopy)...
+.\venv_gpu\Scripts\python.exe : multiprocessing.pool.
+RemoteTraceback: 
+発生場所 行:1 文字:1
++ .\venv_gpu\Scripts\python.exe tools/tournament_benc
+hmark.py --games 3 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (multipr 
+   ocessing.pool.RemoteTraceback: :String) [], Remo  
+  teException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+"""
+Traceback (most recent call last):
+  File "C:\Users\trios\AppData\Local\Programs\Python\
+Python311\Lib\multiprocessing\pool.py", line 125, in 
+worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\trios\AppData\Local\Programs\Python\
+Python311\Lib\multiprocessing\pool.py", line 48, in m
+apstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\trios\.gemini\antigravity\scratch\lo
+veca-copy\tools\tournament_benchmark.py", line 122, i
+n run_true_original
+    state = state.step(action)
+            ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\trios\.gemini\antigravity\scratch\lo
+veca-copy\game\game_state.py", line 816, in step
+    new_state._execute_action(action_id)
+  File "C:\Users\trios\.gemini\antigravity\scratch\lo
+veca-copy\game\game_state.py", line 1613, in _execute
+_action
+    self._play_member(card_idx, area)
+  File "C:\Users\trios\.gemini\antigravity\scratch\lo
+veca-copy\game\game_state.py", line 2207, in _play_me
+mber
+    card = self.member_db[card_id]
+           ~~~~~~~~~~~~~~^^^^^^^^^
+KeyError: 1075
+"""
+
+The above exception was the direct cause of the follo
+wing exception:
+
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigravity\scratch\lo
+veca-copy\tools\tournament_benchmark.py", line 301, i
+n <module>
+    main()
+  File "C:\Users\trios\.gemini\antigravity\scratch\lo
+veca-copy\tools\tournament_benchmark.py", line 270, i
+n main
+    results = pool.map(runner, task_indices)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\trios\AppData\Local\Programs\Python\
+Python311\Lib\multiprocessing\pool.py", line 367, in 
+map
+    return self._map_async(func, iterable, mapstar, c
+hunksize).get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
+  File "C:\Users\trios\AppData\Local\Programs\Python\
+Python311\Lib\multiprocessing\pool.py", line 774, in 
+get
+    raise self._value
+KeyError: 1075

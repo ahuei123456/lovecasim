@@ -23,15 +23,132 @@ game_state = None
 member_db = {}
 live_db = {}
 energy_db = {}
+game_history = [] # For replay recording
+
+# Custom deck storage (list of card_no strings like "PL!-sd1-001-SD")
+custom_deck_p0 = None  # Player 0 (Human)
+custom_deck_p1 = None  # Player 1 (AI)
+
+# Reverse mapping: card_no string -> internal integer ID
+card_no_to_id = {}
+
+def build_card_no_mapping():
+    """Build reverse lookup from card_no string to internal ID.
+    
+    Replicates the ID assignment logic from data_loader.py:
+    - Members: 0-999
+    - Lives: 1000-1999
+    - Energy: 2000+
+    """
+    global card_no_to_id
+    card_no_to_id = {}
+    
+    # Load raw JSON to get the original card_no strings
+    try:
+        with open("data/cards.json", 'r', encoding='utf-8') as f:
+            raw_data = json.load(f)
+    except Exception as e:
+        print(f"Error loading cards.json for mapping: {e}")
+        return
+    
+    # Replicate the exact ID assignment from CardDataLoader.load()
+    sorted_keys = sorted(raw_data.keys())
+    
+    m_idx = 0
+    l_idx = 1000
+    e_idx = 2000
+    
+    for key in sorted_keys:
+        card_data = raw_data[key]
+        ctype = card_data.get('type')
+        
+        if ctype == 'メンバー':
+            card_no_to_id[key] = m_idx
+            m_idx += 1
+        elif ctype == 'ライブ':
+            card_no_to_id[key] = l_idx
+            l_idx += 1
+        elif ctype == 'エネルギー':
+            card_no_to_id[key] = e_idx
+            e_idx += 1
+    
+    print(f"Built card_no_to_id mapping: {len(card_no_to_id)} entries")
+
+def convert_deck_strings_to_ids(deck_strings):
+    """Convert list of card_no strings to internal IDs."""
+    ids = []
+    for card_no in deck_strings:
+        if card_no in card_no_to_id:
+            ids.append(card_no_to_id[card_no])
+        else:
+            print(f"Warning: Unknown card_no '{card_no}', skipping.")
+    return ids
+
+
+def save_replay():
+    """Save the current game history to a file."""
+    if not game_history: return
+    
+    try:
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        os.makedirs('replays', exist_ok=True)
+        filename = f'replays/replay_{timestamp}.json'
+        
+        # Structure matches what web_ui expects (based on current UI code)
+        data = {
+            'game_id': 0,
+            'timestamp': timestamp,
+            'winner': game_state.winner if game_state else -1,
+            'states': game_history
+        }
+        
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False)
+        print(f"Replay saved to {filename}")
+    except Exception as e:
+        print(f"Failed to save replay: {e}")
+game_history = [] # For replay recording
+
+def save_replay():
+    """Save the current game history to a file."""
+    if not game_history: return
+    
+    try:
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        os.makedirs('replays', exist_ok=True)
+        filename = f'replays/replay_{timestamp}.json'
+        
+        # Structure matches what web_ui expects (based on 'ai_match.json' structure if known, otherwise typical)
+        # The UI code seen earlier uses `replayData.states` and `replayData.winner`
+        data = {
+            'game_id': 0,
+            'timestamp': timestamp,
+            'winner': game_state.winner if game_state else -1,
+            'states': game_history
+        }
+        
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False)
+        print(f"Replay saved to {filename}")
+    except Exception as e:
+        print(f"Failed to save replay: {e}")
 
 def init_game(deck_type='normal'):
-    global game_state, member_db, live_db, energy_db
+    global game_state, member_db, live_db, energy_db, game_history
+    
+    # Ensure true randomness for each game
+    import time
+    random.seed(int(time.time() * 1000) % (2**31))
+    
     loader = CardDataLoader("data/cards.json")
     member_db, live_db, energy_db = loader.load()
     
     # CRITICAL: Populate GameState static DBs so validations work
     GameState.member_db = member_db
     GameState.live_db = live_db
+    
+    # Build reverse mapping for custom deck support
+    build_card_no_mapping()
     
     # Pre-calculate Start Deck card IDs
     start_deck_m = []
@@ -65,8 +182,16 @@ def init_game(deck_type='normal'):
     game_state = GameState()
     
     # Setup players
-    for p in game_state.players:
-        if deck_type == 'easy':
+    for pidx, p in enumerate(game_state.players):
+        # Check for custom deck first
+        custom_deck = custom_deck_p0 if pidx == 0 else custom_deck_p1
+        
+        if custom_deck:
+            # Use custom deck
+            p.main_deck = convert_deck_strings_to_ids(custom_deck)
+            random.shuffle(p.main_deck)  # Shuffle custom deck for variety
+            print(f"Player {pidx}: Using custom deck ({len(p.main_deck)} cards, shuffled)")
+        elif deck_type == 'easy':
             # Use Easy Cards (888/999) but mapped to real images
             p.main_deck = [888] * 48 + [999] * 12
         else:
@@ -152,6 +277,12 @@ def init_game(deck_type='normal'):
     
     # Start in MULLIGAN phase
     game_state.phase = Phase.MULLIGAN_P1
+    
+    # Initialize history with starting state
+    game_history = [serialize_state()]
+    
+    # Initialize history with starting state
+    game_history = [serialize_state()]
 
 def serialize_card(cid, is_viewable=True, peek=False):
     if not is_viewable and not peek:
@@ -660,6 +791,74 @@ def get_state():
         init_game()
     return jsonify(serialize_state())
 
+@app.route('/api/set_deck', methods=['POST'])
+def set_deck():
+    """Accept a custom deck for a player."""
+    global custom_deck_p0, custom_deck_p1
+    data = request.json
+    player_id = data.get('player', 0)
+    deck_ids = data.get('deck', [])  # List of card_no strings
+    
+    if player_id == 0:
+        custom_deck_p0 = deck_ids
+    else:
+        custom_deck_p1 = deck_ids
+    
+    return jsonify({
+        'status': 'ok', 
+        'player': player_id, 
+        'deck_size': len(deck_ids),
+        'message': f'Deck set for Player {player_id + 1}. Reset game to apply.'
+    })
+
+@app.route('/api/validate_cards', methods=['POST'])
+def validate_cards():
+    """Validate card IDs against the database and provide type breakdown."""
+    data = request.json
+    card_ids = data.get('card_ids', [])
+    card_counts = data.get('card_counts', {})  # Optional: {card_id: quantity}
+    
+    known = []
+    unknown = []
+    card_info = {}  # card_id -> {type, name, internal_id}
+    
+    # Type counters
+    member_count = 0
+    live_count = 0
+    energy_count = 0
+    
+    for card_id in card_ids:
+        qty = card_counts.get(card_id, 1)
+        if card_id in card_no_to_id:
+            internal_id = card_no_to_id[card_id]
+            known.append(card_id)
+            
+            # Determine type and get name
+            if internal_id in member_db:
+                card_info[card_id] = {'type': 'Member', 'name': member_db[internal_id].name}
+                member_count += qty
+            elif internal_id in live_db:
+                card_info[card_id] = {'type': 'Live', 'name': live_db[internal_id].name}
+                live_count += qty
+            elif internal_id in energy_db:
+                card_info[card_id] = {'type': 'Energy', 'name': energy_db[internal_id].name}
+                energy_count += qty
+        else:
+            unknown.append(card_id)
+    
+    return jsonify({
+        'known': known,
+        'unknown': unknown,
+        'known_count': len(known),
+        'unknown_count': len(unknown),
+        'card_info': card_info,
+        'breakdown': {
+            'member': member_count,
+            'live': live_count,
+            'energy': energy_count
+        }
+    })
+
 @app.route('/api/reset', methods=['POST'])
 def reset_game():
     global game_state
@@ -694,6 +893,10 @@ def do_action():
             # AUTO-ADVANCE LOOP
             # Advance through automatic phases AND AI turns
             max_safety = 100
+            
+            # Record state after the user's initial action
+            game_history.append(serialize_state())
+            
             while not game_state.is_terminal() and max_safety > 0:
                 max_safety -= 1
                 
@@ -701,6 +904,7 @@ def do_action():
                 if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
                                        Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
                     game_state = game_state.step(0)
+                    game_history.append(serialize_state())
                     continue
                 
                 # 2. AI Turn (P1 is always the AI)
@@ -708,10 +912,14 @@ def do_action():
                     aid = ai_agent.choose_action(game_state, 1)
                     print(f"DEBUG AI Move: action={aid}, phase={game_state.phase}")
                     game_state = game_state.step(aid)
+                    game_history.append(serialize_state())
                     continue
                     
                 # If it's P0's turn and not an automatic phase, wait for user
                 break
+            
+            if game_state.is_terminal():
+                save_replay()
                 
             return jsonify({'success': True, 'state': serialize_state()})
         except Exception as e:
@@ -854,4 +1062,5 @@ def report_issue():
 if __name__ == '__main__':
     init_game()
     print("Starting server at http://127.0.0.1:5000")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # use_reloader=False prevents the server from restarting (and crashing) when files change
+    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5000)

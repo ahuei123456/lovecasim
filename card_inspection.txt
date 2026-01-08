@@ -1,0 +1,114 @@
+=== Rule Card PL!HS-PR-010-PR ===
+{
+  "card_no": "PL!HS-PR-010-PR",
+  "img": "https://llofficial-cardgame.com/wordpress/wp-content/images/cardlist/PR/PL!HS-PR-010-PR.png",
+  "name": "Reflection in the mirror",
+  "product": "PRカード",
+  "type": "ライブ",
+  "series": "蓮ノ空女学院スクールアイドルクラブ",
+  "unit": "スリーズブーケ",
+  "score": 2,
+  "need_heart": {
+    "heart04": 3,
+    "heart0": 2
+  },
+  "blade_heart": {
+    "b_all": 1
+  },
+  "rare": "PR",
+  "ability": "(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)",
+  "faq": [],
+  "rare_list": [
+    {
+      "card_no": "PL!HS-PR-010-PR",
+      "name": "Reflection in the mirror"
+    }
+  ],
+  "_img": "img/cards/PR/PL!HS-PR-010-PR.png"
+}
+
+=== Cards with icon_b_all ===
+[PL!HS-PR-010-PR] found icon_b_all
+{
+  "card_no": "PL!HS-PR-010-PR",
+  "img": "https://llofficial-cardgame.com/wordpress/wp-content/images/cardlist/PR/PL!HS-PR-010-PR.png",
+  "name": "Reflection in the mirror",
+  "product": "PRカード",
+  "type": "ライブ",
+  "series": "蓮ノ空女学院スクールアイドルクラブ",
+  "unit": "スリーズブーケ",
+  "score": 2,
+  "need_heart": {
+    "heart04": 3,
+    "heart0": 2
+  },
+  "blade_heart": {
+    "b_all": 1
+  },
+  "rare": "PR",
+  "ability": "(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)",
+  "faq": [],
+  "rare_list": [
+    {
+      "card_no": "PL!HS-PR-010-PR",
+      "name": "Reflection in the mirror"
+    }
+  ],
+  "_img": "img/cards/PR/PL!HS-PR-010-PR.png"
+}
+[PL!HS-PR-011-PR] found icon_b_all
+{
+  "card_no": "PL!HS-PR-011-PR",
+  "img": "https://llofficial-cardgame.com/wordpress/wp-content/images/cardlist/PR/PL!HS-PR-011-PR.png",
+  "name": "Sparkly Spot",
+  "product": "PRカード",
+  "type": "ライブ",
+  "series": "蓮ノ空女学院スクールアイドルクラブ",
+  "unit": "DOLLCHESTRA",
+  "score": 3,
+  "need_heart": {
+    "heart05": 4,
+    "heart0": 3
+  },
+  "blade_heart": {
+    "b_all": 1
+  },
+  "rare": "PR",
+  "ability": "(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)",
+  "faq": [],
+  "rare_list": [
+    {
+      "card_no": "PL!HS-PR-011-PR",
+      "name": "Sparkly Spot"
+    }
+  ],
+  "_img": "img/cards/PR/PL!HS-PR-011-PR.png"
+}
+[PL!HS-PR-012-PR] found icon_b_all
+{
+  "card_no": "PL!HS-PR-012-PR",
+  "img": "https://llofficial-cardgame.com/wordpress/wp-content/images/cardlist/PR/PL!HS-PR-012-PR.png",
+  "name": "アイデンティティ",
+  "product": "PRカード",
+  "type": "ライブ",
+  "series": "蓮ノ空女学院スクールアイドルクラブ",
+  "unit": "みらくらぱーく!",
+  "score": 1,
+  "need_heart": {
+    "heart01": 2,
+    "heart0": 1
+  },
+  "blade_heart": {
+    "b_all": 1
+  },
+  "rare": "PR",
+  "ability": "(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)",
+  "faq": [],
+  "rare_list": [
+    {
+      "card_no": "PL!HS-PR-012-PR",
+      "name": "アイデンティティ"
+    }
+  ],
+  "_img": "img/cards/PR/PL!HS-PR-012-PR.png"
+}

@@ -1,0 +1,43 @@
+Using device: cpu
+Using device: cuda
+Using device: cuda
+
+============================================================
+RUNNING GPU VS CPU BENCHMARK (1 game per NN pairing)
+============================================================
+Benchmarking CPU (6 games using 1 workers)...
+Benchmarking GPU (6 games using 1 workers)...
+
+BENCHMARK RESULTS:
+  CPU Total: 11.36s (1.89s/game)
+  GPU Total: 35.21s (5.87s/game)
+  Speedup: 0.32x
+============================================================
+
+Starting Tournament: 5 games using 1 workers...
+
+Tournament Complete in 23.01s
+
+============================================================
+Agent           | ELO    | Wins   | Draws  | Win Rate
+------------------------------------------------------------
+TrueRandom      | 1029   | 1      | 1      | 50.0%
+Random          | 1029   | 1      | 0      | 100.0%
+Smart           | 965    | 0      | 0      | 0.0%
+Ability         | 1000   | 0      | 0      | N/A
+Conservative    | 1032   | 1      | 0      | 100.0%
+Gamble          | 938    | 0      | 0      | 0.0%
+NN              | 1005   | 1      | 1      | 33.3%
+============================================================
+
+MATCHUP WINRATE MATRIX (Row vs Column %)
+                | TrueR | Rando | Smart | Abili | Conse | Gambl | NN   
+-----------------------------------------------------------------------
+TrueRandom      |  ---  |  0.0% |  0.0% |  0.0% |  0.0% | 100.0% |  0.0%
+Random          |  0.0% |  ---  |  0.0% |  0.0% |  0.0% | 100.0% |  0.0%
+Smart           |  0.0% |  0.0% |  ---  |  0.0% |  0.0% |  0.0% |  0.0%
+Ability         |  0.0% |  0.0% |  0.0% |  ---  |  0.0% |  0.0% |  0.0%
+Conservative    |  0.0% |  0.0% |  0.0% |  0.0% |  ---  |  0.0% | 100.0%
+Gamble          |  0.0% |  0.0% |  0.0% |  0.0% |  0.0% |  ---  |  0.0%
+NN              |  0.0% |  0.0% | 100.0% |  0.0% |  0.0% |  0.0% |  --- 
+============================================================

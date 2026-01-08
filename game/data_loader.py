@@ -125,16 +125,18 @@ class CardDataLoader:
 
     def _parse_blade_hearts(self, heart_dict: dict) -> np.ndarray:
         """
-        Parses blade heart dictionary: {"b_heart06": 1}
-        Returns array of 6 ints.
+        Parses blade heart dictionary: {"b_heart06": 1, "b_all": 1}
+        Returns array of 7 ints (Index 6 = b_all).
         """
-        hearts = np.zeros(6, dtype=np.int32)
+        hearts = np.zeros(7, dtype=np.int32)
         if not heart_dict:
             return hearts
             
         # Mapping: b_heart01 -> 0, ... b_heart06 -> 5
         for k, v in heart_dict.items():
-            if k.startswith('b_heart'):
+            if k == 'b_all':
+                hearts[6] = int(v)
+            elif k.startswith('b_heart'):
                 try:
                     idx = int(k.replace('b_heart', '')) - 1
                     if 0 <= idx < 6:
@@ -189,6 +191,9 @@ class CardDataLoader:
         raw_ability = data.get('ability', '')
         abilities = AbilityParser.parse_ability_text(raw_ability)
         
+        # Blade hearts (Hearts given during Yell - e.g. for b_all)
+        blade_hearts = self._parse_blade_hearts(data.get('blade_heart', {}))
+        
         # Volume/Draw icons (from special_heart)
         spec = data.get('special_heart', {})
         volume = int(spec.get('score', 0))
@@ -204,5 +209,6 @@ class CardDataLoader:
             img_path=self._resolve_img_path(data),
             ability_text=raw_ability,
             volume_icons=volume,
-            draw_icons=draw
+            draw_icons=draw,
+            blade_hearts=blade_hearts
         )
