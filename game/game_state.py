@@ -2182,7 +2182,7 @@ class GameState:
             have_need_list = []
             for i in range(6):
                 if req[i] > 0:
-                    have_need_list.append(f"{color_names[i]} {remaining_hearts[i]}/{int(req[i])}")
+                    have_need_list.append(f"{COLOR_NAMES[i]} {remaining_hearts[i]}/{int(req[i])}")
             
             # Handle "Any" separately
             if req[6] > 0:
@@ -2197,7 +2197,7 @@ class GameState:
                 self._consume_hearts(remaining_hearts, req)
                 consumed = old_remaining - remaining_hearts
                 
-                cons_str = ', '.join([f"{color_names[i]}:{consumed[i]}" for i in range(6) if consumed[i] > 0])
+                cons_str = ', '.join([f"{COLOR_NAMES[i]}:{consumed[i]}" for i in range(6) if consumed[i] > 0])
                 
                 temp_passed.append(live_id)
                 self.log_rule("Rule 8.3.15.1", f"✅ PASSED: Fulfilled with [{cons_str}]")

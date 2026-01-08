@@ -1,0 +1,557 @@
+{
+  "timestamp": "20260108_180948",
+  "explanation": "[18:09:26] Error: name 'color_names' is not defined ability stuff",
+  "state": {
+    "active_player": 0,
+    "game_over": false,
+    "last_performance_result": null,
+    "legal_actions": [
+      {
+        "desc": "パス / 確定",
+        "id": 0
+      }
+    ],
+    "pending_choice": null,
+    "phase": 6,
+    "players": [
+      {
+        "deck_count": 52,
+        "discard": [],
+        "discard_count": 0,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": true
+          }
+        ],
+        "energy_count": 4,
+        "energy_deck_count": 8,
+        "energy_untapped": 0,
+        "expected_yells": 1,
+        "hand": [
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 9,
+            "hearts": [
+              0,
+              0,
+              0,
+              1,
+              2,
+              0
+            ],
+            "hp": 1,
+            "id": 463,
+            "img": "cards/PR/PL!S-PR-020-PR.png",
+            "name": "小原鞠莉",
+            "text": "【登場】 {{toujyou.png|登場}}ライブ終了時まで、{{icon_blade.png|ブレード}}を得る",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 9,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              1,
+              0
+            ],
+            "hp": 1,
+            "id": 300,
+            "img": "cards/BP03/PL!N-bp3-P-007-P.png",
+            "name": "優木せつ菜",
+            "text": "【登場】 {{kidou.png|起動}}{{icon_energy.png|E}}{{icon_energy.png|E}}このメンバーをステージから控え室に置く：自分の手札からコスト13以下の「優木せつ菜」のメンバーカードを1枚、このメンバーがいたエリアに登場させる その後、自分のエネルギー置き場にあるエネルギー1枚をそのメンバーの下に置く （メンバーの下に置かれているエネルギーカードではコストを支払えない メンバーがステージから離れたとき、下に置かれているエネルギーカードはエネルギーデッキに置く",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 33,
+            "img": "cards/BP03/PL!-bp3-P-009-P.png",
+            "name": "矢澤にこ",
+            "text": "【登場】 {{toujyou.png|登場}}自分のステージにコスト13以上のメンバーがいる場合、カードを1枚引く\n【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}このメンバーをウェイトにする：{{heart_01.png|heart01}}か{{heart_03.png|heart03}}か{{heart_06.png|heart06}}のうち、1つを選ぶ ライブ終了時まで、選んだハートを1つ得る",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 72,
+            "img": "cards/BP04/PL!-bp4-013-N.png",
+            "name": "園田海未",
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：ライブ終了時まで、自分のステージにいるこのメンバー以外のメンバー1人は、{{heart_01.png|heart01}}を得る",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 33,
+            "img": "cards/BP03/PL!-bp3-P-009-P.png",
+            "name": "矢澤にこ",
+            "text": "【登場】 {{toujyou.png|登場}}自分のステージにコスト13以上のメンバーがいる場合、カードを1枚引く\n【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}このメンバーをウェイトにする：{{heart_01.png|heart01}}か{{heart_03.png|heart03}}か{{heart_06.png|heart06}}のうち、1つを選ぶ ライブ終了時まで、選んだハートを1つ得る",
+            "type": "member",
+            "valid_actions": []
+          }
+        ],
+        "hand_count": 5,
+        "is_active": true,
+        "live_zone": [
+          {
+            "face_down": true,
+            "hidden": true,
+            "id": 1015,
+            "img": "cards/BP04/PL!-bp4-024-L.png",
+            "name": "小夜啼鳥恋詩",
+            "required_hearts": [
+              2,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0
+            ],
+            "score": 2,
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}ライブ終了時まで、自分のステージにいる『μ's』のメンバー1人は、{{icon_blade.png|ブレード}}を得る",
+            "type": "live"
+          }
+        ],
+        "live_zone_count": 1,
+        "mulligan_selection": [],
+        "player_id": 0,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "energy": 0,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 33,
+            "img": "cards/BP03/PL!-bp3-P-009-P.png",
+            "name": "矢澤にこ",
+            "tapped": true,
+            "text": "【登場】 {{toujyou.png|登場}}自分のステージにコスト13以上のメンバーがいる場合、カードを1枚引く\n【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}このメンバーをウェイトにする：{{heart_01.png|heart01}}か{{heart_03.png|heart03}}か{{heart_06.png|heart06}}のうち、1つを選ぶ ライブ終了時まで、選んだハートを1つ得る",
+            "type": "member"
+          },
+          null,
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "energy": 0,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 100,
+            "img": "cards/PBLL/PL!-pb1-012-P2.png",
+            "name": "南ことり",
+            "tapped": false,
+            "text": "【登場】 {{toujyou.png|登場}}自分のステージにいる『Printemps』のメンバーを1人までアクティブにする",
+            "type": "member"
+          }
+        ],
+        "success_lives": []
+      },
+      {
+        "deck_count": 53,
+        "discard": [],
+        "discard_count": 0,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": true
+          }
+        ],
+        "energy_count": 4,
+        "energy_deck_count": 8,
+        "energy_untapped": 0,
+        "expected_yells": 1,
+        "hand": [
+          {
+            "hidden": true,
+            "id": 175,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 678,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 332,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 666,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 399,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 175,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          }
+        ],
+        "hand_count": 6,
+        "is_active": false,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 1,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "energy": 0,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 321,
+            "img": "cards/BP03/PL!N-bp3-N-018-N.png",
+            "name": "近江彼方",
+            "tapped": false,
+            "text": "",
+            "type": "member"
+          },
+          null,
+          null
+        ],
+        "success_lives": []
+      }
+    ],
+    "rule_log": [
+      "[Turn 1] [MULLIGAN_P1] [Rule 9.5] Processing action 0 in MULLIGAN_P1 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 300 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 300 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 300 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 300 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 300 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 301 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 0 in MULLIGAN_P2 phase.",
+      "[Turn 1] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 1] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 4 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 1 plays 近江彼方 from hand to slot 0.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 4 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 0 plays 矢澤にこ from hand to slot 0.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 9 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 0 plays 南ことり from hand to slot 2.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 200 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 11.3] Player 0 activates ability of 矢澤にこ: {{kidou.png|起動}}{{turn1.png|ターン1回}}このメンバーをウェイトにする：{{heart_01...",
+      "[Turn 1] [MAIN] [Rule 9.7] Resolving effect: ADD_HEARTS (Value: 1)",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 400 in LIVE_SET phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 9.5] Processing action 0 in PERFORMANCE_P1 phase."
+    ],
+    "turn": 1,
+    "winner": -1
+  },
+  "history": [
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T07:08:18.428Z",
+      "phase": -1
+    },
+    {
+      "action_id": 300,
+      "timestamp": "2026-01-08T07:08:21.340Z",
+      "phase": 0
+    },
+    {
+      "action_id": 300,
+      "timestamp": "2026-01-08T07:08:22.635Z",
+      "phase": 0
+    },
+    {
+      "action_id": 300,
+      "timestamp": "2026-01-08T07:08:23.490Z",
+      "phase": 0
+    },
+    {
+      "action_id": 300,
+      "timestamp": "2026-01-08T07:08:23.851Z",
+      "phase": 0
+    },
+    {
+      "action_id": 300,
+      "timestamp": "2026-01-08T07:08:24.012Z",
+      "phase": 0
+    },
+    {
+      "action_id": 301,
+      "timestamp": "2026-01-08T07:08:25.533Z",
+      "phase": 0
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T07:08:27.200Z",
+      "phase": 0
+    },
+    {
+      "action_id": 4,
+      "timestamp": "2026-01-08T07:08:28.955Z",
+      "phase": 4
+    },
+    {
+      "action_id": 9,
+      "timestamp": "2026-01-08T07:08:30.549Z",
+      "phase": 4
+    },
+    {
+      "action_id": 200,
+      "timestamp": "2026-01-08T07:08:32.163Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T07:09:20.838Z",
+      "phase": 4
+    },
+    {
+      "action_id": 400,
+      "timestamp": "2026-01-08T07:09:24.808Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T07:09:25.903Z",
+      "phase": 5
+    }
+  ],
+  "action_desc": "N/A"
+}
