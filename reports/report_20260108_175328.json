@@ -1,0 +1,998 @@
+{
+  "timestamp": "20260108_175328",
+  "explanation": "look at the turn 2 performance, are the hearts still wrong colors?",
+  "state": {
+    "active_player": 0,
+    "game_over": false,
+    "last_performance_result": null,
+    "legal_actions": [
+      {
+        "desc": "メインフェイズ終了 (パス)",
+        "id": 0
+      },
+      {
+        "area_idx": 1,
+        "cost": 9,
+        "desc": "中須かすみを中に置く (バトンタッチ: 星空 凛, コスト 0)",
+        "hand_idx": 0,
+        "id": 2,
+        "img": "cards/NSD01/PL!N-sd1-002-SD.png",
+        "name": "中須かすみ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 13,
+        "desc": "星空 凛を中に置く (バトンタッチ: 星空 凛, コスト 4)",
+        "hand_idx": 1,
+        "id": 5,
+        "img": "cards/BP04/PL!-bp4-005-P.png",
+        "name": "星空 凛",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 2,
+        "desc": "米女メイを左に置く (コスト 2)",
+        "hand_idx": 2,
+        "id": 7,
+        "img": "cards/PBSP/PL!SP-pb1_018-N.png",
+        "name": "米女メイ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 2,
+        "desc": "米女メイを中に置く (バトンタッチ: 星空 凛, コスト 0)",
+        "hand_idx": 2,
+        "id": 8,
+        "img": "cards/PBSP/PL!SP-pb1_018-N.png",
+        "name": "米女メイ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 2,
+        "desc": "米女メイを右に置く (コスト 2)",
+        "hand_idx": 2,
+        "id": 9,
+        "img": "cards/PBSP/PL!SP-pb1_018-N.png",
+        "name": "米女メイ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 13,
+        "desc": "津島善子を中に置く (バトンタッチ: 星空 凛, コスト 4)",
+        "hand_idx": 3,
+        "id": 11,
+        "img": "cards/BP03/PL!S-bp3-P-006-P.png",
+        "name": "津島善子",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 9,
+        "desc": "中須かすみを中に置く (バトンタッチ: 星空 凛, コスト 0)",
+        "hand_idx": 4,
+        "id": 14,
+        "img": "cards/NSD01/PL!N-sd1-002-SD.png",
+        "name": "中須かすみ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 15,
+        "desc": "鐘 嵐珠を中に置く (バトンタッチ: 星空 凛, コスト 6)",
+        "hand_idx": 5,
+        "id": 17,
+        "img": "cards/BP01/PL!N-bp1-012-P.png",
+        "name": "鐘 嵐珠",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 2,
+        "desc": "米女メイを左に置く (コスト 2)",
+        "hand_idx": 6,
+        "id": 19,
+        "img": "cards/PBSP/PL!SP-pb1_018-N.png",
+        "name": "米女メイ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 2,
+        "desc": "米女メイを中に置く (バトンタッチ: 星空 凛, コスト 0)",
+        "hand_idx": 6,
+        "id": 20,
+        "img": "cards/PBSP/PL!SP-pb1_018-N.png",
+        "name": "米女メイ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 2,
+        "desc": "米女メイを右に置く (コスト 2)",
+        "hand_idx": 6,
+        "id": 21,
+        "img": "cards/PBSP/PL!SP-pb1_018-N.png",
+        "name": "米女メイ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 13,
+        "desc": "津島善子を中に置く (バトンタッチ: 星空 凛, コスト 4)",
+        "hand_idx": 9,
+        "id": 29,
+        "img": "cards/BP03/PL!S-bp3-P-006-P.png",
+        "name": "津島善子",
+        "type": "PLAY"
+      }
+    ],
+    "pending_choice": null,
+    "phase": 4,
+    "players": [
+      {
+        "deck_count": 44,
+        "discard": [
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 725,
+            "img": "cards/PBSP/PL!SP-pb1_015-N.png",
+            "name": "平安名すみれ",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを5枚見る その中から『CatChu!』のカードを1枚公開して手札に加えてもよい 残りを控え室に置く",
+            "type": "member"
+          },
+          {
+            "id": 1085,
+            "img": "cards/BP02/PL!S-bp2-024-L.png",
+            "name": "君のこころは輝いてるかい？",
+            "required_hearts": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "score": 0,
+            "text": "【自動】 {{jyouji.png|常時}}このカードは成功ライブカード置き場に置くことができない\n【自動】 {{live_success.png|ライブ成功時}}カードを2枚引き、手札を1枚控え室に置く",
+            "type": "live"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 623,
+            "img": "cards/BP02/PL!SP-bp2-002-R.png",
+            "name": "唐 可可",
+            "text": "【登場】 {{toujyou.png|登場}}自分のデッキの上からカードを3枚見る その中からコスト11以上のカードを1枚公開して手札に加えてもよい 残りを控え室に置く",
+            "type": "member"
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 13,
+            "hearts": [
+              2,
+              0,
+              2,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 57,
+            "img": "cards/BP04/PL!-bp4-005-P.png",
+            "name": "星空 凛",
+            "text": "【登場】 {{toujyou.png|登場}}自分の控え室からコスト2以下のメンバーカードを1枚手札に加える\n【常時】 {{jyouji.png|常時}}{{center.png|センター}}ライブの合計スコアを＋１する\n【ライブ開始】 {{live_start.png|ライブ開始時}}自分のステージに{{icon_blade.png|ブレード}}を5つ以上持つ『μ's』のメンバーがいない場合、このメンバーはセンターエリア以外にポジションチェンジする (このメンバーを今いるエリア以外のエリアに移動させる そのエリアにメンバーがいる場合、そのメンバーはこのメンバーがいたエリアに移動させる",
+            "type": "member"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 728,
+            "img": "cards/PBSP/PL!SP-pb1_018-N.png",
+            "name": "米女メイ",
+            "text": "【起動】 {{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からライブカードを1枚手札に加える",
+            "type": "member"
+          }
+        ],
+        "discard_count": 5,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 4,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 5,
+            "tapped": false
+          }
+        ],
+        "energy_count": 6,
+        "energy_deck_count": 6,
+        "energy_untapped": 6,
+        "expected_yells": 3,
+        "hand": [
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 9,
+            "hearts": [
+              0,
+              0,
+              2,
+              1,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 433,
+            "img": "cards/NSD01/PL!N-sd1-002-SD.png",
+            "name": "中須かすみ",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る その中から1枚を手札に加え、残りを控え室に置く",
+            "type": "member",
+            "valid_actions": [
+              2
+            ]
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 13,
+            "hearts": [
+              2,
+              0,
+              2,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 57,
+            "img": "cards/BP04/PL!-bp4-005-P.png",
+            "name": "星空 凛",
+            "text": "【登場】 {{toujyou.png|登場}}自分の控え室からコスト2以下のメンバーカードを1枚手札に加える\n【常時】 {{jyouji.png|常時}}{{center.png|センター}}ライブの合計スコアを＋１する\n【ライブ開始】 {{live_start.png|ライブ開始時}}自分のステージに{{icon_blade.png|ブレード}}を5つ以上持つ『μ's』のメンバーがいない場合、このメンバーはセンターエリア以外にポジションチェンジする (このメンバーを今いるエリア以外のエリアに移動させる そのエリアにメンバーがいる場合、そのメンバーはこのメンバーがいたエリアに移動させる",
+            "type": "member",
+            "valid_actions": [
+              5
+            ]
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 728,
+            "img": "cards/PBSP/PL!SP-pb1_018-N.png",
+            "name": "米女メイ",
+            "text": "【起動】 {{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からライブカードを1枚手札に加える",
+            "type": "member",
+            "valid_actions": [
+              7,
+              8,
+              9
+            ]
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 13,
+            "hearts": [
+              0,
+              2,
+              0,
+              1,
+              2,
+              0
+            ],
+            "hp": 1,
+            "id": 521,
+            "img": "cards/BP03/PL!S-bp3-P-006-P.png",
+            "name": "津島善子",
+            "text": "【起動】 {{kidou.png|起動}}{{center.png|センター}}{{turn1.png|ターン1回}}このメンバーをウェイトにし、手札を1枚控え室に置く：このメンバー以外の『Aqours』のメンバー1人を自分のステージから控え室に置く\n【登場】 そうした場合、自分の控え室から、そのメンバーのコストに2を足した数に等しいコストの『Aqours』のメンバーカードを1枚、そのメンバーがいたエリアに登場させる\n【登場】 （この能力はセンターエリアに登場している場合のみ起動できる",
+            "type": "member",
+            "valid_actions": [
+              11
+            ]
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 9,
+            "hearts": [
+              0,
+              0,
+              2,
+              1,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 433,
+            "img": "cards/NSD01/PL!N-sd1-002-SD.png",
+            "name": "中須かすみ",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る その中から1枚を手札に加え、残りを控え室に置く",
+            "type": "member",
+            "valid_actions": [
+              14
+            ]
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 15,
+            "hearts": [
+              3,
+              0,
+              0,
+              2,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 267,
+            "img": "cards/BP01/PL!N-bp1-012-P.png",
+            "name": "鐘 嵐珠",
+            "text": "【常時】 {{jyouji.png|常時}}自分のライブ中のカードが3枚以上あり、その中に『虹ヶ咲』のライブカードを1枚以上含む場合、{{icon_all.png|ハート}}{{icon_all.png|ハート}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る\n【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}：自分の控え室からライブカードを1枚手札に加える",
+            "type": "member",
+            "valid_actions": [
+              17
+            ]
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 728,
+            "img": "cards/PBSP/PL!SP-pb1_018-N.png",
+            "name": "米女メイ",
+            "text": "【起動】 {{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からライブカードを1枚手札に加える",
+            "type": "member",
+            "valid_actions": [
+              19,
+              20,
+              21
+            ]
+          },
+          {
+            "id": 1030,
+            "img": "cards/PR/PL!HS-PR-012-PR.png",
+            "name": "アイデンティティ",
+            "required_hearts": [
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "score": 1,
+            "text": "(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)",
+            "type": "live",
+            "valid_actions": []
+          },
+          {
+            "id": 1096,
+            "img": "cards/PBLS/PL!S-pb1-020-L.png",
+            "name": "トリコリコPLEASE!!",
+            "required_hearts": [
+              0,
+              0,
+              0,
+              8,
+              0,
+              0,
+              0
+            ],
+            "score": 6,
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}自分のステージにいる『Aqours』のメンバーが持つハートに、{{heart_04.png|heart04}}が合計10個以上ある場合、このカードのスコアを＋２する",
+            "type": "live",
+            "valid_actions": []
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 13,
+            "hearts": [
+              0,
+              2,
+              0,
+              1,
+              2,
+              0
+            ],
+            "hp": 1,
+            "id": 521,
+            "img": "cards/BP03/PL!S-bp3-P-006-P.png",
+            "name": "津島善子",
+            "text": "【起動】 {{kidou.png|起動}}{{center.png|センター}}{{turn1.png|ターン1回}}このメンバーをウェイトにし、手札を1枚控え室に置く：このメンバー以外の『Aqours』のメンバー1人を自分のステージから控え室に置く\n【登場】 そうした場合、自分の控え室から、そのメンバーのコストに2を足した数に等しいコストの『Aqours』のメンバーカードを1枚、そのメンバーがいたエリアに登場させる\n【登場】 （この能力はセンターエリアに登場している場合のみ起動できる",
+            "type": "member",
+            "valid_actions": [
+              29
+            ]
+          }
+        ],
+        "hand_count": 10,
+        "is_active": true,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 0,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          null,
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 9,
+            "energy": 0,
+            "hearts": [
+              1,
+              0,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 8,
+            "img": "cards/PR/PL!-PR-005-PR.png",
+            "name": "星空 凛",
+            "tapped": false,
+            "text": "【登場】 {{toujyou.png|登場}}以下から1つを選ぶ",
+            "type": "member"
+          },
+          null
+        ],
+        "success_lives": []
+      },
+      {
+        "deck_count": 52,
+        "discard": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 361,
+            "img": "cards/BP04/PL!N-bp4-014-N.png",
+            "name": "中須かすみ",
+            "text": "",
+            "type": "member"
+          }
+        ],
+        "discard_count": 1,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 4,
+            "tapped": false
+          }
+        ],
+        "energy_count": 5,
+        "energy_deck_count": 7,
+        "energy_untapped": 2,
+        "expected_yells": 1,
+        "hand": [
+          {
+            "hidden": true,
+            "id": 1038,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 735,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 206,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 361,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 503,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 4,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          }
+        ],
+        "hand_count": 6,
+        "is_active": false,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 1,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 7,
+            "energy": 0,
+            "hearts": [
+              0,
+              0,
+              2,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 313,
+            "img": "cards/BP03/PL!N-bp3-R-011-R.png",
+            "name": "ミア・テイラー",
+            "tapped": false,
+            "text": "【登場】 {{toujyou.png|登場}}相手のステージにいる「ミア・テイラー」以外のメンバーを1人選ぶ そのメンバーが持つハートと、このメンバーが持つハートの中に同じ色のハートがある場合、ライブ終了時まで、{{icon_blade.png|ブレード}}を得る",
+            "type": "member"
+          },
+          null,
+          null
+        ],
+        "success_lives": []
+      }
+    ],
+    "rule_log": [
+      "[Turn 1] [MULLIGAN_P1] [Rule 9.5] Processing action 0 in MULLIGAN_P1 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 305 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 300 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 303 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 301 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 304 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 302 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 0 in MULLIGAN_P2 phase.",
+      "[Turn 1] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 1] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 11 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 0 plays 平安名すみれ from hand to slot 1.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 1 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 1 plays 中須かすみ from hand to slot 0.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 9.5] Processing action 0 in PERFORMANCE_P1 phase.",
+      "[Turn 1] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 1] [LIVE_RESULT] [Rule 9.5] Processing action 0 in LIVE_RESULT phase.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4] Live Winner Determination Phase starts.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.2] Score Calculation: P0=0 (0+0), P1=0 (0+0)",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.6.1] No winners (both scores 0 or no cards).",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 0.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 1.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.14] Turn 1 finished.",
+      "[Turn 2] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 2] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 2] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 2] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 2] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 2] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 20 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.6.2] Player 0 plays 星空 凛 from hand to slot 1.",
+      "[Turn 2] [MAIN] [Rule 9.6.2.1.1.2] Baton Touch applied (1/1). Cost reduced from 9 to 5 by 平安名すみれ.",
+      "[Turn 2] [MAIN] [Rule 9.7] Player 0 resolving automatic ability.",
+      "[Turn 2] [MAIN] [Rule 9.7] Resolving effect: SELECT_MODE (Value: 1)",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 2] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 2] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 2] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 7 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.6.2] Player 1 plays ミア・テイラー from hand to slot 0.",
+      "[Turn 2] [MAIN] [Rule 9.6.2.1.1.2] Baton Touch applied (1/1). Cost reduced from 7 to 3 by 中須かすみ.",
+      "[Turn 2] [MAIN] [Rule 9.7] Player 1 resolving automatic ability.",
+      "[Turn 2] [MAIN] [Rule 9.7] Resolving effect: ADD_HEARTS (Value: 1)",
+      "[Turn 2] [MAIN] [Rule 9.7] Resolving effect: ADD_BLADES (Value: 1)",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 2] [LIVE_SET] [Rule 9.5] Processing action 400 in LIVE_SET phase.",
+      "[Turn 2] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 2] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 9.5] Processing action 0 in PERFORMANCE_P1 phase.",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.10] 🎺 YELL START: Player 0 has 3 total blades on stage → Revealing 3 cards from deck",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.11] Yell Zone: 3 cards revealed: 唐 可可, 星空 凛, 米女メイ",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.12.1] Yell Draw Bonus: +3 cards.",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.13] --- Heart Contribution Breakdown (Player 0) ---",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.13] Slot 1 [星空 凛]: +[Red:1, Green:1, Pink:1]",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.14] --- Yell Heart Contributions ---",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.14] Yell [唐 可可]: +[Pink:1] (Blade)",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.14] Yell [星空 凛]: +[Red:1] (Blade)",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.14] Yell [米女メイ]: +[Blue:1] (Blade)",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.14.S] --- TOTAL HEARTS AVAILABLE: [Red:2, Blue:1, Green:1, Pink:2] (Total Vol: 6) ---",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.15.2] ❌ FAILED: '君のこころは輝いてるかい？' → [Purple 0/1]",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.16.2] 💔 FAILURE! Player 0 failed one or more requirements. All face-down live cards discarded.",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.17] Player 0 Live Score Bonus (Yell): +0.",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.18] Yell cards moved to discard pile.",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 8.3.19] Player 0's members are now in Wait state (tapped).",
+      "[Turn 2] [PERFORMANCE_P1] [PERF_SUMMARY] ━━━ PERFORMANCE SUMMARY (Player 0) ━━━",
+      "[Turn 2] [PERFORMANCE_P1] [PERF_SUMMARY]   Yell Cards: 0 cards revealed, +3 cards drawn",
+      "[Turn 2] [PERFORMANCE_P1] [PERF_SUMMARY]   Hearts: 6 total (5 from stage, ~1 from yells)",
+      "[Turn 2] [PERFORMANCE_P1] [PERF_SUMMARY]   Result: ✗ FAILURE - 0/0 lives cleared",
+      "[Turn 2] [PERFORMANCE_P1] [PERF_SUMMARY] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+      "[Turn 2] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 2] [LIVE_RESULT] [Rule 9.5] Processing action 0 in LIVE_RESULT phase.",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4] Live Winner Determination Phase starts.",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.2] Score Calculation: P0=0 (0+0), P1=0 (0+0)",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.6.1] No winners (both scores 0 or no cards).",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 0.",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 1.",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.14] Turn 2 finished.",
+      "[Turn 3] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 3] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 3] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 3] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 3] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 3] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card."
+    ],
+    "turn": 3,
+    "winner": -1
+  },
+  "history": [
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:49:32.695Z",
+      "phase": -1
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:49:37.426Z",
+      "phase": -1
+    },
+    {
+      "action_id": 11,
+      "timestamp": "2026-01-08T06:49:40.129Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:49:42.316Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:49:46.412Z",
+      "phase": 5
+    },
+    {
+      "action_id": 20,
+      "timestamp": "2026-01-08T06:49:58.135Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:50:01.066Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:50:06.038Z",
+      "phase": 4
+    },
+    {
+      "action_id": 400,
+      "timestamp": "2026-01-08T06:50:07.418Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:50:08.499Z",
+      "phase": 5
+    }
+  ],
+  "action_desc": "N/A"
+}

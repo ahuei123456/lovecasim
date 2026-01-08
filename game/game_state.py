@@ -2103,7 +2103,7 @@ class GameState:
         for cid in self.yell_cards:
             card = self.member_db.get(cid) or self.live_db.get(cid)
             if card:
-                yell_names.append(card.name)
+                yell_names.append(f"{card.name} (ID:{cid})")
         
         self.log_rule("Rule 8.3.11", f"Yell Zone: {len(self.yell_cards)} cards revealed: {', '.join(yell_names) if yell_names else 'None'}")
         
@@ -2139,9 +2139,10 @@ class GameState:
                 m_hearts[:len(m_hearts_raw)] = m_hearts_raw
                 total_hearts += m_hearts
                 
-                # Log individual contribution
-                h_str = ', '.join([f"{color}:{m_hearts[idx]}" for idx, color in enumerate(['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink']) if m_hearts[idx] > 0])
-                self.log_rule("Rule 8.3.13", f"Slot {i} [{member.name}]: +[{h_str if h_str else 'None'}]")
+                # Log individual contribution - CORRECT COLOR ORDER: Pink=0, Red=1, Yellow=2, Green=3, Blue=4, Purple=5
+                COLOR_NAMES = ['Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple', 'Any']
+                h_str = ', '.join([f"{COLOR_NAMES[idx]}:{m_hearts[idx]}" for idx in range(7) if m_hearts[idx] > 0])
+                self.log_rule("Rule 8.3.13", f"Slot {i} [{member.name} (ID:{cid})]: +[{h_str if h_str else 'None'}]")
         
         # Add blade hearts from yell cards
         if self.yell_cards:
@@ -2154,12 +2155,14 @@ class GameState:
                 blade_hearts_padded = np.zeros(7, dtype=np.int32)
                 blade_hearts_padded[:6] = member.blade_hearts
                 total_hearts += blade_hearts_padded
-                h_str = ', '.join([f"{color}:{member.blade_hearts[idx]}" for idx, color in enumerate(['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink']) if member.blade_hearts[idx] > 0])
+                COLOR_NAMES = ['Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple', 'Any']
+                h_str = ', '.join([f"{COLOR_NAMES[idx]}:{member.blade_hearts[idx]}" for idx in range(6) if member.blade_hearts[idx] > 0])
                 if h_str:
-                    self.log_rule("Rule 8.3.14", f"Yell [{member.name}]: +[{h_str}] (Blade)")
+                    self.log_rule("Rule 8.3.14", f"Yell [{member.name} (ID:{card_id})]: +[{h_str}] (Blade)")
         
         total_h_sum = np.sum(total_hearts)
-        total_hearts_str = ', '.join([f"{color}:{total_hearts[idx]}" for idx, color in enumerate(['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink']) if total_hearts[idx] > 0])
+        COLOR_NAMES = ['Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple', 'Any']
+        total_hearts_str = ', '.join([f"{COLOR_NAMES[idx]}:{total_hearts[idx]}" for idx in range(7) if total_hearts[idx] > 0])
         self.log_rule("Rule 8.3.14.S", f"--- TOTAL HEARTS AVAILABLE: [{total_hearts_str if total_hearts_str else 'None'}] (Total Vol: {total_h_sum}) ---")
         
         # Rule 8.3.15: Check if requirements met for each live card
@@ -2172,8 +2175,8 @@ class GameState:
                 continue # Safety
             live = self.live_db[live_id]
             
-            req = live.required_hearts # Shape (7,) [R, B, G, Y, P, Pi, Any]
-            color_names = ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Pink']
+            req = live.required_hearts # Shape (7,) [Pink, Red, Yellow, Green, Blue, Purple, Any]
+            COLOR_NAMES = ['Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple']
             
             # Create a combined string for "Have/Need" for only required colors
             have_need_list = []

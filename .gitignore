@@ -13,7 +13,6 @@ logs/
 replays/
 stress_reports/
 diagnostic_logs/
-reports/
 
 # Debug files
 debug_*.txt
