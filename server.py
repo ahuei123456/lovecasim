@@ -153,8 +153,8 @@ def init_game(deck_type='normal'):
     # Start in MULLIGAN phase
     game_state.phase = Phase.MULLIGAN_P1
 
-def serialize_card(cid, is_viewable=True):
-    if not is_viewable:
+def serialize_card(cid, is_viewable=True, peek=False):
+    if not is_viewable and not peek:
         return {
             'id': int(cid),
             'name': '???',
@@ -162,6 +162,80 @@ def serialize_card(cid, is_viewable=True):
             'img': 'cards/back.png',
             'hidden': True
         }
+    
+    card_data = {}
+    if cid in member_db:
+        m = member_db[cid]
+        # ... (rest of member serialization) ...
+        # We need to construct the full object or call a helper if we want to avoid code duplication.
+        # However, to minimize changes, let's just grab the object if it was already resolved or rebuild it.
+        # Actually, let's restructure slightly to allow fall-through.
+        pass # Handle below
+    elif cid in live_db:
+        pass # Handle below
+    else:
+        # Fallback for truly unknown ID if that happens, or just return hidden
+        return {'id': cid, 'name': 'Unknown', 'img': 'cards/back.png'}
+
+    # Re-implementing the logic below to handle flow correctly
+    if cid in member_db:
+        m = member_db[cid]
+        ability_text = getattr(m, 'ability_text', '')
+        if hasattr(m, 'abilities') and m.abilities:
+            ability_lines = []
+            from game.ability import TriggerType
+            for ab in m.abilities:
+                trigger_icon = {
+                    TriggerType.ACTIVATED: '【起動】',
+                    TriggerType.ON_PLAY: '【登場】',
+                    TriggerType.CONSTANT: '【常時】',
+                    TriggerType.ON_LIVE_START: '【ライブ開始】',
+                    TriggerType.ON_LIVE_SUCCESS: '【ライブ成功時】'
+                }.get(ab.trigger, '【自動】')
+                ability_lines.append(f"{trigger_icon} {ab.raw_text}")
+            ability_text = "\n".join(ability_lines)
+
+        card_data = {
+            'id': int(cid),
+            'name': m.name,
+            'type': 'member',
+            'cost': m.cost,
+            'hp': 1, # Default HP/Life for members if tracked, or just omit if not in model
+            'blade': m.blades, # Corrected from .blade to .blades
+            'img': m.img_path,
+            'hearts': m.hearts.tolist(),
+            'blade_hearts': m.blade_hearts.tolist(),
+            'color': 'Unknown', # Could derive from hearts
+            'text': ability_text
+        }
+    elif cid in live_db:
+        l = live_db[cid]
+        ability_text = getattr(l, 'ability_text', '')
+        if hasattr(l, 'abilities') and l.abilities:
+             ability_lines = []
+             from game.ability import TriggerType
+             for ab in l.abilities:
+                 trigger_icon = {
+                    TriggerType.ON_LIVE_START: '【ライブ開始】'
+                 }.get(ab.trigger, '【自動】')
+                 ability_lines.append(f"{trigger_icon} {ab.raw_text}")
+             ability_text = "\n".join(ability_lines)
+
+        card_data = {
+            'id': int(cid),
+            'name': l.name,
+            'type': 'live',
+            'score': l.score,
+            'img': l.img_path,
+            'required_hearts': l.required_hearts.tolist(),
+            'text': ability_text
+        }
+    
+    if not is_viewable and peek:
+        card_data['hidden'] = True # Mark as hidden generally
+        card_data['face_down'] = True # Explicit flag for UI to show "peek" state
+        
+    return card_data
 
     if cid in member_db:
         m = member_db[cid]
@@ -223,7 +297,7 @@ def serialize_card(cid, is_viewable=True):
             return {'id': 999, 'name': 'Live (Easy)', 'score': 1, 'img': 'cards/PLSD01/PL!-pb1-019-SD.png', 'type': 'live', 'cost': 1, 'required_hearts': [0,0,0,0,0,0,1], 'text': ''}
         return {'id': int(cid), 'name': f'Card {cid}', 'type': 'unknown', 'img': None}
 
-def serialize_player(p, is_viewable=True):
+def serialize_player(p, player_idx, viewer_idx=0, is_viewable=True):
     """Serialize one player's state."""
     
     # Calculate expected yell count based on total blades
@@ -279,7 +353,22 @@ def serialize_player(p, is_viewable=True):
     
     discard = [serialize_card(cid, is_viewable=True) for cid in p.discard]
     energy = [{'id': i, 'tapped': bool(p.tapped_energy[i]) if i < len(p.tapped_energy) else False, 'card': serialize_card(p.energy_zone[i], is_viewable=False)} for i, _ in enumerate(p.energy_zone)]
-    live_zone = [serialize_card(cid, is_viewable=bool(p.live_zone_revealed[i])) for i, cid in enumerate(p.live_zone)]
+    live_zone = []
+    for i, cid in enumerate(p.live_zone):
+        is_revealed = False
+        if i < len(p.live_zone_revealed):
+             is_revealed = bool(p.live_zone_revealed[i])
+        
+        # Rule: Owner can peek at their own live cards (Rule 4.9.2)
+        # Use passed viewer_idx context
+        can_peek = (player_idx == viewer_idx)
+        
+        # Serialization: 
+        # If open info (revealed): viewable=True
+        # If hidden info but owner: viewable=False, peek=True
+        # If hidden info and opp: viewable=False, peek=False
+        
+        live_zone.append(serialize_card(cid, is_viewable=is_revealed, peek=can_peek))
 
     # Calculate Score
     score = 0
@@ -387,8 +476,8 @@ def serialize_state():
         'game_over': game_state.game_over,
         'winner': game_state.winner,
         'players': [
-            serialize_player(game_state.players[0], True), # P0 is ALWAYS human-viewable
-            serialize_player(game_state.players[1], False) # P1 is ALWAYS hidden (AI)
+            serialize_player(game_state.players[0], player_idx=0, viewer_idx=0, is_viewable=True), # P0 is human (viewer)
+            serialize_player(game_state.players[1], player_idx=1, viewer_idx=0, is_viewable=False) # P1 is AI (opponent)
         ],
         'legal_actions': legal_actions,
         'pending_choice': pending_choice_info,
