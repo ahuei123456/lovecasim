@@ -68,17 +68,17 @@ class CardDataLoader:
             ctype = card_data.get('type')
             
             if ctype == 'メンバー':
-                m_card = self._parse_member(m_idx, card_data)
+                m_card = self._parse_member(m_idx, key, card_data)
                 members[m_idx] = m_card
                 m_idx += 1
             elif ctype == 'ライブ':
-                l_card = self._parse_live(l_idx, card_data)
+                l_card = self._parse_live(l_idx, key, card_data)
                 lives[l_idx] = l_card
                 l_idx += 1
             elif ctype == 'エネルギー':
                 # Use simple MemberCard struct for energy for now or just dict
                 # Standard Energy Card ID is usually fixed, but we'll assign dynamic
-                e_card = self._parse_member(e_idx, card_data) # Structure is similar enough
+                e_card = self._parse_member(e_idx, key, card_data) # Structure is similar enough
                 energy[e_idx] = e_card
                 e_idx += 1
                 
@@ -145,7 +145,7 @@ class CardDataLoader:
                     pass
         return hearts
 
-    def _parse_member(self, card_id: int, data: dict) -> MemberCard:
+    def _parse_member(self, card_id: int, card_no: str, data: dict) -> MemberCard:
         # Cost
         cost = int(data.get('cost', 0))
         
@@ -170,6 +170,7 @@ class CardDataLoader:
         
         return MemberCard(
             card_id=card_id,
+            card_no=card_no,
             name=data.get('name', 'Unknown'),
             cost=cost,
             hearts=hearts,
@@ -184,7 +185,7 @@ class CardDataLoader:
             draw_icons=draw
         )
 
-    def _parse_live(self, card_id: int, data: dict) -> LiveCard:
+    def _parse_live(self, card_id: int, card_no: str, data: dict) -> LiveCard:
         score = int(data.get('score', 0))
         reqs = self._parse_live_reqs(data.get('need_heart', {}))
         
@@ -201,6 +202,7 @@ class CardDataLoader:
         
         return LiveCard(
             card_id=card_id,
+            card_no=card_no,
             name=data.get('name', 'Unknown'),
             score=score,
             required_hearts=reqs,

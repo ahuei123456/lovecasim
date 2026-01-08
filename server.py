@@ -15,6 +15,14 @@ from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
 from headless_runner import SmartHeuristicAgent, create_easy_cards
 
+# Add tools directory to path for imports
+sys.path.append(os.path.join(os.path.dirname(__file__), 'tools'))
+try:
+    from deck_extractor import extract_deck_data
+except ImportError:
+    print("Warning: Could not import deck_extractor. Is it in tools/?")
+    def extract_deck_data(content, db): return [], [], {}, ["Importer not found"]
+
 app = Flask(__name__, static_folder='web_ui')
 ai_agent = SmartHeuristicAgent()
 
@@ -28,6 +36,8 @@ game_history = [] # For replay recording
 # Custom deck storage (list of card_no strings like "PL!-sd1-001-SD")
 custom_deck_p0 = None  # Player 0 (Human)
 custom_deck_p1 = None  # Player 1 (AI)
+custom_energy_deck_p0 = None
+custom_energy_deck_p1 = None
 
 # Reverse mapping: card_no string -> internal integer ID
 card_no_to_id = {}
@@ -147,6 +157,9 @@ def init_game(deck_type='normal'):
     GameState.member_db = member_db
     GameState.live_db = live_db
     
+    # Initialize JIT arrays for performance
+    GameState._init_jit_arrays()
+    
     # Build reverse mapping for custom deck support
     build_card_no_mapping()
     
@@ -255,6 +268,12 @@ def init_game(deck_type='normal'):
             p.energy_deck = [eid] * 12
         else:
             p.energy_deck = [200] * 12 # Fallback
+            
+        # Custom Energy Deck Override
+        custom_energy = custom_energy_deck_p0 if pidx == 0 else custom_energy_deck_p1
+        if custom_energy:
+            p.energy_deck = convert_deck_strings_to_ids(custom_energy)
+            print(f"Player {pidx}: Using custom energy deck ({len(p.energy_deck)} cards)")
         
         # Explicit shuffle before drawing
         random.shuffle(p.main_deck)
@@ -328,6 +347,7 @@ def serialize_card(cid, is_viewable=True, peek=False):
 
         card_data = {
             'id': int(cid),
+            'card_no': m.card_no,
             'name': m.name,
             'type': 'member',
             'cost': m.cost,
@@ -354,6 +374,7 @@ def serialize_card(cid, is_viewable=True, peek=False):
 
         card_data = {
             'id': int(cid),
+            'card_no': l.card_no,
             'name': l.name,
             'type': 'live',
             'score': l.score,
@@ -501,11 +522,8 @@ def serialize_player(p, player_idx, viewer_idx=0, is_viewable=True):
         
         live_zone.append(serialize_card(cid, is_viewable=is_revealed, peek=can_peek))
 
-    # Calculate Score
-    score = 0
-    for cid in p.success_lives:
-        if cid in live_db:
-            score += live_db[cid].score
+    # Score is the NUMBER of successful lives (win condition: 3)
+    score = len(p.success_lives)
     
     return {
         'player_id': p.player_id,
@@ -536,6 +554,10 @@ def serialize_state():
     legal_mask = game_state.get_legal_actions()
     legal_actions = []
     p = game_state.active_player
+    # Only reveal card details in actions if it's the viewer's (P0) turn/actions
+    # This prevents P1 (AI/Opponent) actions from leaking info via legal_actions list
+    actions_viewable = (game_state.current_player == 0)
+    
     for i, v in enumerate(legal_mask):
         if v:
             desc = get_action_desc(i, game_state)
@@ -552,40 +574,99 @@ def serialize_state():
                 meta['area_idx'] = (i - 1) % 3
                 if meta['hand_idx'] < len(p.hand):
                     cid = p.hand[meta['hand_idx']]
-                    c_data = serialize_card(cid)
+                    c_data = serialize_card(cid, is_viewable=actions_viewable)
                     meta['img'] = c_data['img']
                     meta['name'] = c_data['name']
                     meta['cost'] = c_data.get('cost', 0)
+                    meta['card_id'] = int(cid) if actions_viewable else -1
                     
             elif 200 <= i <= 202:
                 meta['type'] = 'ABILITY'
                 meta['area_idx'] = i - 200
                 if p.stage[meta['area_idx']] >= 0:
                     cid = p.stage[meta['area_idx']]
-                    c_data = serialize_card(cid)
+                    # Stage cards are public, so viewable is True
+                    c_data = serialize_card(cid, is_viewable=True)
                     meta['img'] = c_data['img']
                     meta['name'] = c_data['name']
+                    meta['card_id'] = int(cid)
                     
             elif 300 <= i <= 359:
                 meta['type'] = 'MULLIGAN'
                 meta['hand_idx'] = i - 300
                 if meta['hand_idx'] < len(p.hand):
                     cid = p.hand[meta['hand_idx']]
-                    c_data = serialize_card(cid)
+                    c_data = serialize_card(cid, is_viewable=actions_viewable)
                     meta['img'] = c_data['img']
                     meta['name'] = c_data['name']
+                    meta['card_id'] = int(cid) if actions_viewable else -1
                     
             elif 400 <= i <= 459:
                 meta['type'] = 'LIVE_SET'
                 meta['hand_idx'] = i - 400
                 if meta['hand_idx'] < len(p.hand):
                     cid = p.hand[meta['hand_idx']]
-                    c_data = serialize_card(cid)
+                    c_data = serialize_card(cid, is_viewable=actions_viewable)
                     meta['img'] = c_data['img']
                     meta['name'] = c_data['name']
+                    meta['card_id'] = int(cid) if actions_viewable else -1
             
+            elif 600 <= i <= 659:
+                meta['type'] = 'SELECT'
+                # For SELECT_FROM_LIST, the ID is often the index in the list
+                meta['index'] = i - 600
+                # If we have looked_cards, we can find the exact card
+                if hasattr(game_state, 'looked_cards') and game_state.looked_cards and meta['index'] < len(game_state.looked_cards):
+                    cid = game_state.looked_cards[meta['index']]
+                    # Looked cards are privately visible to the active player
+                    c_data = serialize_card(cid, is_viewable=actions_viewable)
+                    meta['img'] = c_data['img']
+                    meta['name'] = c_data['name']
+                    meta['card_id'] = int(cid)
+                # Check for pending choices generic list
+                elif game_state.pending_choices:
+                    choice_type, params = game_state.pending_choices[0]
+                    if choice_type in ('SELECT_FROM_LIST', 'TARGET_OPPONENT_MEMBER', 'SELECT_SWAP_SOURCE'):
+                        cards = params.get('cards', [])
+                        # For opponent member target, cards might not be populated directly as list of IDs but derived
+                        if choice_type == 'TARGET_OPPONENT_MEMBER':
+                            opp = game_state.inactive_player
+                            if meta['index'] < 3 and opp.stage[meta['index']] >= 0:
+                                meta['card_id'] = int(opp.stage[meta['index']])
+                        elif meta['index'] < len(cards):
+                             meta['card_id'] = int(cards[meta['index']])
+
+            elif 660 <= i <= 719:
+                # Discard Select
+                meta['type'] = 'SELECT_DISCARD'
+                meta['index'] = i - 660
+                if game_state.pending_choices:
+                    choice_type, params = game_state.pending_choices[0]
+                    if choice_type == 'SELECT_FROM_DISCARD':
+                        cards = params.get('cards', [])
+                        if meta['index'] < len(cards):
+                            meta['card_id'] = int(cards[meta['index']])
+
+            elif 500 <= i <= 559:
+                # Hand Select (Target/Discard)
+                meta['type'] = 'SELECT_HAND'
+                meta['hand_idx'] = i - 500
+                if meta['hand_idx'] < len(p.hand):
+                    meta['card_id'] = int(p.hand[meta['hand_idx']])
+
+            elif 560 <= i <= 562:
+                # Stage Select
+                meta['type'] = 'SELECT_STAGE'
+                meta['area_idx'] = i - 560
+                if p.stage[meta['area_idx']] >= 0:
+                    meta['card_id'] = int(p.stage[meta['area_idx']])
+
             legal_actions.append(meta)
     
+    # CRITICAL: If it's the opponent's turn (P1), hide the legal actions list entirely 
+    # to prevent the user from seeing/making decisions for the AI.
+    if game_state.current_player != 0:
+        legal_actions = []
     
     # Serialize pending choice with metadata
     pending_choice_info = None
@@ -599,6 +680,12 @@ def serialize_state():
             'is_optional': params.get('is_optional', False),
             'params': params  # Include all original params
         }
+        
+        # Enrich params with serialized cards if it's a list choice
+        if choice_type in ('SELECT_FROM_LIST', 'LOOK_AND_CHOOSE', 'SELECT_FROM_DISCARD'):
+            cards = params.get('cards', [])
+            if cards:
+                params['serialized_cards'] = [serialize_card(cid) for cid in cards]
     
     return {
         'turn': game_state.turn_number,
@@ -617,61 +704,87 @@ def serialize_state():
     }
 
 def get_action_desc(a, gs):
-    if gs is None: return f"Action {a}"
+    """
+    Generate clear, informative Japanese action descriptions.
+    Shows card names, costs, and ability sources for better user understanding.
+    """
+    if gs is None: return f"アクション {a}"
     p = gs.active_player
     
+    # Helper to get card name from any db
+    def get_card_name(cid):
+        if cid in gs.member_db: return gs.member_db[cid].name
+        if cid in gs.live_db: return gs.live_db[cid].name
+        return f"カード#{cid}"
+    
     if a == 0: 
-        if gs.phase == Phase.MAIN: return "メインフェイズ終了 (パス)"
-        if gs.phase == Phase.LIVE_SET: return "ライブセット完了 (確定)"
-        return "パス / 確定"
+        if gs.phase == Phase.MAIN: return "【終了】メインフェイズを終了する"
+        if gs.phase == Phase.LIVE_SET: return "【確定】ライブカードをセットして続行"
+        if gs.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2): return "【確定】マリガンを実行"
+        return "【パス】何もせず続行"
         
     elif 1 <= a <= 180:
         idx = (a - 1) // 3
         area_idx = (a - 1) % 3
-        areas = ["左", "中", "右"]
+        areas = ["左サイド", "センター", "右サイド"]
         area_name = areas[area_idx]
         
         card_name = f"手札[{idx}]"
         new_card_cost = 0
-        if idx < len(p.hand):
-            cid = p.hand[idx]
-            if cid in gs.member_db:
-                card_name = gs.member_db[cid].name
-                new_card_cost = gs.member_db[cid].cost
+        if gs.current_player == 0:  # Only show details for P0 (human)
+            if idx < len(p.hand):
+                cid = p.hand[idx]
+                if cid in gs.member_db:
+                    card_name = gs.member_db[cid].name
+                    new_card_cost = gs.member_db[cid].cost
+            
+            # Check if Baton Touch applies (slot is occupied)
+            if p.stage[area_idx] >= 0 and p.stage[area_idx] in gs.member_db:
+                old_card = gs.member_db[p.stage[area_idx]]
+                actual_cost = max(0, new_card_cost - old_card.cost)
+                return f"【登場】{card_name} → {area_name} (バトンタッチ: {old_card.name}を控え室、実質コスト{actual_cost})"
+            else:
+                return f"【登場】{card_name} → {area_name} (コスト{new_card_cost})"
         
-        # Check if Baton Touch applies (slot is occupied)
-        if p.stage[area_idx] >= 0 and p.stage[area_idx] in gs.member_db:
-            old_card = gs.member_db[p.stage[area_idx]]
-            actual_cost = max(0, new_card_cost - old_card.cost)
-            return f"{card_name}を{area_name}に置く (バトンタッチ: {old_card.name}, コスト {actual_cost})"
-        
-        return f"{card_name}を{area_name}に置く (コスト {new_card_cost})"
+        return f"【登場】{card_name} → {area_name}"
         
     elif 300 <= a <= 359:
         idx = a - 300
         card_name = f"手札[{idx}]"
-        if idx < len(p.hand):
+        
+        is_human_turn = (gs.current_player == 0)
+        
+        if is_human_turn and idx < len(p.hand):
             cid = p.hand[idx]
-            if cid in gs.member_db: card_name = gs.member_db[cid].name
-            elif cid in gs.live_db: card_name = gs.live_db[cid].name
+            card_name = get_card_name(cid)
+            # Check if already selected
+            is_selected = idx in p.mulligan_selection
+            status = "★選択中" if is_selected else ""
+            return f"【マリガン】{card_name} {status}".strip()
+        elif not is_human_turn:
+            return "【マリガン】相手のカード"
             
-        return f"{card_name}をマリガン対象にする/外す"
+        return f"【マリガン】{card_name}"
         
     elif 400 <= a <= 459:
         idx = a - 400
         card_name = f"手札[{idx}]"
+        score = ""
         if idx < len(p.hand):
             cid = p.hand[idx]
-            if cid in gs.live_db: card_name = gs.live_db[cid].name
-        return f"{card_name}をライブとしてセット"
+            if cid in gs.live_db:
+                live = gs.live_db[cid]
+                card_name = live.name
+                score = f" (スコア{live.score})"
+        return f"【ライブセット】{card_name}{score}"
         
     elif 200 <= a <= 202:
-        areas = ["左", "中", "右"]
+        areas = ["左サイド", "センター", "右サイド"]
         area_idx = a - 200
         area_name = areas[area_idx]
         cid = p.stage[area_idx]
         card_name = "メンバー"
-        ability_summary = ""
+        ability_text = ""
         
         if cid >= 0 and cid in gs.member_db:
             card_name = gs.member_db[cid].name
@@ -679,87 +792,102 @@ def get_action_desc(a, gs):
             
             # Get ability text if available
             if hasattr(member, 'abilities') and member.abilities:
-                # Find activated abilities (ACTIVATED trigger type)
                 from game.ability import TriggerType
                 activated_abs = [ab for ab in member.abilities if ab.trigger == TriggerType.ACTIVATED]
                 
                 if activated_abs:
-                    # Show the raw text of the first activated ability
-                    ability_summary = f" - {activated_abs[0].raw_text[:50]}..."
-                    if len(activated_abs[0].raw_text) <= 50:
-                        ability_summary = f" - {activated_abs[0].raw_text}"
+                    raw = activated_abs[0].raw_text
+                    # Truncate but keep meaningful text
+                    if len(raw) > 40:
+                        ability_text = f"\n　効果: {raw[:40]}…"
+                    else:
+                        ability_text = f"\n　効果: {raw}"
         
-        return f"{card_name}のスキル発動 ({area_name}){ability_summary}"
+        return f"【起動】{card_name} ({area_name}){ability_text}"
         
     elif 500 <= a <= 559:
         idx = a - 500
         if idx < len(p.hand):
             cid = p.hand[idx]
-            name = "Card"
-            if cid in gs.member_db: name = gs.member_db[cid].name
-            elif cid in gs.live_db: name = gs.live_db[cid].name
-            return f"{name}を選択"
-        return f"手札のカード {idx} を選択"
+            name = get_card_name(cid)
+            return f"【選択】手札から: {name}"
+        return f"【選択】手札から選択"
 
     elif 560 <= a <= 562:
         idx = a - 560
-        areas = ["左", "中", "右"]
+        areas = ["左サイド", "センター", "右サイド"]
         cid = p.stage[idx]
-        name = "メンバー"
+        name = "空きエリア"
         if cid >= 0 and cid in gs.member_db: name = gs.member_db[cid].name
-        return f"{areas[idx]}の{name}を選択"
+        return f"【選択】{areas[idx]}: {name}"
 
     elif 570 <= a <= 579:
-        return f"モード選択 {a - 570}"
+        mode_num = a - 570 + 1
+        return f"【モード{mode_num}】を選択"
     
     elif 580 <= a <= 585:
         colors = ["赤", "青", "緑", "黄", "紫", "ピンク"]
-        return f"色選択: {colors[a-580]}"
+        color = colors[a-580]
+        return f"【色選択】{color}ハート"
 
     elif 590 <= a <= 599:
         idx = a - 590
+        ability_info = ""
         if idx < len(gs.triggered_abilities):
-            return f"自動能力の解決 ({idx+1}/{len(gs.triggered_abilities)})"
-        return f"自動能力の解決 {idx}"
+            trigger_info = gs.triggered_abilities[idx]
+            # Try to get source card name
+            if isinstance(trigger_info, tuple) and len(trigger_info) >= 2:
+                source_cid = trigger_info[0] if isinstance(trigger_info[0], int) else None
+                if source_cid is not None:
+                    ability_info = f": {get_card_name(source_cid)}"
+            return f"【自動能力】解決 ({idx+1}/{len(gs.triggered_abilities)}){ability_info}"
+        return f"【自動能力】解決"
         
     elif 600 <= a <= 659:
-        # Generic SELECT_FROM_LIST or TARGET_OPPONENT_MEMBER
         idx = a - 600
         if gs.pending_choices:
             choice_type, params = gs.pending_choices[0]
+            source_name = params.get('source_card_name', '')
+            source_prefix = f"【{source_name}】" if source_name else "【選択】"
+            
             if choice_type == "SELECT_FROM_LIST":
                 cards = params.get('cards', [])
                 if idx < len(cards):
                     cid = cards[idx]
-                    name = "Card"
-                    if cid in gs.member_db: name = gs.member_db[cid].name
-                    elif cid in gs.live_db: name = gs.live_db[cid].name
-                    return f"{name}を選択"
+                    name = get_card_name(cid)
+                    return f"{source_prefix}{name}"
             elif choice_type == "TARGET_OPPONENT_MEMBER":
                  if idx < 3:
-                     areas = ["左", "中", "右"]
+                     areas = ["左サイド", "センター", "右サイド"]
                      opp = gs.inactive_player
                      cid = opp.stage[idx]
-                     name = "メンバー"
+                     name = "空きエリア"
                      if cid >= 0 and cid in gs.member_db: name = gs.member_db[cid].name
-                     return f"相手の{areas[idx]}の{name}を選択"
-        return f"選択 {idx}"
+                     return f"{source_prefix}相手の{areas[idx]}: {name}"
+            elif choice_type == "SELECT_SUCCESS_LIVE":
+                cards = params.get('cards', [])
+                if idx < len(cards):
+                    cid = cards[idx]
+                    name = get_card_name(cid)
+                    return f"【成功ライブ選択】{name}を成功置き場へ"
+        return f"【選択】対象を選んでください"
 
     elif 660 <= a <= 719:
         idx = a - 660
         if gs.pending_choices:
             choice_type, params = gs.pending_choices[0]
+            source_name = params.get('source_card_name', '')
+            source_prefix = f"【{source_name}】" if source_name else "【控え室】"
+            
             if choice_type == "SELECT_FROM_DISCARD":
                 cards = params.get('cards', [])
                 if idx < len(cards):
                     cid = cards[idx]
-                    name = "Card"
-                    if cid in gs.member_db: name = gs.member_db[cid].name
-                    elif cid in gs.live_db: name = gs.live_db[cid].name
-                    return f"{name}を選択"
-        return f"控え室のカード {idx} を選択"
+                    name = get_card_name(cid)
+                    return f"{source_prefix}{name}を回収"
+        return f"【控え室】カードを選択"
 
-    return f"Action {a}"
+    return f"アクション"
 
 @app.route('/')
 def index():
@@ -787,28 +915,97 @@ def serve_icon():
 
 @app.route('/api/state')
 def get_state():
+    global game_state
+    from game.game_state import Phase
+    
     if game_state is None:
         init_game()
+        
+        # Auto-advance if AI goes first or phase is automatic
+        max_safety = 100
+        while not game_state.is_terminal() and max_safety > 0:
+            max_safety -= 1
+            
+            if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
+                                   Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
+                game_state = game_state.step(0)
+                continue
+            
+            if game_state.current_player == 1:
+                if game_state.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
+                    aid = 0
+                else:
+                    aid = ai_agent.choose_action(game_state, 1)
+                game_state = game_state.step(aid)
+                continue
+                
+            break
+            
     return jsonify(serialize_state())
 
 @app.route('/api/set_deck', methods=['POST'])
 def set_deck():
     """Accept a custom deck for a player."""
-    global custom_deck_p0, custom_deck_p1
+    global custom_deck_p0, custom_deck_p1, custom_energy_deck_p0, custom_energy_deck_p1
     data = request.json
     player_id = data.get('player', 0)
     deck_ids = data.get('deck', [])  # List of card_no strings
+    energy_ids = data.get('energy_deck', [])
     
     if player_id == 0:
         custom_deck_p0 = deck_ids
+        custom_energy_deck_p0 = energy_ids
     else:
         custom_deck_p1 = deck_ids
+        custom_energy_deck_p1 = energy_ids
     
     return jsonify({
         'status': 'ok', 
         'player': player_id, 
         'deck_size': len(deck_ids),
         'message': f'Deck set for Player {player_id + 1}. Reset game to apply.'
+    })
+
+@app.route('/api/upload_deck', methods=['POST'])
+def upload_deck():
+    """Accept a raw deck file content (decktest.txt style) and load it."""
+    global custom_deck_p0, custom_deck_p1, custom_energy_deck_p0, custom_energy_deck_p1
+    
+    data = request.json
+    content = data.get('content', '')
+    player_id = data.get('player', 0)
+    
+    card_db = {}
+    try:
+        with open('data/cards.json', 'r', encoding='utf-8') as f:
+            card_db = json.load(f)
+    except Exception as e:
+        return jsonify({'success': False, 'error': f"Failed to load card DB: {e}"})
+        
+    main_deck, energy_deck, _, errors = extract_deck_data(content, card_db)
+    
+    if errors:
+         return jsonify({'success': False, 'error': "Validation Errors:\n" + "\n".join(errors)})
+         
+    if not main_deck and not energy_deck:
+         return jsonify({'success': False, 'error': "No cards found in file."})
+
+    # Set Decks
+    if player_id == 0:
+        custom_deck_p0 = main_deck
+        custom_energy_deck_p0 = energy_deck
+    else:
+        custom_deck_p1 = main_deck
+        custom_energy_deck_p1 = energy_deck
+        
+    # Reset Game
+    init_game(deck_type='custom')
+    
+    return jsonify({
+        'success': True,
+        'main_count': len(main_deck),
+        'energy_count': len(energy_deck),
+        'message': f"Deck Loaded! ({len(main_deck)} Main, {len(energy_deck)} Energy)"
     })
 
 @app.route('/api/validate_cards', methods=['POST'])
@@ -859,11 +1056,7 @@ def validate_cards():
         }
     })
 
-@app.route('/api/reset', methods=['POST'])
-def reset_game():
-    global game_state
-    init_game()
-    return jsonify({'status': 'ok'})
+
 
 @app.route('/api/clear_performance', methods=['POST'])
 def clear_performance():
@@ -909,7 +1102,11 @@ def do_action():
                 
                 # 2. AI Turn (P1 is always the AI)
                 if game_state.current_player == 1:
-                    aid = ai_agent.choose_action(game_state, 1)
+                    if game_state.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
+                        # Force-confirm AI mulligan to speed up and prevent info leak
+                        aid = 0
+                    else:
+                        aid = ai_agent.choose_action(game_state, 1)
                     print(f"DEBUG AI Move: action={aid}, phase={game_state.phase}")
                     game_state = game_state.step(aid)
                     game_history.append(serialize_state())
@@ -972,7 +1169,10 @@ def reset():
             
             # 2. AI Turn (P1)
             if game_state.current_player == 1:
-                aid = ai_agent.choose_action(game_state, 1)
+                if game_state.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
+                    aid = 0
+                else:
+                    aid = ai_agent.choose_action(game_state, 1)
                 print(f"DEBUG AI Move (Reset): action={aid}, phase={game_state.phase}")
                 game_state = game_state.step(aid)
                 continue
@@ -1060,7 +1260,71 @@ def report_issue():
 
 
 if __name__ == '__main__':
-    init_game()
-    print("Starting server at http://127.0.0.1:5000")
-    # use_reloader=False prevents the server from restarting (and crashing) when files change
-    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5000)
+    # PyInstaller Bundle Check
+    if getattr(sys, 'frozen', False):
+        # If frozen, we might need to adjust static folder or templates folder depending on how flask finds them.
+        # However, we added paths with --add-data, so they should be in sys._MEIPASS.
+        # Flask's root_path defaults to __main__ directory, which in onefile mode is temporary.
+        # We need to explicitly point static_folder to the MEIPASS location.
+        bundle_dir = sys._MEIPASS
+        app.static_folder = os.path.join(bundle_dir, 'web_ui')
+        # app.template_folder = os.path.join(bundle_dir, 'templates') # if we used templates
+        
+        # Also need to make sure data loader finds 'data/cards.json'
+        # CardDataLoader expects relative path. We might need to chdir or patch it.
+        # Easiest is to chdir to the bundle dir so relative paths work?
+        # BUT 'replays' need to be written to writable cwd, not temp dir.
+        # So we should NOT chdir globally.
+        # Instead, we should update filenames to be absolute paths based on bundle_dir if read-only.
+        
+        # Monkey patch the loader path just for this instance if needed, 
+        # but CardDataLoader takes a path arg.
+        # We need to ensure 'init_game' calls it with the correct absolute path.
+        pass
+
+    # Patched init_game for Frozen state to find data
+    original_init_game = init_game
+    def frozen_init_game(deck_type='normal'):
+        if getattr(sys, 'frozen', False):
+            bundle_dir = sys._MEIPASS
+            data_path = os.path.join(bundle_dir, 'data', 'cards.json')
+            
+            # We need to temporarily force the loader to use this path
+            # But init_game hardcodes "data/cards.json" in correct logic?
+            # actually checking init_game source:
+            #   loader = CardDataLoader("data/cards.json")
+            # We need to change that line or intercept.
+            
+            # Use os.chdir to temp dir for READS? No, we need writes to real dir.
+            # Best way: Just ensure data/cards.json exists in CWD? No, user won't have it.
+            
+            # HACK: We can't easily change the hardcoded string inside init_game without rewriting it.
+            # However, we can patch CardDataLoader class to fix the path!
+            # Assuming CardDataLoader is imported from game.data_loader
+            from game.data_loader import CardDataLoader
+            ops_init = CardDataLoader.__init__
+            def new_init(self, filepath):
+                if not os.path.exists(filepath) and getattr(sys, 'frozen', False):
+                    # Try bundle path
+                    bundle_path = os.path.join(sys._MEIPASS, filepath)
+                    if os.path.exists(bundle_path):
+                        filepath = bundle_path
+                ops_init(self, filepath)
+            CardDataLoader.__init__ = new_init
+                
+        original_init_game(deck_type)
+        
+    init_game = frozen_init_game
+
+    # Auto-open browser
+    import webbrowser
+    from threading import Timer
+    
+    def open_browser():
+        webbrowser.open_new('http://localhost:8000/')
+        
+    Timer(1.5, open_browser).start()
+    
+    # Run Server
+    # use_reloader=False is crucial for PyInstaller to implicit avoid spawning subprocesses incorrectly
+    app.run(host='0.0.0.0', port=8000, debug=False, use_reloader=False)

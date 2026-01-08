@@ -347,23 +347,29 @@ def create_easy_cards():
     # Easy Member: Cost 1, provides 1 of each heart + 1 blade
     m = MemberCard(
         card_id=888,
+        card_no="PL!-sd1-001-SD", # Correct field name
         name="Easy Member",
         cost=1,
         hearts=np.array([1, 1, 1, 1, 1, 1], dtype=np.int32),
         blade_hearts=np.array([0, 0, 0, 0, 0, 0], dtype=np.int32),
         blades=1,
         volume_icons=0,
-        draw_icons=0
+        draw_icons=0,
+        img_path="cards/PLSD01/PL!-sd1-001-SD.png",
+        group="Easy"
     )
     
     # Easy Live: Score 1, Requires 1 Any Heart
     l = LiveCard(
         card_id=999,
+        card_no="PL!-pb1-019-SD", # Correct field name
         name="Easy Live",
         score=1,
         required_hearts=np.array([0, 0, 0, 0, 0, 0, 1], dtype=np.int32),
         volume_icons=0,
-        draw_icons=0
+        draw_icons=0,
+        img_path="cards/PLSD01/PL!-pb1-019-SD.png",
+        group="Easy"
     )
     
     return m, l

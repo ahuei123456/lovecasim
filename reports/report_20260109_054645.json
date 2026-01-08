@@ -1,0 +1,693 @@
+{
+  "timestamp": "20260109_054645",
+  "explanation": "the error is still ocurring can you be sure you are trying to pass to the next turn",
+  "state": {
+    "active_player": 1,
+    "game_over": false,
+    "legal_actions": [
+      {
+        "desc": "パス / 確定",
+        "id": 0
+      }
+    ],
+    "pending_choice": null,
+    "performance_results": {},
+    "phase": 7,
+    "players": [
+      {
+        "deck_count": 51,
+        "discard": [],
+        "discard_count": 0,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 4,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 314,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 5,
+            "tapped": true
+          }
+        ],
+        "energy_count": 6,
+        "energy_deck_count": 7,
+        "energy_untapped": 0,
+        "expected_yells": 2,
+        "hand": [
+          {
+            "blade": 0,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 616,
+            "img": "cards/BP01/PL!SP-bp1-021-N.png",
+            "name": "ウィーン・マルガレーテ",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 94,
+            "img": "cards/PBLL/PL!-pb1-009-P2.png",
+            "name": "矢澤にこ",
+            "text": "【登場】 {{toujyou.png|登場}}相手のステージにいる元々持つ{{icon_blade.png|ブレード}}の数が1つ以下のメンバー1人をウェイトにする\n【登場】 {{toujyou.png|登場}}このターン、自分と相手のステージにいるメンバーは、効果によってはアクティブにならない",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 15,
+            "hearts": [
+              2,
+              2,
+              2,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 286,
+            "img": "cards/BP03/PL!N-bp3-R2-001-R2.png",
+            "name": "上原歩夢",
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}自分のエネルギー置き場にあるエネルギー1枚をこのメンバーの下に置いてもよい そうした場合、カードを1枚引き、ライブ終了時まで、自分のステージにいるメンバーは{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る （メンバーの下に置かれているエネルギーカードではコストを支払えない メンバーがステージから離れたとき、下に置かれているエネルギーカードはエネルギーデッキに置く",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 11,
+            "hearts": [
+              3,
+              1,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 395,
+            "img": "cards/PBnj/PL!N-pb1-012-R.png",
+            "name": "鐘 嵐珠",
+            "text": "【登場】 {{jidou.png|自動}}{{turn1.png|ターン1回}}自分のステージにこのメンバー以外のコスト11のメンバーが登場したとき、自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く\n【ライブ成功時】 {{live_success.png|ライブ成功時}}エールにより公開された自分のカードの中から、『虹ヶ咲』のメンバーカードを1枚手札に加える",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 9,
+            "hearts": [
+              0,
+              2,
+              0,
+              0,
+              0,
+              2
+            ],
+            "hp": 1,
+            "id": 744,
+            "img": "cards/SPSD01/PL!SP-sd1-012-SD.png",
+            "name": "澁谷かのん",
+            "text": "",
+            "type": "member",
+            "valid_actions": []
+          }
+        ],
+        "hand_count": 5,
+        "is_active": true,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 0,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "energy": 0,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "hp": 1,
+            "id": 381,
+            "img": "cards/PBnj/PL!N-pb1-005-R.png",
+            "name": "宮下 愛",
+            "tapped": false,
+            "text": "【登場】 {{jidou.png|自動}}{{turn1.png|ターン1回}}自分のステージにコスト10のメンバーが登場したとき、カードを1枚引く",
+            "type": "member"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "energy": 0,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "hp": 1,
+            "id": 314,
+            "img": "cards/BP03/PL!N-bp3-P-012-P.png",
+            "name": "鐘 嵐珠",
+            "tapped": false,
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを4枚見る その中から『虹ヶ咲』のカードを1枚公開して手札に加えてもよい 残りを控え室に置く",
+            "type": "member"
+          },
+          {
+            "blade": 0,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "energy": 0,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 616,
+            "img": "cards/BP01/PL!SP-bp1-021-N.png",
+            "name": "ウィーン・マルガレーテ",
+            "tapped": false,
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く",
+            "type": "member"
+          }
+        ],
+        "success_lives": []
+      },
+      {
+        "deck_count": 50,
+        "discard": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "hearts": [
+              2,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 444,
+            "img": "cards/NSD01/PL!N-sd1-013-SD.png",
+            "name": "上原歩夢",
+            "text": "【登場】 {{toujyou.png|登場}}カードを1枚引き、手札を1枚控え室に置く",
+            "type": "member"
+          }
+        ],
+        "discard_count": 1,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 4,
+            "tapped": true
+          }
+        ],
+        "energy_count": 5,
+        "energy_deck_count": 7,
+        "energy_untapped": 0,
+        "expected_yells": 2,
+        "hand": [
+          {
+            "hidden": true,
+            "id": 1130,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 436,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 435,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 49,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 436,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 49,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          }
+        ],
+        "hand_count": 6,
+        "is_active": false,
+        "live_zone": [
+          {
+            "hidden": true,
+            "id": 1019,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          }
+        ],
+        "live_zone_count": 1,
+        "mulligan_selection": [],
+        "player_id": 1,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 7,
+            "energy": 0,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 440,
+            "img": "cards/NSD01/PL!N-sd1-009-SD.png",
+            "name": "天王寺璃奈",
+            "tapped": false,
+            "text": "【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}手札を1枚控え室に置く：自分の控え室から『虹ヶ咲』のライブカードを1枚手札に加える",
+            "type": "member"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "energy": 0,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 431,
+            "img": "cards/PBnj/PL!N-pb1-036-N.png",
+            "name": "鐘 嵐珠",
+            "tapped": false,
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}{{heart_01.png|heart01}}か{{heart_02.png|heart02}}か{{heart_06.png|heart06}}のうち1つを選ぶ ライブ終了時まで、このメンバーが元々持つハートは選んだハートになる",
+            "type": "member"
+          },
+          null
+        ],
+        "success_lives": []
+      }
+    ],
+    "rule_log": [
+      "[Turn 1] [MULLIGAN_P1] [Rule 9.5] Processing action 0 in MULLIGAN_P1 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 0 in MULLIGAN_P2 phase.",
+      "[Turn 1] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 1] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 13 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 1 plays 上原歩夢 from hand to slot 0.",
+      "[Turn 1] [MAIN] [Rule 9.7] Player 1 resolving automatic ability.",
+      "[Turn 1] [MAIN] [Rule 9.7] Resolving effect: SWAP_CARDS (Value: 1)",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.7] Resolving effect: DRAW (Value: 1)",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 2 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 0 plays 鐘 嵐珠 from hand to slot 1.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 9.5] Processing action 0 in PERFORMANCE_P1 phase.",
+      "[Turn 1] [LIVE_RESULT] [Rule 9.5] Processing action 0 in LIVE_RESULT phase.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4] Live Winner Determination Phase starts.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.2] Score Calculation: P0=0 (0+0), P1=0 (0+0)",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.6.1] No winners (both scores 0 or no cards).",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 0.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 1.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.14] Turn 1 finished.",
+      "[Turn 2] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 2] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 2] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 2] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 2] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 2] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 22 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.6.2] Player 1 plays 天王寺璃奈 from hand to slot 0.",
+      "[Turn 2] [MAIN] [Rule 9.6.2.1.1.2] Baton Touch applied (1/1). Cost reduced from 7 to 3 by 上原歩夢.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 200 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 8 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.6.2] Player 1 plays 鐘 嵐珠 from hand to slot 1.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 200 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 2] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 2] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 2] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 3 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.6.2] Player 0 plays ウィーン・マルガレーテ from hand to slot 2.",
+      "[Turn 2] [MAIN] [Rule 9.7] Player 0 resolving automatic ability.",
+      "[Turn 2] [MAIN] [Rule 9.7] Resolving effect: SWAP_CARDS (Value: 1)",
+      "[Turn 2] [MAIN] [Rule 9.7] Resolving effect: ENERGY_CHARGE (Value: 1)",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 4 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.6.2] Player 0 plays 宮下 愛 from hand to slot 0.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 2] [LIVE_SET] [Rule 9.5] Processing action 401 in LIVE_SET phase.",
+      "[Turn 2] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 2] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 2] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 2] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 2] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase."
+    ],
+    "turn": 2,
+    "winner": -1
+  },
+  "history": [
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:45:35.646Z",
+      "phase": 6
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:45:42.201Z",
+      "phase": -1
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:45:44.312Z",
+      "phase": 0
+    },
+    {
+      "action_id": 2,
+      "timestamp": "2026-01-08T18:45:45.857Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:46:04.325Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:46:06.144Z",
+      "phase": 5
+    },
+    {
+      "action_id": 3,
+      "timestamp": "2026-01-08T18:46:08.355Z",
+      "phase": 4
+    },
+    {
+      "action_id": 4,
+      "timestamp": "2026-01-08T18:46:11.409Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:46:12.825Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:46:14.832Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:46:17.091Z",
+      "phase": 7
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:46:18.775Z",
+      "phase": 7
+    }
+  ],
+  "action_desc": "N/A"
+}

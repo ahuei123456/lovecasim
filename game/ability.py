@@ -72,6 +72,7 @@ class EffectType(IntEnum):
     COLOR_SELECT = 31    # Specify a heart color
     REPLACE_EFFECT = 34  # Replacement effect (代わりに)
     TRIGGER_REMOTE = 35  # Trigger ability from another zone (Cluster 5)
+    REDUCE_HEART_REQ = 36 # Need hearts reduced
 
 class ConditionType(IntEnum):
     NONE = 0
@@ -252,7 +253,7 @@ class AbilityParser:
                         conditions.append(Condition(ConditionType.COUNT_SUCCESS_LIVE, {'min': int(match.group(1))}))
 
                 # ALL Blade Rule (Meta Rule)
-                if 'ALLブレード' in content and 'ハートとして扱う' in content:
+                if 'ALLブレード' in content and any(kw in content for kw in ['ハートとして扱う', 'ハートとして内容を確認', 'いずれかの色のハート']):
                     trigger = TriggerType.CONSTANT
                     effects.append(Effect(EffectType.META_RULE, target=TargetType.PLAYER, params={'type': 'heart_rule'}))
 
@@ -385,9 +386,12 @@ class AbilityParser:
                     count = int(match.group(1)) if (match := re.search(r'ブレード.*?(\d+)', content)) else 1
                     if 'ALLブレード' in content: target_params['all_blade'] = True
                     effects.append(Effect(EffectType.ADD_BLADES, count, target, params=target_params))
-                if any(kw in content for kw in ['ハート', 'heart']) and '得る' in content:
-                    count = int(match.group(1)) if (match := re.search(r'\+(\d+)', content)) else len(re.findall(r'heart_\d+\.png', content)) or 1
+                if any(kw in content for kw in ['ハート', 'heart']) and any(kw in content for kw in ['得る', '加える', '増える']):
+                    count = int(match.group(1)) if (match := re.search(r'[+＋](\d+)', content)) else len(re.findall(r'heart_\d+\.png', content)) or 1
                     effects.append(Effect(EffectType.ADD_HEARTS, count, target, params=target_params))
+                elif any(kw in content for kw in ['必要ハート', 'heart']) and any(kw in content for kw in ['減らす', '少なくなる', '減る']):
+                    count = int(match.group(1)) if (match := re.search(r'[-－](\d+)', content)) else len(re.findall(r'heart_00\.png', content)) or 1
+                    effects.append(Effect(EffectType.REDUCE_HEART_REQ, count, TargetType.PLAYER, params=target_params))
                 
                 if 'エネルギー' in content and any(kw in content for kw in ['置く', '加える']):
                     effects.append(Effect(EffectType.ENERGY_CHARGE, 1, params={'from': 'deck'} if 'デッキ' in content else {}))
@@ -434,9 +438,11 @@ class AbilityParser:
                     effects.append(Effect(EffectType.TRIGGER_REMOTE, 1, params={'from': zone}))
 
                 if '控' in content and any(kw in content for kw in ['置', '送']):
-                    count = int(match.group(1)) if (match := re.search(r'(?:手札|から).*?(\d+)枚', content)) else int(match.group(1)) if (match := re.search(r'(\d+)枚', content)) else 1
-                    src = 'deck' if 'デッキ' in content else 'hand' if '手札' in content else None
-                    effects.append(Effect(EffectType.SWAP_CARDS, count, params={'target': 'discard', 'from': src} if src else {'target': 'discard'}))
+                    # Prevent parsing "Sacrifice Self" as generic discard effect
+                    if 'このメンバー' not in content:
+                        count = int(match.group(1)) if (match := re.search(r'(?:手札|から).*?(\d+)枚', content)) else int(match.group(1)) if (match := re.search(r'(\d+)枚', content)) else 1
+                        src = 'deck' if 'デッキ' in content else 'hand' if '手札' in content else None
+                        effects.append(Effect(EffectType.SWAP_CARDS, count, params={'target': 'discard', 'from': src} if src else {'target': 'discard'}))
                 
                 if '相手' in content and any(kw in content for kw in ['ウェイト', '休み']):
                     count = int(match.group(1)) if (match := re.search(r'(\d+)人', content)) else 1
@@ -503,6 +509,10 @@ class AbilityParser:
                     eff.is_optional = is_opt
                     if is_glob: eff.params['all'] = True
                     if is_opp_hand: eff.target = TargetType.OPPONENT_HAND
+                # Also mark costs as optional when pattern detected
+                for cost in costs:
+                    if is_opt:
+                        cost.is_optional = True
                 
                 # --- Construct Ability ---
                 if trigger != TriggerType.NONE:

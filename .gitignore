@@ -9,6 +9,15 @@ venv/
 venv_gpu/
 .env
 
+# Build artifacts (PyInstaller)
+build/
+dist/
+*.spec
+
+# Card images (large static assets)
+img/
+web_ui/cards/
+
 # Generated data
 logs/
 replays/
@@ -21,9 +30,22 @@ crash_*.txt
 *_output.txt
 loop_debug*.txt
 
+# Profile outputs
+profile_*.txt
+profile_*.json
+
+# Benchmark and test results
+benchmark_*.txt
+tournament_*.txt
+final_*.txt
+test_results.txt
+test_results.json
+verification_results.txt
+
 # Generated JSON (keep cards.json and rule_map.json)
 analysis_*.json
 verified_parsing_status.json
+scan_results.json
 
 # IDE
 .vscode/

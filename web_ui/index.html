@@ -591,21 +591,36 @@
             background: #aa44ff;
         }
 
-        /* Stats Overlay */
-        .stats {
+        /* Card ID Styling - Hidden by default, shown on hover */
+        .card-id {
             position: absolute;
-            bottom: 18px;
-            /* Above name */
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-evenly;
-            font-size: 0.75rem;
+            top: 2px;
+            left: 2px;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--accent-gold);
+            font-size: 0.6rem;
             font-weight: bold;
-            text-shadow: 1px 1px 2px #000, -1px -1px 2px #000;
-            pointer-events: none;
-            z-index: 10;
+            padding: 1px 3px;
+            border-radius: 2px;
+            z-index: 30;
+            cursor: copy;
+            pointer-events: auto;
+            border: 1px solid var(--accent-gold);
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
+
+        .game-card:hover .card-id,
+        .member-slot:hover .card-id {
+            opacity: 1;
+        }
+
+        .card-id:hover {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        /* Stats Overlay */
 
         .stat-blade {
             color: #ff9999;
@@ -1665,6 +1680,15 @@
             renderActions();
         }
 
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                log(`Copied ID: ${text}`);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+            event.stopPropagation();
+        }
+
         function renderActions() {
             const actionsDiv = document.getElementById('actions');
             if (!actionsDiv || !state) return;
@@ -1768,6 +1792,58 @@
             });
 
             // 2. Render Groups (Card + Actions)
+            // DETECT SELECT_FROM_LIST: If any action is type SELECT, we might want to render cards
+            const selectActions = state.legal_actions.filter(a => a.type === 'SELECT');
+            if (selectActions.length > 0) {
+                const selectContainer = document.createElement('div');
+                selectContainer.className = 'action-group-select';
+                selectContainer.style.display = 'flex';
+                selectContainer.style.flexWrap = 'wrap';
+                selectContainer.style.gap = '10px';
+                selectContainer.style.marginTop = '10px';
+                selectContainer.style.padding = '10px';
+                selectContainer.style.background = 'rgba(255, 215, 0, 0.05)';
+                selectContainer.style.borderRadius = '8px';
+                selectContainer.style.border = '1px solid var(--accent-gold)';
+
+                selectActions.forEach(action => {
+                    const cardWrapper = document.createElement('div');
+                    cardWrapper.className = 'select-card-wrapper';
+                    cardWrapper.style.width = '80px';
+                    cardWrapper.style.cursor = 'pointer';
+                    cardWrapper.style.transition = 'transform 0.2s';
+                    cardWrapper.onmouseenter = () => cardWrapper.style.transform = 'scale(1.05)';
+                    cardWrapper.onmouseleave = () => cardWrapper.style.transform = 'scale(1)';
+                    cardWrapper.onclick = () => doAction(action.id);
+
+                    // Re-use logic for mini card if we have action.img
+                    if (action.img) {
+                        const img = document.createElement('img');
+                        img.src = action.img;
+                        img.style.width = '100%';
+                        img.style.borderRadius = '4px';
+                        img.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+                        img.onerror = function () { this.style.display = 'none'; cardWrapper.innerText = action.name; };
+                        cardWrapper.appendChild(img);
+
+                        const nameLabel = document.createElement('div');
+                        nameLabel.style.fontSize = '0.5rem';
+                        nameLabel.style.textAlign = 'center';
+                        nameLabel.style.marginTop = '4px';
+                        nameLabel.textContent = action.name;
+                        cardWrapper.appendChild(nameLabel);
+                    } else {
+                        cardWrapper.innerText = action.desc;
+                        cardWrapper.style.background = 'var(--bg-card)';
+                        cardWrapper.style.padding = '5px';
+                        cardWrapper.style.borderRadius = '4px';
+                        cardWrapper.style.fontSize = '0.7rem';
+                    }
+                    selectContainer.appendChild(cardWrapper);
+                });
+                actionsDiv.appendChild(selectContainer);
+            }
+
             groups.forEach((group, key) => {
                 const container = document.createElement('div');
                 container.className = 'action-group-card';
@@ -1810,6 +1886,7 @@
                     } else if (action.type === 'LIVE_SET') {
                         text = "Set Live";
                     }
+                    // Removed redundant ID display per user feedback
                     btn.textContent = text;
                     btn.onclick = () => doAction(action.id);
                     btn.onmouseenter = () => highlightAction(action);
@@ -1829,6 +1906,7 @@
                 miscDiv.style.gap = '8px';
                 miscDiv.style.marginTop = '10px';
                 standalone.forEach(action => {
+                    if (action.type === 'SELECT') return; // Handled separately
                     const btn = document.createElement('button');
                     btn.className = 'action-btn';
                     btn.textContent = action.desc;
@@ -2001,8 +2079,12 @@
                     `;
                     }
 
+                    // Add Card ID (Official card_no preferred, fallback to internal id)
+                    const displayId = card.card_no || card.id;
+                    const idHtml = `<div class="card-id" title="Official ID: ${card.card_no || 'N/A'}\nInternal ID: ${card.id}" onclick="copyToClipboard('${displayId}'); return false;" style="position:absolute; top:2px; right:2px; font-size:0.6rem; background:rgba(0,0,0,0.7); color:#fff; padding:1px 3px; border-radius:3px; cursor:copy;">ID:${displayId}</div>`;
+
                     div.innerHTML = `${imgHtml}<span class="cost">${card.cost !== undefined ? card.cost : '★'}</span>
-                                     ${bladeHeartsHtml}${heartPipsHtml}<div class="name">${card.name || ''}</div>${statsHtml}`;
+                                     ${bladeHeartsHtml}${heartPipsHtml}<div class="name">${card.name || ''}</div>${idHtml}${statsHtml}`;
                 }
                 if (clickable) div.onclick = () => playCard(idx);
                 el.appendChild(div);
@@ -2077,7 +2159,11 @@
                         </div>
                     `;
 
-                    slotDiv.innerHTML = `${imgHtml}<span class="cost">${slot.cost}</span>${bladeHeartsHtml}${heartPipsHtml}<div class="name">${slot.name}</div>${statsHtml}`;
+                    // Add Card ID (Official card_no preferred, fallback to internal id)
+                    const displayId = slot.card_no || slot.id;
+                    const idHtml = `<div class="card-id" title="Official ID: ${slot.card_no || 'N/A'}\nInternal ID: ${slot.id}" onclick="copyToClipboard('${displayId}'); return false;" style="position:absolute; top:2px; right:2px; font-size:0.6rem; background:rgba(0,0,0,0.7); color:#fff; padding:1px 3px; border-radius:3px; cursor:copy;">ID:${displayId}</div>`;
+
+                    slotDiv.innerHTML = `${imgHtml}<span class="cost">${slot.cost}</span>${bladeHeartsHtml}${heartPipsHtml}<div class="name">${slot.name}</div>${idHtml}${statsHtml}`;
 
                     // Add data-text for tooltip if slot has text
                     if (slot.text) slotDiv.setAttribute('data-text', slot.text);
@@ -2766,6 +2852,7 @@
                     style="width: 100%; padding: 8px; margin-bottom: 15px; background: var(--bg-zone); border: 1px solid var(--border); color: white; border-radius: 5px;">
                     <option value="0">Player 1 (You)</option>
                     <option value="1">Player 2 (AI)</option>
+                    <option value="both">Both Players</option>
                 </select>
 
                 <div
@@ -2782,7 +2869,14 @@
                         <li>Paste the result below.</li>
                     </ol>
                 </div>
-                <label style="display: block; margin-bottom: 8px;">Paste Deck HTML:</label>
+                <div
+                    style="margin-bottom: 15px; background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 5px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Option 1: Upload File</label>
+                    <input type="file" id="deck-file-input" accept=".html,.txt,.json"
+                        style="width: 100%; font-size: 0.9rem;">
+                </div>
+
+                <label style="display: block; margin-bottom: 8px;">Option 2: Paste Deck HTML:</label>
                 <textarea id="deck-html-input" class="report-textarea" style="height: 200px;"
                     placeholder="Paste the HTML content from a deck page here..."></textarea>
                 <div id="deck-preview" style="margin-top: 10px; font-size: 0.8rem; color: var(--text-dim);"></div>
@@ -2807,51 +2901,51 @@
         };
 
         window.submitDeck = async function () {
-            const playerId = parseInt(document.getElementById('deck-player-select').value);
-            const html = document.getElementById('deck-html-input').value;
+            const playerVal = document.getElementById('deck-player-select').value;
+            let content = '';
 
-            if (!html.trim()) {
-                alert('Please paste deck HTML first.');
+            const fileInput = document.getElementById('deck-file-input');
+            const file = fileInput.files[0];
+            const textInput = document.getElementById('deck-html-input').value;
+
+            if (file) {
+                try {
+                    content = await file.text();
+                } catch (e) {
+                    alert("Failed to read file: " + e.message);
+                    return;
+                }
+            } else if (textInput.trim()) {
+                content = textInput;
+            } else {
+                alert('Please select a file or paste deck HTML.');
                 return;
             }
 
-            // Parse deck HTML using the same regex as deck_extractor.py
-            const regex = /title="([^"]+?) :[^"]*"[^>]*>.*?class="num">(\d+)<\/span>/gs;
-            const deckIds = [];
-            let match;
-            let totalCards = 0;
+            const playerIds = (playerVal === 'both') ? [0, 1] : [parseInt(playerVal)];
 
-            while ((match = regex.exec(html)) !== null) {
-                const cardId = match[1].trim();
-                const qty = parseInt(match[2], 10);
-                for (let i = 0; i < qty; i++) {
-                    deckIds.push(cardId);
+            log("Uploading deck...");
+
+            for (const pid of playerIds) {
+                try {
+                    const resp = await fetch('/api/upload_deck', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ player: pid, content: content })
+                    });
+                    const result = await resp.json();
+
+                    if (result.success) {
+                        alert(`Deck set for Player ${pid + 1}: ${result.message}`);
+                        closeDeckModal();
+                        // Refresh state to see new deck
+                        fetchState();
+                    } else {
+                        alert(`Failed to set deck for P${pid + 1}: ` + (result.error || 'Unknown error'));
+                    }
+                } catch (e) {
+                    alert(`Error submitting deck for P${pid + 1}: ` + e.message);
                 }
-                totalCards += qty;
-            }
-
-            if (deckIds.length === 0) {
-                alert('No cards found in the pasted HTML. Make sure it contains title="ID : Name" and class="num" elements.');
-                return;
-            }
-
-            // Send to server
-            try {
-                const resp = await fetch('/api/set_deck', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ player: playerId, deck: deckIds })
-                });
-                const result = await resp.json();
-
-                if (result.status === 'ok') {
-                    alert(`Deck set for Player ${playerId + 1}: ${result.deck_size} cards.\n\n${result.message}`);
-                    closeDeckModal();
-                } else {
-                    alert('Failed to set deck: ' + (result.error || 'Unknown error'));
-                }
-            } catch (e) {
-                alert('Error submitting deck: ' + e.message);
             }
         };
 

@@ -136,6 +136,7 @@ class Area(IntEnum):
 class MemberCard:
     """Represents a member card with all attributes"""
     card_id: int
+    card_no: str
     name: str
     cost: int
     hearts: np.ndarray  # Shape (6,) for each color count
@@ -162,6 +163,7 @@ class MemberCard:
 class LiveCard:
     """Represents a live/song card"""
     card_id: int
+    card_no: str
     name: str
     score: int
     required_hearts: np.ndarray  # Shape (7,) required hearts by color (6 colors + any)
@@ -229,8 +231,9 @@ class PlayerState:
         # Mulligan tracking
         self.mulligan_selection: set = set()  # Card indices selected for mulligan
         
-        # New: Baton Touch tracking
-        self.baton_touch_limit: int = 1  # Standard is 1? Or 0?
+        # New: Baton Touch
+        # Rule 9.6.2.3.2: No explicit per-turn limit, only per-area placement limit
+        self.baton_touch_limit: int = 99  
         self.baton_touch_count: int = 0
         
         # New: Effect control
@@ -395,7 +398,10 @@ class PlayerState:
         member = card_db[card_id]
         # Pad to 7 elements (6 colors + 1 "any" slot, always 0 for members)
         hearts = np.zeros(7, dtype=np.int32)
-        hearts[:6] = member.hearts.copy()
+        # Safety: ensure we only copy 6 color hearts. Log if hearts has unexpected size.
+        if len(member.hearts) != 6:
+            print(f"[BUG] Card {member.name} (ID:{card_id}) has hearts size {len(member.hearts)}, expected 6. Data: {member.hearts}")
+        hearts[:6] = member.hearts[:6].copy()
         
         # 1. Gather all active effects for this slot
         slot_effects = [e["effect"] for e in self.continuous_effects if e.get("target_slot") in (-1, slot_idx)]
@@ -653,6 +659,9 @@ class GameState:
         if self.pending_choices:
             choice_type, params = self.pending_choices[0]
             if choice_type == "TARGET_HAND":
+                # Allow skip for optional costs
+                if params.get('is_optional'):
+                    mask[0] = True
                 if len(p.hand) > 0:
                     for i in range(len(p.hand)):
                         mask[500 + i] = True
@@ -672,6 +681,9 @@ class GameState:
                      mask[0] = True  # No valid targets, allow pass
             elif choice_type == "DISCARD_SELECT":
                 # 500-559: Select card in hand to discard
+                # Allow skip for optional costs
+                if params.get('is_optional'):
+                    mask[0] = True
                 if len(p.hand) > 0:
                     for i in range(len(p.hand)):
                         mask[500 + i] = True
@@ -746,6 +758,15 @@ class GameState:
                         mask[500 + i] = True
                 else:
                     mask[0] = True
+            
+            elif choice_type == "SELECT_SUCCESS_LIVE":
+                # 600-659: Select from passed lives list
+                cards = params.get('cards', [])
+                card_count = min(len(cards), 60)
+                if card_count > 0:
+                    mask[600:600+card_count] = True
+                else:
+                    mask[0] = True
         
         # MULLIGAN phases: Select cards to return or confirm mulligan
         elif self.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
@@ -784,7 +805,7 @@ class GameState:
                         p.stage,
                         available_energy,
                         total_reduction,
-                        p.baton_touch_count < p.baton_touch_limit,
+                        True, # Baton touch is always allowed if slot occupied
                         p.members_played_this_turn,
                         self._jit_member_costs,
                         mask
@@ -804,13 +825,17 @@ class GameState:
                                  continue
                             
                             active_cost = max(0, member.cost - total_reduction)
-                            if p.stage[area] >= 0 and p.baton_touch_count < p.baton_touch_limit:
+                            if p.stage[area] >= 0:
                                  if p.stage[area] in self.member_db:
                                      baton_mem = self.member_db[p.stage[area]]
                                      active_cost = max(0, active_cost - baton_mem.cost)
-                            
+                                     
                             if active_cost <= available_energy:
                                  mask[action_id] = True
+                            
+                            # DEBUG: Trace why specific cards fail
+                            elif self.verbose and (member.cost >= 10 or card_id == 369):
+                                print(f"DEBUG REJECT: Card {card_id} ({member.name}) Area {area}: Cost {active_cost} > Energy {available_energy}. Limit {p.baton_touch_limit}, Count {p.baton_touch_count}")
             
             # --- ACTIVATE ABILITIES ---
             # Uses same available_energy
@@ -992,7 +1017,17 @@ class GameState:
                     if len(p.success_lives) >= 3 and not self.game_over:
                         self.log_rule("Rule 10.3", f"Player {p.player_id} has 3+ success lives. Game Over.")
                         self.game_over = True
-                        self.winner = p.player_id
+                        
+                        # Fix: Check for Draw if other player also won?
+                        # Since we iterate sequentially, if P1 wins here, check if P0 already won.
+                        # Actually, better to accumulate winners and decide at end of loop?
+                        # Or check opponent's lives here.
+                        opp = self.players[1 - p.player_id]
+                        if len(opp.success_lives) >= 3:
+                             self.winner = 2 # Draw
+                        else:
+                             self.winner = p.player_id
+                        
                         rules_applied = True
                 
                 if rules_applied: 
@@ -1417,6 +1452,13 @@ class GameState:
                 "expiry": effect.params.get('until', 'turn_end').upper()
             })
         
+        elif effect.effect_type == EffectType.REDUCE_HEART_REQ:
+            # Rule 8.3.15: Reduce heart requirement for live
+            p.continuous_effects.append({
+                "effect": effect,
+                "expiry": effect.params.get('until', 'live_end').upper()
+            })
+        
         elif effect.effect_type == EffectType.NEGATE_EFFECT:
             # Target opponent and negate their next effect
             self.inactive_player.negate_next_effect = True
@@ -1462,7 +1504,8 @@ class GameState:
                       if p.main_deck:
                           current_card = p.main_deck.pop(0)
                           p.energy_zone.append(current_card)
-                          # buffer size 100 handles this without append
+                          # tapped_energy is pre-allocated False in __init__ (size 100)
+                          p.tapped_energy[len(p.energy_zone)-1] = False
              elif source == 'hand':
                   self.pending_choices.append(("TARGET_HAND", {"effect": "energy_charge", "count": count}))
                   if self.verbose: print(f"Player {p.player_id} must choose {count} card(s) from hand to charge energy")
@@ -1964,6 +2007,8 @@ class GameState:
                      player.stage_energy[source_area] = [] # Clear energy under sacrificed member
                      
                      player.tapped_members[source_area] = False # Reset state
+                     # FAQ Q79: If member is sacrificed, the slot becomes available again for play this turn
+                     player.members_played_this_turn[source_area] = False
             
             elif cost.type == AbilityCostType.REVEAL_HAND_ALL:
                 # Log the reveal. Since there's no UI for "reveal" in this backend state (it's perfect info or logged),
@@ -2015,7 +2060,8 @@ class GameState:
                     p.discard.append(card_id)
                 elif params.get('effect') == 'energy_charge':
                     p.energy_zone.append(card_id)
-                    p.tapped_energy.append(False)
+                    # Use index assignment instead of append for numpy array
+                    p.tapped_energy[len(p.energy_zone)-1] = False
                 elif params.get('effect') == 'place_under':
                     target_area = params.get('target_area', -1)
                     if target_area >= 0:
@@ -2145,13 +2191,13 @@ class GameState:
                 p.hand.append(selected)
                 if self.verbose: print(f"Player {p.player_id} selected {selected} from looked/list")
                 
-                # Assume single choice for now. Return rest to deck bottom.
-                # Only if source was looked_cards?
+                # Assume single choice for now.
                 if self.looked_cards:
-                     for c in cards:
-                         p.main_deck.insert(0, c)
+                     # Move unchosen cards to discard (breakroom) instead of deck bottom
+                     for c in cards: # 'cards' now contains only the unchosen cards
+                         p.discard.append(c)
                      self.looked_cards = []
-                     if self.verbose: print(f"Returned {len(cards)} cards to deck bottom")
+                     if self.verbose: print(f"Moved {len(cards)} cards to discard (breakroom).")
                 # For basic implementation, we store this in metadata or applies immediately
                 # Example: PR-003 might need to store this color for the turn.
                 
@@ -2301,6 +2347,21 @@ class GameState:
                      
                  if self.verbose: print(f"Swapped {card_to_hand} (from Live) with {card_to_live} (from Hand)")
             
+        elif choice_type == "SELECT_SUCCESS_LIVE":
+            # Player selects which passed live card to move to success zone
+            cards = params.get('cards', [])
+            player_id = params.get('player_id', 0)
+            idx = action - 600
+            
+            if 0 <= idx < len(cards):
+                selected_cid = cards[idx]
+                target_player = self.players[player_id]
+                if selected_cid in target_player.passed_lives:
+                    target_player.success_lives.append(selected_cid)
+                    target_player.passed_lives.remove(selected_cid)
+                    self.log_rule("Rule 8.4.7", f"Player {player_id} chose to move {self.live_db[selected_cid].name} to Success Zone.")
+                    if self.verbose: print(f"SELECT_SUCCESS_LIVE: Player {player_id} selected {selected_cid}")
+
         elif choice_type == "CHOOSE_TRIGGER":
             trigger_choice_idx = action - 590
             indices = params.get('indices', [])
@@ -2440,12 +2501,12 @@ class GameState:
         base_cost = max(0, card.cost - total_reduction)
         cost = base_cost
         is_baton = False
-        if p.stage[area_idx] >= 0 and p.baton_touch_count < p.baton_touch_limit:
+        if p.stage[area_idx] >= 0:
             prev_card = self.member_db[p.stage[area_idx]]
             cost = max(0, cost - prev_card.cost)
             is_baton = True
             p.baton_touch_count += 1
-            self.log_rule("Rule 9.6.2.1.1.2", f"Baton Touch applied ({p.baton_touch_count}/{p.baton_touch_limit}). Cost reduced from {base_cost} to {cost} by {prev_card.name}.")
+            self.log_rule("Rule 9.6.2.1.1.2", f"Baton Touch applied. Cost reduced from {base_cost} to {cost} by {prev_card.name}.")
             # Discard previous member
             p.discard.append(p.stage[area_idx])
             
@@ -2623,6 +2684,7 @@ class GameState:
                         if all_blade_count > 0:
                             draw_bonus -= all_blade_count # Remove from draw
                             blade_hearts_padded[6] += all_blade_count # Add to Any Heart
+                            total_hearts[6] += all_blade_count # CRITICAL: Also add to total hearts for requirement check
                             self.log_rule("Meta Rule", f"ALL Blade on {card.name} treated as Any Heart.")
 
                 draw_bonus += card.draw_icons
@@ -2659,10 +2721,10 @@ class GameState:
             # Blade hearts only come from members
             if card_id in self.member_db:
                 member = self.member_db[card_id]
-                # Update blade_hearts_padded for summary
-                blade_hearts_padded = np.zeros(7, dtype=np.int32)
-                blade_hearts_padded[:6] = member.blade_hearts
-                total_hearts += blade_hearts_padded
+                # Update total_hearts with color blade hearts
+                card_blade_hearts = np.zeros(7, dtype=np.int32)
+                card_blade_hearts[:6] = member.blade_hearts[:6] # Only colors here, b_all handled above
+                total_hearts += card_blade_hearts
                 COLOR_NAMES = ['Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple', 'Any']
                 h_str = ', '.join([f"{COLOR_NAMES[idx]}:{member.blade_hearts[idx]}" for idx in range(6) if member.blade_hearts[idx] > 0])
                 if h_str:
@@ -2683,7 +2745,18 @@ class GameState:
                 continue # Safety
             live = self.live_db[live_id]
             
-            req = live.required_hearts # Shape (7,) [Pink, Red, Yellow, Green, Blue, Purple, Any]
+            req = live.required_hearts.copy() # Use copy as we might modify it
+            
+            # Apply requirement reductions (REDUCE_HEART_REQ)
+            total_heart_reduction = 0
+            for ce in p.continuous_effects:
+                if ce['effect'].effect_type == EffectType.REDUCE_HEART_REQ:
+                    total_heart_reduction += ce['effect'].value
+            
+            if total_heart_reduction > 0:
+                req[6] = max(0, req[6] - total_heart_reduction)
+                self.log_rule("Effect", f"Heart requirement reduced by {total_heart_reduction} (Any). New 'Any' requirement: {req[6]}")
+
             COLOR_NAMES = ['Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple']
             
             # Create a combined string for "Have/Need" for only required colors
@@ -2778,6 +2851,7 @@ class GameState:
             'lives': final_lives_data,
             'success': bool(all_passed and temp_passed)
         }
+        if self.verbose: print(f"DEBUG: Performance Results set for P{player_idx}: {self.performance_results[player_idx].keys()}")
         # -----------------------------------------------
         
         # Clear live zone as cards are now in passed_lives or discard
@@ -2913,14 +2987,31 @@ class GameState:
                                 if self.verbose: print(f"Queued ON_LIVE_SUCCESS for {member.name}")
 
         # Rule 8.4.7: Winner(s) choose 1 card to Successful Zone
-        # (AI logic: pick highest scoring card)
         for w_idx in winners:
             p = self.players[w_idx]
             if p.passed_lives:
-                best_cid = max(p.passed_lives, key=lambda c: self.live_db[c].score if c in self.live_db else 0)
-                p.success_lives.append(best_cid)
-                p.passed_lives.remove(best_cid)
-                self.log_rule("Rule 8.4.7", f"Player {w_idx} moves {self.live_db[best_cid].name} to Success Zone.")
+                if len(p.passed_lives) == 1:
+                    # Only one live passed - auto-select
+                    cid = p.passed_lives[0]
+                    p.success_lives.append(cid)
+                    p.passed_lives.remove(cid)
+                    self.log_rule("Rule 8.4.7", f"Player {w_idx} moves {self.live_db[cid].name} to Success Zone.")
+                else:
+                    # Multiple lives passed - player must choose (for P0) or AI auto-selects (for P1)
+                    if w_idx == 0:
+                        # Human player - create pending choice
+                        self.pending_choices.append(("SELECT_SUCCESS_LIVE", {
+                            "cards": p.passed_lives.copy(),
+                            "player_id": w_idx
+                        }))
+                        self.log_rule("Rule 8.4.7", f"Player {w_idx} must choose which live to move to Success Zone.")
+                    else:
+                        # AI player - auto-select highest scoring
+                        best_cid = max(p.passed_lives, key=lambda c: self.live_db[c].score if c in self.live_db else 0)
+                        p.success_lives.append(best_cid)
+                        p.passed_lives.remove(best_cid)
+                        self.log_rule("Rule 8.4.7", f"Player {w_idx} moves {self.live_db[best_cid].name} to Success Zone.")
+                if self.verbose: print(f"DEBUG: Player {w_idx} Success Lives: {len(p.success_lives)}")
         
         # Rule 8.4.8: Remainder to Discard
         for p in self.players:
@@ -2960,15 +3051,7 @@ class GameState:
         # Check win condition
         self.check_win_condition()
     
-    def _live_success(self, player_idx: int) -> None:
-        """Handle a successful live for player"""
-        p = self.players[player_idx]
-        if p.live_zone:
-            # Move one live card to success pile (player can choose - take first for simplicity)
-            card = p.live_zone.pop(0)
-            p.success_lives.append(card)
-            # Winner becomes first player next turn
-            self.first_player = player_idx
+
     
     def get_observation(self) -> np.ndarray:
         """

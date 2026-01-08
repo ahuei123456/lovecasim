@@ -4,42 +4,23 @@ import os
 import sys
 from collections import Counter
 
-def parse_and_validate_deck(file_path):
-    if not os.path.exists(file_path):
-        print(f"Error: File {file_path} not found.")
-        return
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
+def extract_deck_data(content, card_db):
+    """
+    Parses HTML content to extract card IDs and quantities.
+    Returns (main_deck, energy_deck, type_counts, errors)
+    """
     # HTML Structure:
     # title="PL!xxx-yyy-zzz : NAME" ... <span class="num">N</span>
-    # We need to extract pairs of (card_id, quantity)
-    
-    # Pattern to find card blocks with title and num
-    # Match title="ID : Name" followed eventually by class="num">N<
     pattern = r'title="([^"]+?) :[^"]*"[^>]*>.*?class="num">(\d+)</span>'
-    
     matches = re.findall(pattern, content, re.DOTALL)
     
     if not matches:
-        print("No card ID + quantity pairs found. Trying alternative pattern...")
         # Fallback: just count title occurrences
         pattern_title = r'title="((?:PL!|LL-E)[^"]+?) :'
-        title_matches = re.findall(pattern_title, content)
-        print(f"Found {len(title_matches)} title matches (without quantities)")
-        return
+        # This fallback logic is lossy (assumes 1x per match if num not found?) 
+        # Actually original code just logged it. Let's return empty if failed effectively.
+        return [], [], {}, ["No card ID + quantity pairs found."]
 
-    # Load card DB for types
-    try:
-        import json
-        with open('data/cards.json', 'r', encoding='utf-8') as f:
-            card_db = json.load(f)
-    except Exception as e:
-        print(f"Warning: Could not load cards.json for type checking: {e}")
-        card_db = {}
-
-    # Build deck and count types
     main_deck = []
     energy_deck = []
     
@@ -49,6 +30,8 @@ def parse_and_validate_deck(file_path):
         "Energy": 0,
         "Unknown": 0
     }
+    
+    errors = []
     
     for card_id, qty_str in matches:
         qty = int(qty_str)
@@ -64,24 +47,46 @@ def parse_and_validate_deck(file_path):
         else: type_counts["Unknown"] += qty
         
         for _ in range(qty):
-            if card_id.startswith("LL-E"):
+            # Use card type to properly separate energy cards
+            if 'エネルギー' in ctype:
                 energy_deck.append(card_id)
             else:
                 main_deck.append(card_id)
 
-    # Counts
+    # Validation Rules
     main_counts = Counter(main_deck)
     energy_counts = Counter(energy_deck)
-    
-    # Validation Rules
-    errors = []
-    
-    # Check copy limits
     all_counts = main_counts + energy_counts
+    
     for cid, count in all_counts.items():
-        if count > 4 and not cid.startswith("LL-E"):  # Energy might have different rules
+        if count > 4 and not cid.startswith("LL-E"):
             errors.append(f"Card limit exceeded: {cid} x{count} (Max 4)")
             
+    return main_deck, energy_deck, type_counts, errors
+
+def parse_and_validate_deck(file_path):
+    if not os.path.exists(file_path):
+        print(f"Error: File {file_path} not found.")
+        return
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Load card DB
+    card_db = {}
+    try:
+        import json
+        with open('data/cards.json', 'r', encoding='utf-8') as f:
+            card_db = json.load(f)
+    except Exception as e:
+        print(f"Warning: Could not load cards.json: {e}")
+
+    main_deck, energy_deck, type_counts, errors = extract_deck_data(content, card_db)
+    
+    if not main_deck and not energy_deck and errors:
+         print(errors[0])
+         return
+
     # Output Report
     with open('deck_report.txt', 'w', encoding='utf-8') as f:
         f.write(f"=== Deck Verification Report for {os.path.basename(file_path)} ===\n")
@@ -89,11 +94,13 @@ def parse_and_validate_deck(file_path):
         f.write(f"Breakdown: Member: {type_counts['Member']} | Live: {type_counts['Live']} | Energy: {type_counts['Energy']}\n")
         
         f.write(f"\nMain Deck: {len(main_deck)} cards\n")
+        main_counts = Counter(main_deck)
         for cid, count in sorted(main_counts.items()):
             cname = card_db.get(cid, {}).get('name', 'Unknown')
             f.write(f"  {cid}: x{count} ({cname})\n")
             
         f.write(f"\nEnergy Deck: {len(energy_deck)} cards\n")
+        energy_counts = Counter(energy_deck)
         for cid, count in sorted(energy_counts.items()):
              cname = card_db.get(cid, {}).get('name', 'Unknown')
              f.write(f"  {cid}: x{count} ({cname})\n")
@@ -109,6 +116,39 @@ def parse_and_validate_deck(file_path):
     print(f"Report written to deck_report.txt")
     print(f"Total: {len(main_deck)} Main + {len(energy_deck)} Energy")
     print(f"Types: Member {type_counts['Member']}, Live {type_counts['Live']}, Energy {type_counts['Energy']}")
+    
+    # Auto-upload to server if running
+    try:
+        import urllib.request
+        import urllib.error
+        
+        server_url = "http://localhost:8000"
+        
+        # 1. Set Deck
+        payload = {
+            "player": 0,
+            "deck": main_deck,
+            "energy_deck": energy_deck
+        }
+        req = urllib.request.Request(
+            f"{server_url}/api/set_deck",
+            data=json.dumps(payload).encode('utf-8'),
+            headers={'Content-Type': 'application/json'}
+        )
+        with urllib.request.urlopen(req) as response:
+            print("Successfully sent deck to server.")
+            
+        # 2. Reset Game
+        req_reset = urllib.request.Request(
+            f"{server_url}/api/reset",
+            data=json.dumps({}).encode('utf-8'),
+            headers={'Content-Type': 'application/json'}
+        )
+        with urllib.request.urlopen(req_reset) as response:
+            print("Server game reset. New deck is now active!")
+            
+    except Exception as e:
+        print(f"Note: Could not upload to server (is it running?): {e}")
 
 if __name__ == "__main__":
     current_dir = os.path.dirname(os.path.abspath(__file__))

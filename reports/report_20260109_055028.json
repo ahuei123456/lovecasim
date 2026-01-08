@@ -1,0 +1,520 @@
+{
+  "timestamp": "20260109_055028",
+  "explanation": "ok I don't know what you are doing but I am still getting the error",
+  "state": {
+    "active_player": 0,
+    "game_over": false,
+    "legal_actions": [
+      {
+        "desc": "パス / 確定",
+        "id": 0
+      }
+    ],
+    "pending_choice": null,
+    "performance_results": {},
+    "phase": 6,
+    "players": [
+      {
+        "deck_count": 52,
+        "discard": [],
+        "discard_count": 0,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": true
+          }
+        ],
+        "energy_count": 4,
+        "energy_deck_count": 8,
+        "energy_untapped": 0,
+        "expected_yells": 1,
+        "hand": [
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 13,
+            "hearts": [
+              1,
+              0,
+              0,
+              4,
+              1,
+              0
+            ],
+            "hp": 1,
+            "id": 166,
+            "img": "cards/BP01/PL!HS-bp1-003-SEC.png",
+            "name": "乙宗 梢",
+            "text": "【登場】 {{jyouji.png|常時}}自分のステージのエリアすべてに『蓮ノ空』のメンバーが登場しており、かつ名前が異なる場合、「{{jyouji.png|常時}}ライブの合計スコアを＋１する\n【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}：自分の控え室から4コスト以下の『蓮ノ空』のメンバーカードを1枚手札に加える",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 5,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 324,
+            "img": "cards/BP03/PL!N-bp3-N-021-N.png",
+            "name": "天王寺璃奈",
+            "text": "",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 2,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 124,
+            "img": "cards/PLSD01/PL!-sd1-002-SD.png",
+            "name": "絢瀬 絵里",
+            "text": "【起動】 {{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からメンバーカードを1枚手札に加える",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 5,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 324,
+            "img": "cards/BP03/PL!N-bp3-N-021-N.png",
+            "name": "天王寺璃奈",
+            "text": "",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 9,
+            "hearts": [
+              1,
+              0,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 28,
+            "img": "cards/BP03/PL!-bp3-R-007-R.png",
+            "name": "東條 希",
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}手札を2枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る その中から1枚を手札に加え、1枚をデッキの上に置き、1枚を控え室に置く",
+            "type": "member",
+            "valid_actions": []
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 9,
+            "hearts": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              3
+            ],
+            "hp": 1,
+            "id": 578,
+            "img": "cards/BP01/PL!SP-bp1-001-P.png",
+            "name": "澁谷かのん",
+            "text": "【常時】 {{jyouji.png|常時}}自分のステージにほかのメンバーがいない場合、自分はライブできない",
+            "type": "member",
+            "valid_actions": []
+          }
+        ],
+        "hand_count": 6,
+        "is_active": true,
+        "live_zone": [
+          {
+            "face_down": true,
+            "hidden": true,
+            "id": 1083,
+            "img": "cards/BP02/PL!S-bp2-022-L.png",
+            "name": "未熟DREAMER",
+            "required_hearts": [
+              0,
+              2,
+              0,
+              2,
+              2,
+              0,
+              0
+            ],
+            "score": 5,
+            "text": "【自動】 {{live_success.png|ライブ成功時}}このターン、自分のデッキがリフレッシュしていた場合、このカードのスコアを＋２する",
+            "type": "live"
+          }
+        ],
+        "live_zone_count": 1,
+        "mulligan_selection": [],
+        "player_id": 0,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "energy": 0,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 252,
+            "img": "cards/BP01/PL!N-bp1-005-R.png",
+            "name": "宮下 愛",
+            "tapped": false,
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る",
+            "type": "member"
+          },
+          null,
+          null
+        ],
+        "success_lives": []
+      },
+      {
+        "deck_count": 53,
+        "discard": [],
+        "discard_count": 0,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": true
+          }
+        ],
+        "energy_count": 4,
+        "energy_deck_count": 8,
+        "energy_untapped": 0,
+        "expected_yells": 1,
+        "hand": [
+          {
+            "hidden": true,
+            "id": 502,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 601,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 1095,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 711,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 608,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 460,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          }
+        ],
+        "hand_count": 6,
+        "is_active": false,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 1,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "color": "Unknown",
+            "cost": 4,
+            "energy": 0,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 361,
+            "img": "cards/BP04/PL!N-bp4-014-N.png",
+            "name": "中須かすみ",
+            "tapped": false,
+            "text": "",
+            "type": "member"
+          },
+          null,
+          null
+        ],
+        "success_lives": []
+      }
+    ],
+    "rule_log": [
+      "[Turn 1] [MULLIGAN_P1] [Rule 9.5] Processing action 0 in MULLIGAN_P1 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 0 in MULLIGAN_P2 phase.",
+      "[Turn 1] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 1] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 1 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 1 plays 中須かすみ from hand to slot 0.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 1 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 0 plays 宮下 愛 from hand to slot 0.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 404 in LIVE_SET phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 9.5] Processing action 0 in PERFORMANCE_P1 phase.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 9.5] Processing action 0 in PERFORMANCE_P1 phase."
+    ],
+    "turn": 1,
+    "winner": -1
+  },
+  "history": [
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:49:58.390Z",
+      "phase": -1
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:49:59.859Z",
+      "phase": 0
+    },
+    {
+      "action_id": 1,
+      "timestamp": "2026-01-08T18:50:02.435Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:50:04.115Z",
+      "phase": 4
+    },
+    {
+      "action_id": 404,
+      "timestamp": "2026-01-08T18:50:06.021Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:50:07.168Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T18:50:11.418Z",
+      "phase": 6
+    }
+  ],
+  "action_desc": "N/A"
+}
