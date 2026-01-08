@@ -141,7 +141,7 @@ class PlayerState:
         self.energy_zone: List[int] = []     # Rule 4.6 (エネルギー置き場)
         self.success_lives: List[int] = []   # Rule 4.10 (成功ライブカード置き場)
         self.live_zone: List[int] = []       # Rule 4.9 (ライブカード置き場)
-        self.live_zone_revealed: bool = False
+        self.live_zone_revealed: List[bool] = []
         
         # Stage - 3 areas, each can have one member
         # -1 means empty, otherwise card_id
@@ -350,9 +350,12 @@ class GameState:
         self.current_player = 0  # Who is acting now
         self.first_player = 0    # Who goes first this turn
         self.phase = Phase.ACTIVE
-        self.turn_number = 1
-        self.game_over = False
-        self.winner = -1  # -1 = ongoing, 0/1 = player won, 2 = draw
+        self.turn_number: int = 1
+        self.game_over: bool = False
+        self.winner: int = -1  # -1 = ongoing, 0/1 = player won, 2 = draw
+        
+        # Performance Result Tracking (for UI popup)
+        self.last_performance_result: Optional[Dict[str, Any]] = None
         
         # For yell phase tracking
         self.yell_cards: List[int] = [] # Shared Resolution Zone (Rule 4.14)
@@ -2017,6 +2020,7 @@ class GameState:
             return
         card_id = p.hand.pop(hand_idx)
         p.live_zone.append(card_id)
+        p.live_zone_revealed.append(False)
         # Draw replacement
         self._draw_cards(p, 1)
     
@@ -2047,7 +2051,7 @@ class GameState:
             self._advance_performance()
             return
 
-        p.live_zone_revealed = True
+        p.live_zone_revealed = [True] * len(p.live_zone)
         
         # Filter for live cards only
         valid_lives = []
@@ -2210,6 +2214,60 @@ class GameState:
             for live_id in p.live_zone:
                 p.discard.append(live_id)
             p.passed_lives = []
+        
+        # --- Capture Performance Result for UI (Popup) ---
+        member_contribs = []
+        for i in range(3):
+            if p.stage[i] >= 0 and p.stage[i] in self.member_db:
+                member = self.member_db[p.stage[i]]
+                m_hearts_raw = p.get_effective_hearts(i, self.member_db)
+                m_hearts = np.zeros(7, dtype=np.int32)
+                m_hearts[:len(m_hearts_raw)] = m_hearts_raw
+                member_contribs.append({
+                    'name': member.name,
+                    'hearts': m_hearts.tolist(),
+                    'img': member.img_path
+                })
+        
+        yell_contribs = []
+        # yell_cards are still in self.yell_cards at this point
+        for cid in self.yell_cards:
+            if cid in self.member_db:
+                m = self.member_db[cid]
+                yell_contribs.append({
+                    'name': m.name,
+                    'blade_hearts': m.blade_hearts.tolist(),
+                    'img': m.img_path
+                })
+            elif cid in self.live_db: # Yell cards can be lives (no hearts, but show them)
+                l = self.live_db[cid]
+                yell_contribs.append({
+                    'name': l.name,
+                    'blade_hearts': [0]*7,
+                    'img': l.img_path,
+                    'is_live': True
+                })
+
+        final_lives_data = []
+        for live_id in p.live_zone:
+             if live_id in self.live_db:
+                 l = self.live_db[live_id]
+                 final_lives_data.append({
+                     'name': l.name,
+                     'required': l.required_hearts.tolist(),
+                     'passed': live_id in temp_passed,
+                     'img': l.img_path
+                 })
+
+        self.last_performance_result = {
+            'player_idx': player_idx,
+            'total_hearts': total_hearts.tolist(),
+            'member_contributions': member_contribs,
+            'yell_cards': yell_contribs,
+            'lives': final_lives_data,
+            'success': bool(all_passed and temp_passed)
+        }
+        # -----------------------------------------------
         
         # Clear live zone as cards are now in passed_lives or discard
         p.live_zone = []
@@ -2386,7 +2444,7 @@ class GameState:
             for card_id in p.live_zone: # This should be empty if logic is correct, but for safety
                 p.discard.append(card_id)
             p.live_zone = []
-            p.live_zone_revealed = False
+            p.live_zone_revealed = []
         
         # Check win condition
         self.check_win_condition()

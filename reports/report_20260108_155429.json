@@ -1,0 +1,2061 @@
+{
+  "timestamp": "20260108_155429",
+  "explanation": "can't seem to win lives, heart colors don't seem correct\n",
+  "state": {
+    "active_player": 0,
+    "game_over": false,
+    "legal_actions": [
+      {
+        "desc": "メインフェイズ終了 (パス)",
+        "id": 0
+      },
+      {
+        "area_idx": 0,
+        "cost": 4,
+        "desc": "ミア・テイラーを左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 0,
+        "id": 1,
+        "img": "cards/PR/PL!N-PR-013-PR.png",
+        "name": "ミア・テイラー",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 4,
+        "desc": "ミア・テイラーを中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 0,
+        "id": 2,
+        "img": "cards/PR/PL!N-PR-013-PR.png",
+        "name": "ミア・テイラー",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 4,
+        "desc": "ミア・テイラーを右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 0,
+        "id": 3,
+        "img": "cards/PR/PL!N-PR-013-PR.png",
+        "name": "ミア・テイラー",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 4,
+        "desc": "嵐 千砂都を左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 1,
+        "id": 4,
+        "img": "cards/SPSD01/PL!SP-sd1-014-SD.png",
+        "name": "嵐 千砂都",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 4,
+        "desc": "嵐 千砂都を中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 1,
+        "id": 5,
+        "img": "cards/SPSD01/PL!SP-sd1-014-SD.png",
+        "name": "嵐 千砂都",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 4,
+        "desc": "嵐 千砂都を右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 1,
+        "id": 6,
+        "img": "cards/SPSD01/PL!SP-sd1-014-SD.png",
+        "name": "嵐 千砂都",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 13,
+        "desc": "村野さやかを左に置く (バトンタッチ: 平安名すみれ, コスト 4)",
+        "hand_idx": 2,
+        "id": 7,
+        "img": "cards/BP02/PL!HS-bp2-002-R2.png",
+        "name": "村野さやか",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 13,
+        "desc": "村野さやかを中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 2,
+        "id": 8,
+        "img": "cards/BP02/PL!HS-bp2-002-R2.png",
+        "name": "村野さやか",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 13,
+        "desc": "村野さやかを右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 2,
+        "id": 9,
+        "img": "cards/BP02/PL!HS-bp2-002-R2.png",
+        "name": "村野さやか",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 10,
+        "desc": "嵐 千砂都を左に置く (バトンタッチ: 平安名すみれ, コスト 1)",
+        "hand_idx": 3,
+        "id": 10,
+        "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+        "name": "嵐 千砂都",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 10,
+        "desc": "嵐 千砂都を中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 3,
+        "id": 11,
+        "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+        "name": "嵐 千砂都",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 10,
+        "desc": "嵐 千砂都を右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 3,
+        "id": 12,
+        "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+        "name": "嵐 千砂都",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 9,
+        "desc": "平安名すみれを左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 4,
+        "id": 13,
+        "img": "cards/PBSP/PL!SP-pb1_004-P2.png",
+        "name": "平安名すみれ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 9,
+        "desc": "平安名すみれを中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 4,
+        "id": 14,
+        "img": "cards/PBSP/PL!SP-pb1_004-P2.png",
+        "name": "平安名すみれ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 9,
+        "desc": "平安名すみれを右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 4,
+        "id": 15,
+        "img": "cards/PBSP/PL!SP-pb1_004-P2.png",
+        "name": "平安名すみれ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 4,
+        "desc": "ミア・テイラーを左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 5,
+        "id": 16,
+        "img": "cards/PR/PL!N-PR-013-PR.png",
+        "name": "ミア・テイラー",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 4,
+        "desc": "ミア・テイラーを中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 5,
+        "id": 17,
+        "img": "cards/PR/PL!N-PR-013-PR.png",
+        "name": "ミア・テイラー",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 4,
+        "desc": "ミア・テイラーを右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 5,
+        "id": 18,
+        "img": "cards/PR/PL!N-PR-013-PR.png",
+        "name": "ミア・テイラー",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 7,
+        "desc": "東條 希を左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 6,
+        "id": 19,
+        "img": "cards/BP03/PL!-bp3-N-016-N.png",
+        "name": "東條 希",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 7,
+        "desc": "東條 希を中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 6,
+        "id": 20,
+        "img": "cards/BP03/PL!-bp3-N-016-N.png",
+        "name": "東條 希",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 7,
+        "desc": "東條 希を右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 6,
+        "id": 21,
+        "img": "cards/BP03/PL!-bp3-N-016-N.png",
+        "name": "東條 希",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 9,
+        "desc": "平安名すみれを左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 7,
+        "id": 22,
+        "img": "cards/PBSP/PL!SP-pb1_004-P2.png",
+        "name": "平安名すみれ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 9,
+        "desc": "平安名すみれを中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 7,
+        "id": 23,
+        "img": "cards/PBSP/PL!SP-pb1_004-P2.png",
+        "name": "平安名すみれ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 9,
+        "desc": "平安名すみれを右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 7,
+        "id": 24,
+        "img": "cards/PBSP/PL!SP-pb1_004-P2.png",
+        "name": "平安名すみれ",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 9,
+        "desc": "鬼塚夏美を左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 8,
+        "id": 25,
+        "img": "cards/BP01/PL!SP-bp1-009-R.png",
+        "name": "鬼塚夏美",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 9,
+        "desc": "鬼塚夏美を中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 8,
+        "id": 26,
+        "img": "cards/BP01/PL!SP-bp1-009-R.png",
+        "name": "鬼塚夏美",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 9,
+        "desc": "鬼塚夏美を右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 8,
+        "id": 27,
+        "img": "cards/BP01/PL!SP-bp1-009-R.png",
+        "name": "鬼塚夏美",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 7,
+        "desc": "東條 希を左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 9,
+        "id": 28,
+        "img": "cards/BP03/PL!-bp3-N-016-N.png",
+        "name": "東條 希",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 7,
+        "desc": "東條 希を中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 9,
+        "id": 29,
+        "img": "cards/BP03/PL!-bp3-N-016-N.png",
+        "name": "東條 希",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 7,
+        "desc": "東條 希を右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 9,
+        "id": 30,
+        "img": "cards/BP03/PL!-bp3-N-016-N.png",
+        "name": "東條 希",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 9,
+        "desc": "鬼塚夏美を左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 11,
+        "id": 34,
+        "img": "cards/BP01/PL!SP-bp1-009-R.png",
+        "name": "鬼塚夏美",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 9,
+        "desc": "鬼塚夏美を中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 11,
+        "id": 35,
+        "img": "cards/BP01/PL!SP-bp1-009-R.png",
+        "name": "鬼塚夏美",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 9,
+        "desc": "鬼塚夏美を右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 11,
+        "id": 36,
+        "img": "cards/BP01/PL!SP-bp1-009-R.png",
+        "name": "鬼塚夏美",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 10,
+        "desc": "嵐 千砂都を左に置く (バトンタッチ: 平安名すみれ, コスト 1)",
+        "hand_idx": 12,
+        "id": 37,
+        "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+        "name": "嵐 千砂都",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 10,
+        "desc": "嵐 千砂都を中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 12,
+        "id": 38,
+        "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+        "name": "嵐 千砂都",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 10,
+        "desc": "嵐 千砂都を右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 12,
+        "id": 39,
+        "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+        "name": "嵐 千砂都",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 4,
+        "desc": "大沢瑠璃乃を左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 14,
+        "id": 43,
+        "img": "cards/BP02/PL!HS-bp2-014-N.png",
+        "name": "大沢瑠璃乃",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 4,
+        "desc": "大沢瑠璃乃を中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 14,
+        "id": 44,
+        "img": "cards/BP02/PL!HS-bp2-014-N.png",
+        "name": "大沢瑠璃乃",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 4,
+        "desc": "大沢瑠璃乃を右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 14,
+        "id": 45,
+        "img": "cards/BP02/PL!HS-bp2-014-N.png",
+        "name": "大沢瑠璃乃",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 4,
+        "desc": "ミア・テイラーを左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 15,
+        "id": 46,
+        "img": "cards/PR/PL!N-PR-013-PR.png",
+        "name": "ミア・テイラー",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 4,
+        "desc": "ミア・テイラーを中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 15,
+        "id": 47,
+        "img": "cards/PR/PL!N-PR-013-PR.png",
+        "name": "ミア・テイラー",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 4,
+        "desc": "ミア・テイラーを右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 15,
+        "id": 48,
+        "img": "cards/PR/PL!N-PR-013-PR.png",
+        "name": "ミア・テイラー",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 4,
+        "desc": "松浦果南を左に置く (バトンタッチ: 平安名すみれ, コスト 0)",
+        "hand_idx": 16,
+        "id": 49,
+        "img": "cards/BP03/PL!S-bp3-N-012-N.png",
+        "name": "松浦果南",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 4,
+        "desc": "松浦果南を中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 16,
+        "id": 50,
+        "img": "cards/BP03/PL!S-bp3-N-012-N.png",
+        "name": "松浦果南",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 4,
+        "desc": "松浦果南を右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 16,
+        "id": 51,
+        "img": "cards/BP03/PL!S-bp3-N-012-N.png",
+        "name": "松浦果南",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 13,
+        "desc": "村野さやかを左に置く (バトンタッチ: 平安名すみれ, コスト 4)",
+        "hand_idx": 17,
+        "id": 52,
+        "img": "cards/BP02/PL!HS-bp2-002-R2.png",
+        "name": "村野さやか",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 13,
+        "desc": "村野さやかを中に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 17,
+        "id": 53,
+        "img": "cards/BP02/PL!HS-bp2-002-R2.png",
+        "name": "村野さやか",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 13,
+        "desc": "村野さやかを右に置く (バトンタッチ: 絢瀬絵里, コスト 0)",
+        "hand_idx": 17,
+        "id": 54,
+        "img": "cards/BP02/PL!HS-bp2-002-R2.png",
+        "name": "村野さやか",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "desc": "絢瀬絵里のスキル発動 (中) - {{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の...",
+        "id": 201,
+        "img": "cards/BP04/PL!-bp4-002-SEC.png",
+        "name": "絢瀬絵里",
+        "type": "ABILITY"
+      },
+      {
+        "area_idx": 2,
+        "desc": "絢瀬絵里のスキル発動 (右) - {{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の...",
+        "id": 202,
+        "img": "cards/BP04/PL!-bp4-002-SEC.png",
+        "name": "絢瀬絵里",
+        "type": "ABILITY"
+      }
+    ],
+    "pending_choice": null,
+    "phase": 4,
+    "players": [
+      {
+        "deck_count": 19,
+        "discard": [
+          {
+            "cost": 3,
+            "id": 1099,
+            "img": "cards/PBLS/PL!S-pb1-022-L2.png",
+            "name": "逃走迷走メビウスループ",
+            "required_hearts": [
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0
+            ],
+            "score": 2,
+            "text": "{{live_success.png|ライブ成功時}}このターン、ライブに勝利するプレイヤーを決定するとき、自分と相手のライブの合計スコアが同じ場合、ライブ終了時まで、自分と相手は成功ライブカード置き場にカードを置くことができない。",
+            "type": "live"
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 65,
+            "img": "cards/BP04/PL!-bp4-008-P.png",
+            "name": "小泉花陽",
+            "text": "【常時】 {{jyouji.png|常時}}自分の成功ライブカード置き場にあるカードのスコアの合計が６以上であるかぎり、ステージにいるこのメンバーのコストを＋３する",
+            "type": "member"
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 7,
+            "hearts": [
+              2,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 3,
+            "id": 44,
+            "img": "cards/BP03/PL!-bp3-N-016-N.png",
+            "name": "東條 希",
+            "text": "",
+            "type": "member"
+          },
+          {
+            "blade": 0,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 746,
+            "img": "cards/SPSD01/PL!SP-sd1-014-SD.png",
+            "name": "嵐 千砂都",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く",
+            "type": "member"
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 65,
+            "img": "cards/BP04/PL!-bp4-008-P.png",
+            "name": "小泉花陽",
+            "text": "【常時】 {{jyouji.png|常時}}自分の成功ライブカード置き場にあるカードのスコアの合計が６以上であるかぎり、ステージにいるこのメンバーのコストを＋３する",
+            "type": "member"
+          },
+          {
+            "cost": 3,
+            "id": 1077,
+            "img": "cards/PR/PL!S-PR-022-PR.png",
+            "name": "HAPPY PARTY TRAIN",
+            "required_hearts": [
+              0,
+              1,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "score": 1,
+            "text": "",
+            "type": "live"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              2,
+              0,
+              0,
+              0
+            ],
+            "hp": 2,
+            "id": 121,
+            "img": "cards/PBLL/PL!-pb1-026-N.png",
+            "name": "小泉花陽",
+            "text": "",
+            "type": "member"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 10,
+            "hearts": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              2
+            ],
+            "hp": 4,
+            "id": 587,
+            "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+            "name": "嵐 千砂都",
+            "text": "【常時】 {{kidou.png|起動}}{{turn1.png|ターン1回}}手札にあるメンバーカードを好きな枚数公開する：公開したカードのコストの合計が、10、20、30、40、50のいずれかの場合、ライブ終了時まで、「{{jyouji.png|常時}}ライブの合計スコアを＋１する",
+            "type": "member"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 10,
+            "hearts": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              2
+            ],
+            "hp": 4,
+            "id": 587,
+            "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+            "name": "嵐 千砂都",
+            "text": "【常時】 {{kidou.png|起動}}{{turn1.png|ターン1回}}手札にあるメンバーカードを好きな枚数公開する：公開したカードのコストの合計が、10、20、30、40、50のいずれかの場合、ライブ終了時まで、「{{jyouji.png|常時}}ライブの合計スコアを＋１する",
+            "type": "member"
+          },
+          {
+            "cost": 3,
+            "id": 1099,
+            "img": "cards/PBLS/PL!S-pb1-022-L2.png",
+            "name": "逃走迷走メビウスループ",
+            "required_hearts": [
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0
+            ],
+            "score": 2,
+            "text": "{{live_success.png|ライブ成功時}}このターン、ライブに勝利するプレイヤーを決定するとき、自分と相手のライブの合計スコアが同じ場合、ライブ終了時まで、自分と相手は成功ライブカード置き場にカードを置くことができない。",
+            "type": "live"
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "hp": 2,
+            "id": 222,
+            "img": "cards/BP02/PL!HS-bp2-014-N.png",
+            "name": "大沢瑠璃乃",
+            "text": "【登場】 {{toujyou.png|登場}}カードを1枚引く ライブ終了時まで、自分はライブできない",
+            "type": "member"
+          },
+          {
+            "blade": 0,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 746,
+            "img": "cards/SPSD01/PL!SP-sd1-014-SD.png",
+            "name": "嵐 千砂都",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く",
+            "type": "member"
+          },
+          {
+            "cost": 3,
+            "id": 1077,
+            "img": "cards/PR/PL!S-PR-022-PR.png",
+            "name": "HAPPY PARTY TRAIN",
+            "required_hearts": [
+              0,
+              1,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "score": 1,
+            "text": "",
+            "type": "live"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              2,
+              0,
+              0,
+              0
+            ],
+            "hp": 2,
+            "id": 121,
+            "img": "cards/PBLL/PL!-pb1-026-N.png",
+            "name": "小泉花陽",
+            "text": "",
+            "type": "member"
+          },
+          {
+            "cost": 3,
+            "id": 1099,
+            "img": "cards/PBLS/PL!S-pb1-022-L2.png",
+            "name": "逃走迷走メビウスループ",
+            "required_hearts": [
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0
+            ],
+            "score": 2,
+            "text": "{{live_success.png|ライブ成功時}}このターン、ライブに勝利するプレイヤーを決定するとき、自分と相手のライブの合計スコアが同じ場合、ライブ終了時まで、自分と相手は成功ライブカード置き場にカードを置くことができない。",
+            "type": "live"
+          }
+        ],
+        "discard_count": 15,
+        "energy": [
+          {
+            "id": 0,
+            "tapped": false
+          },
+          {
+            "id": 1,
+            "tapped": false
+          },
+          {
+            "id": 2,
+            "tapped": false
+          },
+          {
+            "id": 3,
+            "tapped": false
+          },
+          {
+            "id": 4,
+            "tapped": false
+          },
+          {
+            "id": 5,
+            "tapped": false
+          },
+          {
+            "id": 6,
+            "tapped": false
+          },
+          {
+            "id": 7,
+            "tapped": false
+          },
+          {
+            "id": 8,
+            "tapped": false
+          },
+          {
+            "id": 9,
+            "tapped": false
+          },
+          {
+            "id": 10,
+            "tapped": false
+          },
+          {
+            "id": 11,
+            "tapped": false
+          },
+          {
+            "id": 12,
+            "tapped": false
+          },
+          {
+            "id": 13,
+            "tapped": false
+          },
+          {
+            "id": 14,
+            "tapped": false
+          }
+        ],
+        "energy_count": 15,
+        "energy_deck_count": 1,
+        "energy_untapped": 15,
+        "expected_yells": 10,
+        "hand": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 2,
+            "id": 237,
+            "img": "cards/PR/PL!N-PR-013-PR.png",
+            "name": "ミア・テイラー",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る その中から1枚を手札に加え、残りを控え室に置く",
+            "type": "member",
+            "valid_actions": [
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "blade": 0,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 746,
+            "img": "cards/SPSD01/PL!SP-sd1-014-SD.png",
+            "name": "嵐 千砂都",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く",
+            "type": "member",
+            "valid_actions": [
+              4,
+              5,
+              6
+            ]
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "cost": 13,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              4,
+              0
+            ],
+            "hp": 4,
+            "id": 197,
+            "img": "cards/BP02/PL!HS-bp2-002-R2.png",
+            "name": "村野さやか",
+            "text": "【登場】 {{toujyou.png|登場}}自分の控え室からコスト2以下のメンバーカードを2枚まで手札に加える\\n【常時】 {{jyouji.png|常時}}自分のステージに、このメンバーよりコストの大きいメンバーがいる場合、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る",
+            "type": "member",
+            "valid_actions": [
+              7,
+              8,
+              9
+            ]
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 10,
+            "hearts": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              2
+            ],
+            "hp": 4,
+            "id": 587,
+            "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+            "name": "嵐 千砂都",
+            "text": "【常時】 {{kidou.png|起動}}{{turn1.png|ターン1回}}手札にあるメンバーカードを好きな枚数公開する：公開したカードのコストの合計が、10、20、30、40、50のいずれかの場合、ライブ終了時まで、「{{jyouji.png|常時}}ライブの合計スコアを＋１する",
+            "type": "member",
+            "valid_actions": [
+              10,
+              11,
+              12
+            ]
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              0,
+              2,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 4,
+            "id": 706,
+            "img": "cards/PBSP/PL!SP-pb1_004-P2.png",
+            "name": "平安名すみれ",
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く\\n【ライブ成功】 {{live_success.png|ライブ成功時}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：カードを1枚引く",
+            "type": "member",
+            "valid_actions": [
+              13,
+              14,
+              15
+            ]
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 2,
+            "id": 237,
+            "img": "cards/PR/PL!N-PR-013-PR.png",
+            "name": "ミア・テイラー",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る その中から1枚を手札に加え、残りを控え室に置く",
+            "type": "member",
+            "valid_actions": [
+              16,
+              17,
+              18
+            ]
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 7,
+            "hearts": [
+              2,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 3,
+            "id": 44,
+            "img": "cards/BP03/PL!-bp3-N-016-N.png",
+            "name": "東條 希",
+            "text": "",
+            "type": "member",
+            "valid_actions": [
+              19,
+              20,
+              21
+            ]
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              0,
+              2,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 4,
+            "id": 706,
+            "img": "cards/PBSP/PL!SP-pb1_004-P2.png",
+            "name": "平安名すみれ",
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く\\n【ライブ成功】 {{live_success.png|ライブ成功時}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：カードを1枚引く",
+            "type": "member",
+            "valid_actions": [
+              22,
+              23,
+              24
+            ]
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 3,
+            "id": 601,
+            "img": "cards/BP01/PL!SP-bp1-009-R.png",
+            "name": "鬼塚夏美",
+            "text": "【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}：カードを1枚引き、手札を1枚控え室に置く",
+            "type": "member",
+            "valid_actions": [
+              25,
+              26,
+              27
+            ]
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 7,
+            "hearts": [
+              2,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 3,
+            "id": 44,
+            "img": "cards/BP03/PL!-bp3-N-016-N.png",
+            "name": "東條 希",
+            "text": "",
+            "type": "member",
+            "valid_actions": [
+              28,
+              29,
+              30
+            ]
+          },
+          {
+            "cost": 10,
+            "id": 1057,
+            "img": "cards/BP04/PL!N-bp4-025-L.png",
+            "name": "VIVID WORLD",
+            "required_hearts": [
+              0,
+              0,
+              0,
+              0,
+              8,
+              2,
+              0
+            ],
+            "score": 6,
+            "text": "{{live_start.png|ライブ開始時}}ライブ終了時まで、エールによって公開される自分のカードが持つ[桃ブレード]、[赤ブレード]、[黄ブレード]、[緑ブレード]、[紫ブレード]、{{icon_b_all.png|ALLブレード}}は、すべて[青ブレード]になる。\n{{live_success.png|ライブ成功時}}エールにより公開された自分の『虹ヶ咲』のメンバーカードが持つハートの中に{{heart_01.png|heart01}}、{{heart_02.png|heart02}}、{{heart_03.png|heart03}}、{{heart_04.png|heart04}}、{{heart_05.png|heart05}}、{{heart_06.png|heart06}}がある場合、このカードのスコアを＋１する。",
+            "type": "live",
+            "valid_actions": []
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 3,
+            "id": 601,
+            "img": "cards/BP01/PL!SP-bp1-009-R.png",
+            "name": "鬼塚夏美",
+            "text": "【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}：カードを1枚引き、手札を1枚控え室に置く",
+            "type": "member",
+            "valid_actions": [
+              34,
+              35,
+              36
+            ]
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 10,
+            "hearts": [
+              0,
+              1,
+              1,
+              0,
+              0,
+              2
+            ],
+            "hp": 4,
+            "id": 587,
+            "img": "cards/BP01/PL!SP-bp1-003-SEC.png",
+            "name": "嵐 千砂都",
+            "text": "【常時】 {{kidou.png|起動}}{{turn1.png|ターン1回}}手札にあるメンバーカードを好きな枚数公開する：公開したカードのコストの合計が、10、20、30、40、50のいずれかの場合、ライブ終了時まで、「{{jyouji.png|常時}}ライブの合計スコアを＋１する",
+            "type": "member",
+            "valid_actions": [
+              37,
+              38,
+              39
+            ]
+          },
+          {
+            "cost": 10,
+            "id": 1057,
+            "img": "cards/BP04/PL!N-bp4-025-L.png",
+            "name": "VIVID WORLD",
+            "required_hearts": [
+              0,
+              0,
+              0,
+              0,
+              8,
+              2,
+              0
+            ],
+            "score": 6,
+            "text": "{{live_start.png|ライブ開始時}}ライブ終了時まで、エールによって公開される自分のカードが持つ[桃ブレード]、[赤ブレード]、[黄ブレード]、[緑ブレード]、[紫ブレード]、{{icon_b_all.png|ALLブレード}}は、すべて[青ブレード]になる。\n{{live_success.png|ライブ成功時}}エールにより公開された自分の『虹ヶ咲』のメンバーカードが持つハートの中に{{heart_01.png|heart01}}、{{heart_02.png|heart02}}、{{heart_03.png|heart03}}、{{heart_04.png|heart04}}、{{heart_05.png|heart05}}、{{heart_06.png|heart06}}がある場合、このカードのスコアを＋１する。",
+            "type": "live",
+            "valid_actions": []
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "hp": 2,
+            "id": 222,
+            "img": "cards/BP02/PL!HS-bp2-014-N.png",
+            "name": "大沢瑠璃乃",
+            "text": "【登場】 {{toujyou.png|登場}}カードを1枚引く ライブ終了時まで、自分はライブできない",
+            "type": "member",
+            "valid_actions": [
+              43,
+              44,
+              45
+            ]
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 2,
+            "id": 237,
+            "img": "cards/PR/PL!N-PR-013-PR.png",
+            "name": "ミア・テイラー",
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る その中から1枚を手札に加え、残りを控え室に置く",
+            "type": "member",
+            "valid_actions": [
+              46,
+              47,
+              48
+            ]
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 533,
+            "img": "cards/BP03/PL!S-bp3-N-012-N.png",
+            "name": "松浦果南",
+            "text": "【登場】 {{toujyou.png|登場}}/{{live_start.png|ライブ開始時}}このメンバーをウェイトにしてもよい：相手のステージにいるコスト4以下のメンバー1人をウェイトにする （ウェイト状態のメンバーが持つ{{icon_blade.png|ブレード}}は、エールで公開する枚数を増やさない\\n【ライブ開始】 {{toujyou.png|登場}}/{{live_start.png|ライブ開始時}}このメンバーをウェイトにしてもよい：相手のステージにいるコスト4以下のメンバー1人をウェイトにする",
+            "type": "member",
+            "valid_actions": [
+              49,
+              50,
+              51
+            ]
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "cost": 13,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              4,
+              0
+            ],
+            "hp": 4,
+            "id": 197,
+            "img": "cards/BP02/PL!HS-bp2-002-R2.png",
+            "name": "村野さやか",
+            "text": "【登場】 {{toujyou.png|登場}}自分の控え室からコスト2以下のメンバーカードを2枚まで手札に加える\\n【常時】 {{jyouji.png|常時}}自分のステージに、このメンバーよりコストの大きいメンバーがいる場合、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る",
+            "type": "member",
+            "valid_actions": [
+              52,
+              53,
+              54
+            ]
+          },
+          {
+            "cost": 3,
+            "id": 1099,
+            "img": "cards/PBLS/PL!S-pb1-022-L2.png",
+            "name": "逃走迷走メビウスループ",
+            "required_hearts": [
+              0,
+              0,
+              0,
+              3,
+              0,
+              0,
+              0
+            ],
+            "score": 2,
+            "text": "{{live_success.png|ライブ成功時}}このターン、ライブに勝利するプレイヤーを決定するとき、自分と相手のライブの合計スコアが同じ場合、ライブ終了時まで、自分と相手は成功ライブカード置き場にカードを置くことができない。",
+            "type": "live",
+            "valid_actions": []
+          }
+        ],
+        "hand_count": 19,
+        "is_active": true,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 0,
+        "restrictions": [],
+        "stage": [
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "energy": 0,
+            "hearts": [
+              0,
+              2,
+              1,
+              0,
+              0,
+              1
+            ],
+            "hp": 4,
+            "id": 706,
+            "img": "cards/PBSP/PL!SP-pb1_004-P2.png",
+            "name": "平安名すみれ",
+            "tapped": false,
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く\\n【ライブ成功】 {{live_success.png|ライブ成功時}}{{icon_energy.png|E}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：カードを1枚引く",
+            "type": "member"
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "cost": 15,
+            "energy": 0,
+            "hearts": [
+              2,
+              0,
+              2,
+              0,
+              0,
+              3
+            ],
+            "hp": 7,
+            "id": 52,
+            "img": "cards/BP04/PL!-bp4-002-SEC.png",
+            "name": "絢瀬絵里",
+            "tapped": false,
+            "text": "【常時】 {{jyouji.png|常時}}自分のライブ中のライブカードに、{{live_start.png|ライブ開始時}}能力も{{live_success.png|ライブ成功時}}能力も持たないカードがあるかぎり、{{heart_06.png|heart06}}{{heart_06.png|heart06}}を得る\\n【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の控え室から『μ's』のライブカードを1枚手札に加える\\n【起動】 この能力は、自分の成功ライブカード置き場にあるカードのスコアの合計が７以上の場合のみ起動できる",
+            "type": "member"
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "cost": 15,
+            "energy": 0,
+            "hearts": [
+              2,
+              0,
+              2,
+              0,
+              0,
+              3
+            ],
+            "hp": 7,
+            "id": 52,
+            "img": "cards/BP04/PL!-bp4-002-SEC.png",
+            "name": "絢瀬絵里",
+            "tapped": false,
+            "text": "【常時】 {{jyouji.png|常時}}自分のライブ中のライブカードに、{{live_start.png|ライブ開始時}}能力も{{live_success.png|ライブ成功時}}能力も持たないカードがあるかぎり、{{heart_06.png|heart06}}{{heart_06.png|heart06}}を得る\\n【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の控え室から『μ's』のライブカードを1枚手札に加える\\n【起動】 この能力は、自分の成功ライブカード置き場にあるカードのスコアの合計が７以上の場合のみ起動できる",
+            "type": "member"
+          }
+        ],
+        "success_lives": []
+      },
+      {
+        "deck_count": 49,
+        "discard": [
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 659,
+            "img": "cards/BP04/PL!SP-bp4-001-P.png",
+            "name": "澁谷かのん",
+            "text": "【登場】 {{toujyou.png|登場}}自分のステージにいるメンバーが『Liella!』のみで、かつ自分のエネルギーが7枚以上ある場合、自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く",
+            "type": "member"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 11,
+            "hearts": [
+              0,
+              3,
+              2,
+              0,
+              0,
+              1
+            ],
+            "hp": 6,
+            "id": 675,
+            "img": "cards/BP04/PL!SP-bp4-007-P.png",
+            "name": "米女メイ",
+            "text": "【能力】 {{jidou.png|自動}}{{turn1.png|ターン1回}}このメンバーがエリアを移動したとき、自分の控え室から、スコア3以下の『Liella!』のライブカードを1枚手札に加える",
+            "type": "member"
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              1,
+              1
+            ],
+            "hp": 3,
+            "id": 331,
+            "img": "cards/BP04/PL!N-bp4-002-R.png",
+            "name": "中須かすみ",
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}自分か相手を選ぶ 自分は、そのプレイヤーのデッキの一番上のカードを見る 自分はそのカードを控え室に置いてもよい",
+            "type": "member"
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "cost": 11,
+            "hearts": [
+              0,
+              2,
+              2,
+              0,
+              0,
+              1
+            ],
+            "hp": 5,
+            "id": 646,
+            "img": "cards/BP02/PL!SP-bp2-011-P.png",
+            "name": "鬼塚冬毬",
+            "text": "【登場】 {{toujyou.png|登場}}自分の控え室にある、カード名の異なるライブカードを2枚選ぶ これにより相手に選ばれたカードを自分の手札に加える",
+            "type": "member"
+          },
+          {
+            "blade": 4,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              0,
+              0,
+              1,
+              0,
+              1,
+              1
+            ],
+            "hp": 3,
+            "id": 331,
+            "img": "cards/BP04/PL!N-bp4-002-R.png",
+            "name": "中須かすみ",
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}自分か相手を選ぶ 自分は、そのプレイヤーのデッキの一番上のカードを見る 自分はそのカードを控え室に置いてもよい",
+            "type": "member"
+          }
+        ],
+        "discard_count": 5,
+        "energy": [
+          {
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "id": 2,
+            "tapped": false
+          },
+          {
+            "id": 3,
+            "tapped": false
+          },
+          {
+            "id": 4,
+            "tapped": false
+          },
+          {
+            "id": 5,
+            "tapped": false
+          },
+          {
+            "id": 6,
+            "tapped": false
+          },
+          {
+            "id": 7,
+            "tapped": false
+          },
+          {
+            "id": 8,
+            "tapped": false
+          },
+          {
+            "id": 9,
+            "tapped": false
+          },
+          {
+            "id": 10,
+            "tapped": false
+          }
+        ],
+        "energy_count": 11,
+        "energy_deck_count": 1,
+        "energy_untapped": 9,
+        "expected_yells": 6,
+        "hand": [
+          {
+            "hidden": true,
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "type": "unknown"
+          }
+        ],
+        "hand_count": 3,
+        "is_active": false,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 1,
+        "restrictions": [],
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 11,
+            "energy": 0,
+            "hearts": [
+              0,
+              3,
+              2,
+              0,
+              0,
+              1
+            ],
+            "hp": 6,
+            "id": 675,
+            "img": "cards/BP04/PL!SP-bp4-007-P.png",
+            "name": "米女メイ",
+            "tapped": false,
+            "text": "【能力】 {{jidou.png|自動}}{{turn1.png|ターン1回}}このメンバーがエリアを移動したとき、自分の控え室から、スコア3以下の『Liella!』のライブカードを1枚手札に加える",
+            "type": "member"
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "cost": 11,
+            "energy": 0,
+            "hearts": [
+              0,
+              2,
+              2,
+              0,
+              0,
+              1
+            ],
+            "hp": 5,
+            "id": 646,
+            "img": "cards/BP02/PL!SP-bp2-011-P.png",
+            "name": "鬼塚冬毬",
+            "tapped": false,
+            "text": "【登場】 {{toujyou.png|登場}}自分の控え室にある、カード名の異なるライブカードを2枚選ぶ これにより相手に選ばれたカードを自分の手札に加える",
+            "type": "member"
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "energy": 0,
+            "hearts": [
+              0,
+              1,
+              0,
+              1,
+              1,
+              0
+            ],
+            "hp": 3,
+            "id": 471,
+            "img": "cards/PR/PL!S-PR-031-PR.png",
+            "name": "国木田花丸",
+            "tapped": false,
+            "text": "【常時】 {{jyouji.png|常時}}自分か相手のステージにコスト13以上のメンバーがいる場合、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る",
+            "type": "member"
+          }
+        ],
+        "success_lives": []
+      }
+    ],
+    "rule_log": [
+      "[Turn 7] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 1.",
+      "[Turn 7] [LIVE_RESULT] [Rule 8.4.14] Turn 7 finished.",
+      "[Turn 8] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 8] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 8] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 8] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 8] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 8] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 8] [MAIN] [Rule 9.5] Processing action 13 in MAIN phase.",
+      "[Turn 8] [MAIN] [Rule 9.6.2] Player 1 plays 米女メイ from hand to slot 0.",
+      "[Turn 8] [MAIN] [Rule 9.6.2.1.1.2] Baton Touch applied (1/1). Cost reduced from 11 to 0 by 鬼塚冬毬.",
+      "[Turn 8] [MAIN] [Rule 9.5] Processing action 11 in MAIN phase.",
+      "[Turn 8] [MAIN] [Rule 9.6.2] Player 1 plays 鬼塚冬毬 from hand to slot 1.",
+      "[Turn 8] [MAIN] [Rule 9.6.2.1.1.2] Baton Touch applied (1/1). Cost reduced from 11 to 2 by 中須かすみ.",
+      "[Turn 8] [MAIN] [Rule 9.7] Player 1 resolving automatic ability.",
+      "[Turn 8] [MAIN] [Rule 9.7] Resolving effect: ADD_TO_HAND (Value: 1)",
+      "[Turn 8] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 8] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 8] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 8] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card."
+    ],
+    "turn": 8,
+    "winner": -1
+  },
+  "history": [
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:47:10.807Z",
+      "phase": 0
+    },
+    {
+      "action_id": 17,
+      "timestamp": "2026-01-08T04:47:14.625Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:47:18.354Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:47:27.981Z",
+      "phase": 5
+    },
+    {
+      "action_id": 2,
+      "timestamp": "2026-01-08T04:47:30.325Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:47:34.035Z",
+      "phase": 4
+    },
+    {
+      "action_id": 402,
+      "timestamp": "2026-01-08T04:47:39.547Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:47:40.638Z",
+      "phase": 5
+    },
+    {
+      "action_id": 1,
+      "timestamp": "2026-01-08T04:48:23.821Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:48:25.735Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:48:28.170Z",
+      "phase": 5
+    },
+    {
+      "action_id": 13,
+      "timestamp": "2026-01-08T04:48:35.062Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:48:37.964Z",
+      "phase": 4
+    },
+    {
+      "action_id": 402,
+      "timestamp": "2026-01-08T04:48:41.481Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:48:42.535Z",
+      "phase": 5
+    },
+    {
+      "action_id": 5,
+      "timestamp": "2026-01-08T04:49:43.067Z",
+      "phase": 4
+    },
+    {
+      "action_id": 201,
+      "timestamp": "2026-01-08T04:50:05.122Z",
+      "phase": 4
+    },
+    {
+      "action_id": 201,
+      "timestamp": "2026-01-08T04:50:10.304Z",
+      "phase": 4
+    },
+    {
+      "action_id": 201,
+      "timestamp": "2026-01-08T04:50:11.388Z",
+      "phase": 4
+    },
+    {
+      "action_id": 201,
+      "timestamp": "2026-01-08T04:50:12.145Z",
+      "phase": 4
+    },
+    {
+      "action_id": 18,
+      "timestamp": "2026-01-08T04:50:17.562Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:50:19.291Z",
+      "phase": 4
+    },
+    {
+      "action_id": 400,
+      "timestamp": "2026-01-08T04:50:20.942Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:50:21.935Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:51:13.157Z",
+      "phase": 4
+    },
+    {
+      "action_id": 411,
+      "timestamp": "2026-01-08T04:51:15.261Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:51:16.250Z",
+      "phase": 5
+    },
+    {
+      "action_id": 12,
+      "timestamp": "2026-01-08T04:52:54.478Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:52:59.558Z",
+      "phase": 4
+    },
+    {
+      "action_id": 410,
+      "timestamp": "2026-01-08T04:53:02.914Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T04:53:04.088Z",
+      "phase": 5
+    }
+  ],
+  "action_desc": "N/A"
+}

@@ -13,10 +13,10 @@ from flask import Flask, jsonify, request, send_from_directory
 from datetime import datetime
 from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
-from headless_runner import RandomAgent, create_easy_cards
+from headless_runner import SmartHeuristicAgent, create_easy_cards
 
 app = Flask(__name__, static_folder='web_ui')
-ai_agent = RandomAgent()
+ai_agent = SmartHeuristicAgent()
 
 # Global game state
 game_state = None
@@ -153,7 +153,16 @@ def init_game(deck_type='normal'):
     # Start in MULLIGAN phase
     game_state.phase = Phase.MULLIGAN_P1
 
-def serialize_card(cid):
+def serialize_card(cid, is_viewable=True):
+    if not is_viewable:
+        return {
+            'id': int(cid),
+            'name': '???',
+            'type': 'unknown',
+            'img': 'cards/back.png',
+            'hidden': True
+        }
+
     if cid in member_db:
         m = member_db[cid]
         
@@ -255,7 +264,7 @@ def serialize_player(p, is_viewable=True):
             c['valid_actions'] = valid_actions
             hand.append(c)
     else:
-        hand = [{'hidden': True, 'type': 'unknown'}] * len(p.hand)
+        hand = [serialize_card(cid, is_viewable=False) for cid in p.hand]
     
     stage = []
     for i in range(3):
@@ -268,12 +277,19 @@ def serialize_player(p, is_viewable=True):
         else:
             stage.append(None)
     
-    discard = [serialize_card(cid) for cid in p.discard]
-    energy = [{'id': i, 'tapped': bool(p.tapped_energy[i]) if i < len(p.tapped_energy) else False} for i, _ in enumerate(p.energy_zone)]
-    live_zone = [serialize_card(cid) for cid in p.live_zone]
+    discard = [serialize_card(cid, is_viewable=True) for cid in p.discard]
+    energy = [{'id': i, 'tapped': bool(p.tapped_energy[i]) if i < len(p.tapped_energy) else False, 'card': serialize_card(p.energy_zone[i], is_viewable=False)} for i, _ in enumerate(p.energy_zone)]
+    live_zone = [serialize_card(cid, is_viewable=bool(p.live_zone_revealed[i])) for i, cid in enumerate(p.live_zone)]
+
+    # Calculate Score
+    score = 0
+    for cid in p.success_lives:
+        if cid in live_db:
+            score += live_db[cid].score
     
     return {
         'player_id': p.player_id,
+        'score': score, # Added score field
         'is_active': is_viewable, # Changed from is_human
         'hand': hand,
         'hand_count': len(p.hand),
@@ -376,7 +392,8 @@ def serialize_state():
         ],
         'legal_actions': legal_actions,
         'pending_choice': pending_choice_info,
-        'rule_log': game_state.rule_log[-20:] # Include rule log for debugging
+        'last_performance_result': getattr(game_state, 'last_performance_result', None),
+        'rule_log': game_state.rule_log # Full history
     }
 
 def get_action_desc(a, gs):
@@ -454,21 +471,74 @@ def get_action_desc(a, gs):
         
         return f"{card_name}のスキル発動 ({area_name}){ability_summary}"
         
+    elif 500 <= a <= 559:
+        idx = a - 500
+        if idx < len(p.hand):
+            cid = p.hand[idx]
+            name = "Card"
+            if cid in gs.member_db: name = gs.member_db[cid].name
+            elif cid in gs.live_db: name = gs.live_db[cid].name
+            return f"{name}を選択"
+        return f"手札のカード {idx} を選択"
+
+    elif 560 <= a <= 562:
+        idx = a - 560
+        areas = ["左", "中", "右"]
+        cid = p.stage[idx]
+        name = "メンバー"
+        if cid >= 0 and cid in gs.member_db: name = gs.member_db[cid].name
+        return f"{areas[idx]}の{name}を選択"
+
     elif 570 <= a <= 579:
         return f"モード選択 {a - 570}"
-    elif 590 <= a <= 599:
-        idx = a - 590
-        # Try to look up context if possible, but generic is better than nothing
-        if idx < len(gs.triggered_abilities):
-            pid, ability, ctx = gs.triggered_abilities[idx]
-            on_card = "Unknown"
-            # It's hard to get the source card name easily here without complex lookup
-            # But we can say "Trigger #idx"
-            return f"自動能力の解決 ({idx+1}/{len(gs.triggered_abilities)})"
-        return f"自動能力の解決 {idx}"
+    
     elif 580 <= a <= 585:
         colors = ["赤", "青", "緑", "黄", "紫", "ピンク"]
         return f"色選択: {colors[a-580]}"
+
+    elif 590 <= a <= 599:
+        idx = a - 590
+        if idx < len(gs.triggered_abilities):
+            return f"自動能力の解決 ({idx+1}/{len(gs.triggered_abilities)})"
+        return f"自動能力の解決 {idx}"
+        
+    elif 600 <= a <= 659:
+        # Generic SELECT_FROM_LIST or TARGET_OPPONENT_MEMBER
+        idx = a - 600
+        if gs.pending_choices:
+            choice_type, params = gs.pending_choices[0]
+            if choice_type == "SELECT_FROM_LIST":
+                cards = params.get('cards', [])
+                if idx < len(cards):
+                    cid = cards[idx]
+                    name = "Card"
+                    if cid in gs.member_db: name = gs.member_db[cid].name
+                    elif cid in gs.live_db: name = gs.live_db[cid].name
+                    return f"{name}を選択"
+            elif choice_type == "TARGET_OPPONENT_MEMBER":
+                 if idx < 3:
+                     areas = ["左", "中", "右"]
+                     opp = gs.inactive_player
+                     cid = opp.stage[idx]
+                     name = "メンバー"
+                     if cid >= 0 and cid in gs.member_db: name = gs.member_db[cid].name
+                     return f"相手の{areas[idx]}の{name}を選択"
+        return f"選択 {idx}"
+
+    elif 660 <= a <= 719:
+        idx = a - 660
+        if gs.pending_choices:
+            choice_type, params = gs.pending_choices[0]
+            if choice_type == "SELECT_FROM_DISCARD":
+                cards = params.get('cards', [])
+                if idx < len(cards):
+                    cid = cards[idx]
+                    name = "Card"
+                    if cid in gs.member_db: name = gs.member_db[cid].name
+                    elif cid in gs.live_db: name = gs.live_db[cid].name
+                    return f"{name}を選択"
+        return f"控え室のカード {idx} を選択"
+
     return f"Action {a}"
 
 @app.route('/')
@@ -488,6 +558,19 @@ def get_state():
     if game_state is None:
         init_game()
     return jsonify(serialize_state())
+
+@app.route('/api/reset', methods=['POST'])
+def reset_game():
+    global game_state
+    init_game()
+    return jsonify({'status': 'ok'})
+
+@app.route('/api/clear_performance', methods=['POST'])
+def clear_performance():
+    global game_state
+    if game_state:
+        game_state.last_performance_result = None
+    return jsonify({'status': 'ok'})
 
 @app.route('/api/action', methods=['POST'])
 def do_action():
@@ -613,14 +696,18 @@ def advance():
     max_safety = 50
     while not game_state.is_terminal() and max_safety > 0:
         max_safety -= 1
+        # Advance if in an automatic phase OR if it's the AI's turn
         if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
                                Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
             game_state = game_state.step(0)
             continue
-        if game_state.current_player == 1:
+        
+        # If it's the AI's turn (P1), let it act immediately
+        if game_state.current_player == 1 and not game_state.is_terminal():
             aid = ai_agent.choose_action(game_state, 1)
             game_state = game_state.step(aid)
             continue
+        
         break
         
     return jsonify({'success': True, 'state': serialize_state()})

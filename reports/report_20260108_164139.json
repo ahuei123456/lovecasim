@@ -1,0 +1,720 @@
+{
+  "timestamp": "20260108_164139",
+  "explanation": "look at the nozomi card and the ability, clicking it causes a freeze and doesn't run the rest of the effect, what is happening\n",
+  "state": {
+    "active_player": 0,
+    "game_over": false,
+    "last_performance_result": null,
+    "legal_actions": [
+      {
+        "desc": "メインフェイズ終了 (パス)",
+        "id": 0
+      },
+      {
+        "area_idx": 2,
+        "cost": 9,
+        "desc": "近江彼方を右に置く (バトンタッチ: 矢澤にこ, コスト 2)",
+        "hand_idx": 0,
+        "id": 3,
+        "img": "cards/NSD01/PL!N-sd1-018-SD.png",
+        "name": "近江彼方",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 9,
+        "desc": "朝香果林を右に置く (バトンタッチ: 矢澤にこ, コスト 2)",
+        "hand_idx": 1,
+        "id": 6,
+        "img": "cards/NSD01/PL!N-sd1-016-SD.png",
+        "name": "朝香果林",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 9,
+        "desc": "朝香果林を右に置く (バトンタッチ: 矢澤にこ, コスト 2)",
+        "hand_idx": 2,
+        "id": 9,
+        "img": "cards/NSD01/PL!N-sd1-016-SD.png",
+        "name": "朝香果林",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 2,
+        "desc": "百生 吟子を中に置く (バトンタッチ: 矢澤にこ, コスト 0)",
+        "hand_idx": 3,
+        "id": 11,
+        "img": "cards/BP01/PL!HS-bp1-007-R.png",
+        "name": "百生 吟子",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 2,
+        "desc": "百生 吟子を右に置く (バトンタッチ: 矢澤にこ, コスト 0)",
+        "hand_idx": 3,
+        "id": 12,
+        "img": "cards/BP01/PL!HS-bp1-007-R.png",
+        "name": "百生 吟子",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "desc": "東條 希のスキル発動 (左) - {{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からメンバーカー...",
+        "id": 200,
+        "img": "cards/PBLL/PL!-pb1-025-N.png",
+        "name": "東條 希",
+        "type": "ABILITY"
+      }
+    ],
+    "pending_choice": null,
+    "phase": 4,
+    "players": [
+      {
+        "deck_count": 51,
+        "discard": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "cost": 2,
+            "hearts": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 178,
+            "img": "cards/BP01/PL!HS-bp1-007-R.png",
+            "name": "百生 吟子",
+            "text": "【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}：カードを1枚引く",
+            "type": "member"
+          }
+        ],
+        "discard_count": 1,
+        "energy": [
+          {
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "id": 2,
+            "tapped": false
+          },
+          {
+            "id": 3,
+            "tapped": false
+          },
+          {
+            "id": 4,
+            "tapped": false
+          },
+          {
+            "id": 5,
+            "tapped": false
+          }
+        ],
+        "energy_count": 6,
+        "energy_deck_count": 6,
+        "energy_untapped": 4,
+        "expected_yells": 3,
+        "hand": [
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              0,
+              2
+            ],
+            "hp": 4,
+            "id": 449,
+            "img": "cards/NSD01/PL!N-sd1-018-SD.png",
+            "name": "近江彼方",
+            "text": "",
+            "type": "member",
+            "valid_actions": [
+              3
+            ]
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              2,
+              0
+            ],
+            "hp": 4,
+            "id": 447,
+            "img": "cards/NSD01/PL!N-sd1-016-SD.png",
+            "name": "朝香果林",
+            "text": "",
+            "type": "member",
+            "valid_actions": [
+              6
+            ]
+          },
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              1,
+              1,
+              0,
+              0,
+              2,
+              0
+            ],
+            "hp": 4,
+            "id": 447,
+            "img": "cards/NSD01/PL!N-sd1-016-SD.png",
+            "name": "朝香果林",
+            "text": "",
+            "type": "member",
+            "valid_actions": [
+              9
+            ]
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "cost": 2,
+            "hearts": [
+              0,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 178,
+            "img": "cards/BP01/PL!HS-bp1-007-R.png",
+            "name": "百生 吟子",
+            "text": "【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}：カードを1枚引く",
+            "type": "member",
+            "valid_actions": [
+              11,
+              12
+            ]
+          },
+          {
+            "cost": 11,
+            "id": 1114,
+            "img": "cards/BP04/PL!SP-bp4-023-L.png",
+            "name": "Dazzling Game",
+            "required_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              11,
+              0
+            ],
+            "score": 8,
+            "text": "{{live_start.png|ライブ開始時}}ライブ終了時まで、自分のステージにいる、「澁谷かのん」「ウィーン・マルガレーテ」「鬼塚冬毬」のうちのメンバー1人と、これにより選んだメンバー以外の『Liella!』のメンバー1人は、{{icon_blade.png|ブレード}}を得る。\n{{live_start.png|ライブ開始時}}ライブ終了時まで、エールによって公開される自分のカードが持つ[桃ブレード]、[赤ブレード]、[黄ブレード]、[緑ブレード]、[青ブレード]、{{icon_b_all.png|ALLブレード}}は、すべて[紫ブレード]になる。",
+            "type": "live",
+            "valid_actions": []
+          }
+        ],
+        "hand_count": 5,
+        "is_active": true,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 0,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 2,
+            "energy": 0,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 120,
+            "img": "cards/PBLL/PL!-pb1-025-N.png",
+            "name": "東條 希",
+            "tapped": false,
+            "text": "【起動】 {{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からメンバーカードを1枚手札に加える",
+            "type": "member"
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 2,
+            "energy": 0,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 1,
+            "id": 34,
+            "img": "cards/BP03/PL!-bp3-P2-009-P2.png",
+            "name": "矢澤にこ",
+            "tapped": false,
+            "text": "【登場】 \"{{toujyou.png|登場}}自分のステージにコスト13以上のメンバーがいる場合、カードを1枚引く\\n【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}このメンバーをウェイトにする：{{heart_01.png|heart01}}か{{heart_03.png|heart03}}か{{heart_06.png|heart06}}のうち、1つを選ぶ ライブ終了時まで、選んだハートを1つ得る",
+            "type": "member"
+          },
+          {
+            "blade": 0,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 7,
+            "energy": 0,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              2
+            ],
+            "hp": 2,
+            "id": 113,
+            "img": "cards/PBLL/PL!-pb1-018-R.png",
+            "name": "矢澤にこ",
+            "tapped": false,
+            "text": "【登場】 {{toujyou.png|登場}}自分と相手はそれぞれ、自身の控え室からコスト2以下のメンバーカードを1枚、メンバーのいないエリアにウェイト状態で登場させる\\n【登場】 （この効果で登場したメンバーのいるエリアには、このターンにメンバーは登場できない",
+            "type": "member"
+          }
+        ],
+        "success_lives": []
+      },
+      {
+        "deck_count": 48,
+        "discard": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ],
+            "hp": 2,
+            "id": 189,
+            "img": "cards/BP01/PL!HS-bp1-015-N.png",
+            "name": "藤島 慈",
+            "text": "",
+            "type": "member"
+          }
+        ],
+        "discard_count": 1,
+        "energy": [
+          {
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "id": 2,
+            "tapped": true
+          },
+          {
+            "id": 3,
+            "tapped": false
+          },
+          {
+            "id": 4,
+            "tapped": false
+          },
+          {
+            "id": 5,
+            "tapped": false
+          }
+        ],
+        "energy_count": 6,
+        "energy_deck_count": 6,
+        "energy_untapped": 3,
+        "expected_yells": 4,
+        "hand": [
+          {
+            "hidden": true,
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "type": "unknown"
+          }
+        ],
+        "hand_count": 6,
+        "is_active": false,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 1,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 3,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 10,
+            "energy": 0,
+            "hearts": [
+              1,
+              0,
+              0,
+              2,
+              1,
+              0
+            ],
+            "hp": 4,
+            "id": 141,
+            "img": "cards/PR/PL!HS-PR-001-PR.png",
+            "name": "日野下花帆",
+            "tapped": false,
+            "text": "【登場】 {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る その中から1枚を手札に加え、残りを控え室に置く\\n【ライブ開始】 {{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る",
+            "type": "member"
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 2,
+            "energy": 0,
+            "hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 690,
+            "img": "cards/BP04/PL!SP-bp4-013-N.png",
+            "name": "唐 可可",
+            "tapped": false,
+            "text": "【登場】 {{toujyou.png|登場}}このメンバーをポジションチェンジしてもよい (このメンバーを今いるエリア以外のエリアに移動させる そのエリアにメンバーがいる場合、そのメンバーはこのメンバーがいたエリアに移動させる",
+            "type": "member"
+          },
+          null
+        ],
+        "success_lives": []
+      }
+    ],
+    "rule_log": [
+      "[Turn 1] [MULLIGAN_P1] [Rule 9.5] Processing action 0 in MULLIGAN_P1 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 0 in MULLIGAN_P2 phase.",
+      "[Turn 1] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 1] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 16 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 1 plays 藤島 慈 from hand to slot 0.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 17 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 0 plays 矢澤にこ from hand to slot 1.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 15 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 0 plays 百生 吟子 from hand to slot 2.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 9.5] Processing action 0 in PERFORMANCE_P1 phase.",
+      "[Turn 1] [LIVE_RESULT] [Rule 9.5] Processing action 0 in LIVE_RESULT phase.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4] Live Winner Determination Phase starts.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.2] Score Calculation: P0=0 (0+0), P1=0 (0+0)",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.6.1] No winners (both scores 0 or no cards).",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 0.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 1.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.14] Turn 1 finished.",
+      "[Turn 2] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 2] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 2] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 2] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 2] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 2] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 1 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.6.2] Player 1 plays 桜小路きな子 from hand to slot 0.",
+      "[Turn 2] [MAIN] [Rule 9.6.2.1.1.2] Baton Touch applied (1/1). Cost reduced from 9 to 5 by 藤島 慈.",
+      "[Turn 2] [MAIN] [Rule 9.7] Player 1 resolving automatic ability.",
+      "[Turn 2] [MAIN] [Rule 9.7] Resolving effect: MOVE_MEMBER (Value: 1)",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.7] Resolving effect: ADD_BLADES (Value: 1)",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 2] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 2] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 2] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 12 in MAIN phase.",
+      "[Turn 2] [MAIN] [Rule 9.6.2] Player 0 plays 矢澤にこ from hand to slot 2.",
+      "[Turn 2] [MAIN] [Rule 9.6.2.1.1.2] Baton Touch applied (1/1). Cost reduced from 7 to 5 by 百生 吟子.",
+      "[Turn 2] [MAIN] [Rule 9.7] Player 0 resolving automatic ability.",
+      "[Turn 2] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 2] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 2] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 2] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 2] [PERFORMANCE_P1] [Rule 9.5] Processing action 0 in PERFORMANCE_P1 phase.",
+      "[Turn 2] [LIVE_RESULT] [Rule 9.5] Processing action 0 in LIVE_RESULT phase.",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4] Live Winner Determination Phase starts.",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.2] Score Calculation: P0=0 (0+0), P1=0 (0+0)",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.6.1] No winners (both scores 0 or no cards).",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 0.",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 1.",
+      "[Turn 2] [LIVE_RESULT] [Rule 8.4.14] Turn 2 finished.",
+      "[Turn 3] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 3] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 3] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 3] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 3] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 3] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 3] [MAIN] [Rule 9.5] Processing action 7 in MAIN phase.",
+      "[Turn 3] [MAIN] [Rule 9.6.2] Player 1 plays 日野下花帆 from hand to slot 0.",
+      "[Turn 3] [MAIN] [Rule 9.6.2.1.1.2] Baton Touch applied (1/1). Cost reduced from 10 to 1 by 桜小路きな子.",
+      "[Turn 3] [MAIN] [Rule 9.7] Player 1 resolving automatic ability.",
+      "[Turn 3] [MAIN] [Rule 9.7] Resolving effect: SWAP_CARDS (Value: 1)",
+      "[Turn 3] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 3] [MAIN] [Rule 9.7] Resolving effect: ADD_TO_HAND (Value: 1)",
+      "[Turn 3] [MAIN] [Rule 9.7] Resolving effect: LOOK_AND_CHOOSE (Value: 1)",
+      "[Turn 3] [MAIN] [Rule 9.7] Resolving effect: SWAP_CARDS (Value: 1)",
+      "[Turn 3] [MAIN] [Rule 9.7] Resolving effect: LOOK_DECK (Value: 3)",
+      "[Turn 3] [MAIN] [Rule 9.5] Processing action 5 in MAIN phase.",
+      "[Turn 3] [MAIN] [Rule 9.6.2] Player 1 plays 唐 可可 from hand to slot 1.",
+      "[Turn 3] [MAIN] [Rule 9.7] Player 1 resolving automatic ability.",
+      "[Turn 3] [MAIN] [Rule 9.7] Resolving effect: MOVE_MEMBER (Value: 1)",
+      "[Turn 3] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 3] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 3] [MAIN] [Rule 9.7] Resolving effect: MOVE_MEMBER (Value: 1)",
+      "[Turn 3] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 3] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 3] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 3] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 3] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 3] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 3] [MAIN] [Rule 9.5] Processing action 13 in MAIN phase.",
+      "[Turn 3] [MAIN] [Rule 9.6.2] Player 0 plays 東條 希 from hand to slot 0."
+    ],
+    "turn": 3,
+    "winner": -1
+  },
+  "history": [
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:39:29.864Z",
+      "phase": -1
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:39:37.457Z",
+      "phase": 0
+    },
+    {
+      "action_id": 17,
+      "timestamp": "2026-01-08T05:39:40.236Z",
+      "phase": 4
+    },
+    {
+      "action_id": 15,
+      "timestamp": "2026-01-08T05:39:42.228Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:39:43.485Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:39:45.413Z",
+      "phase": 5
+    },
+    {
+      "action_id": 12,
+      "timestamp": "2026-01-08T05:40:15.420Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:40:17.011Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:40:18.234Z",
+      "phase": 5
+    },
+    {
+      "action_id": 13,
+      "timestamp": "2026-01-08T05:40:24.660Z",
+      "phase": 4
+    },
+    {
+      "action_id": 200,
+      "timestamp": "2026-01-08T05:40:38.410Z",
+      "phase": 4
+    },
+    {
+      "action_id": 200,
+      "timestamp": "2026-01-08T05:40:39.975Z",
+      "phase": 4
+    },
+    {
+      "action_id": 200,
+      "timestamp": "2026-01-08T05:40:40.198Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:40:53.619Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:40:55.763Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:40:55.978Z",
+      "phase": 4
+    },
+    {
+      "action_id": 200,
+      "timestamp": "2026-01-08T05:40:59.378Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T05:41:03.536Z",
+      "phase": 4
+    }
+  ],
+  "action_desc": "N/A"
+}

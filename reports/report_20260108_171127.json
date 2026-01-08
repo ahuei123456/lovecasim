@@ -1,0 +1,684 @@
+{
+  "timestamp": "20260108_171127",
+  "explanation": "Explain the yell here, I know they're the wrong color but did the riko card not add hearts?\n",
+  "state": {
+    "active_player": 0,
+    "game_over": false,
+    "last_performance_result": null,
+    "legal_actions": [
+      {
+        "desc": "メインフェイズ終了 (パス)",
+        "id": 0
+      },
+      {
+        "area_idx": 0,
+        "cost": 7,
+        "desc": "上原歩夢を左に置く (バトンタッチ: 鬼塚夏美, コスト 3)",
+        "hand_idx": 0,
+        "id": 1,
+        "img": "cards/PBnj/PL!N-pb1-013-P2.png",
+        "name": "上原歩夢",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 4,
+        "desc": "桜内梨子を左に置く (バトンタッチ: 鬼塚夏美, コスト 0)",
+        "hand_idx": 1,
+        "id": 4,
+        "img": "cards/BP02/PL!S-bp2-002-R.png",
+        "name": "桜内梨子",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 4,
+        "desc": "桜内梨子を中に置く (コスト 4)",
+        "hand_idx": 1,
+        "id": 5,
+        "img": "cards/BP02/PL!S-bp2-002-R.png",
+        "name": "桜内梨子",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 4,
+        "desc": "桜内梨子を右に置く (コスト 4)",
+        "hand_idx": 1,
+        "id": 6,
+        "img": "cards/BP02/PL!S-bp2-002-R.png",
+        "name": "桜内梨子",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 9,
+        "desc": "国木田花丸を左に置く (バトンタッチ: 鬼塚夏美, コスト 5)",
+        "hand_idx": 2,
+        "id": 7,
+        "img": "cards/BP03/PL!S-bp3-R-007-R.png",
+        "name": "国木田花丸",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 7,
+        "desc": "上原歩夢を左に置く (バトンタッチ: 鬼塚夏美, コスト 3)",
+        "hand_idx": 5,
+        "id": 16,
+        "img": "cards/PBnj/PL!N-pb1-013-P2.png",
+        "name": "上原歩夢",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 0,
+        "cost": 4,
+        "desc": "徒町 小鈴を左に置く (バトンタッチ: 鬼塚夏美, コスト 0)",
+        "hand_idx": 6,
+        "id": 19,
+        "img": "cards/BP02/PL!HS-bp2-008-P.png",
+        "name": "徒町 小鈴",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 1,
+        "cost": 4,
+        "desc": "徒町 小鈴を中に置く (コスト 4)",
+        "hand_idx": 6,
+        "id": 20,
+        "img": "cards/BP02/PL!HS-bp2-008-P.png",
+        "name": "徒町 小鈴",
+        "type": "PLAY"
+      },
+      {
+        "area_idx": 2,
+        "cost": 4,
+        "desc": "徒町 小鈴を右に置く (コスト 4)",
+        "hand_idx": 6,
+        "id": 21,
+        "img": "cards/BP02/PL!HS-bp2-008-P.png",
+        "name": "徒町 小鈴",
+        "type": "PLAY"
+      }
+    ],
+    "pending_choice": null,
+    "phase": 4,
+    "players": [
+      {
+        "deck_count": 50,
+        "discard": [
+          {
+            "cost": 3,
+            "id": 1089,
+            "img": "cards/BP03/PL!S-bp3-L-020-L.png",
+            "name": "ダイスキだったらダイジョウブ！",
+            "required_hearts": [
+              0,
+              1,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "score": 1,
+            "text": "{{jidou.png|自動}}［ターン1回］エールにより自分のカードを1枚以上公開したとき、それらのカードの中にブレードハートを持つカードが2枚以下の場合、それらのカードをすべて控え室に置いてもよい。そのエールで得たブレードハートを失い、もう一度エールを行う。",
+            "type": "live"
+          },
+          {
+            "blade": 0,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              2,
+              0
+            ],
+            "hp": 2,
+            "id": 477,
+            "img": "cards/BP02/PL!S-bp2-002-R.png",
+            "name": "桜内梨子",
+            "text": "【能力】 {{jidou.png|自動}}このメンバーがステージから控え室に置かれたとき、手札を1枚控え室に置いてもよい そうした場合、自分の控え室から『Aqours』のライブカードを1枚手札に加える",
+            "type": "member"
+          }
+        ],
+        "discard_count": 2,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": false
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 4,
+            "tapped": false
+          }
+        ],
+        "energy_count": 5,
+        "energy_deck_count": 7,
+        "energy_untapped": 5,
+        "expected_yells": 1,
+        "hand": [
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 7,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 396,
+            "img": "cards/PBnj/PL!N-pb1-013-P2.png",
+            "name": "上原歩夢",
+            "text": "【登場】 {{toujyou.png|登場}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：手札からコスト4以下の「上原歩夢」のメンバーカードを1枚ステージに登場させる",
+            "type": "member",
+            "valid_actions": [
+              1
+            ]
+          },
+          {
+            "blade": 0,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              2,
+              0
+            ],
+            "hp": 2,
+            "id": 477,
+            "img": "cards/BP02/PL!S-bp2-002-R.png",
+            "name": "桜内梨子",
+            "text": "【能力】 {{jidou.png|自動}}このメンバーがステージから控え室に置かれたとき、手札を1枚控え室に置いてもよい そうした場合、自分の控え室から『Aqours』のライブカードを1枚手札に加える",
+            "type": "member",
+            "valid_actions": [
+              4,
+              5,
+              6
+            ]
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 9,
+            "hearts": [
+              0,
+              1,
+              0,
+              2,
+              1,
+              0
+            ],
+            "hp": 4,
+            "id": 526,
+            "img": "cards/BP03/PL!S-bp3-R-007-R.png",
+            "name": "国木田花丸",
+            "text": "【起動】 {{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}：自分か相手を選ぶ 自分は、そのプレイヤーの控え室にあるライブカードを1枚、そのプレイヤーのデッキの一番下に置く そうした場合、自分はカードを1枚引く",
+            "type": "member",
+            "valid_actions": [
+              7
+            ]
+          },
+          {
+            "cost": 6,
+            "id": 1119,
+            "img": "cards/BP04/PL!SP-bp4-028-L.png",
+            "name": "DAISUKI FULL POWER",
+            "required_hearts": [
+              0,
+              3,
+              3,
+              0,
+              0,
+              0,
+              0
+            ],
+            "score": 5,
+            "text": "{{live_start.png|ライブ開始時}}アクティブ状態の自分のエネルギーがある場合、このカードのスコアを＋１する。",
+            "type": "live",
+            "valid_actions": []
+          },
+          {
+            "cost": 6,
+            "id": 1119,
+            "img": "cards/BP04/PL!SP-bp4-028-L.png",
+            "name": "DAISUKI FULL POWER",
+            "required_hearts": [
+              0,
+              3,
+              3,
+              0,
+              0,
+              0,
+              0
+            ],
+            "score": 5,
+            "text": "{{live_start.png|ライブ開始時}}アクティブ状態の自分のエネルギーがある場合、このカードのスコアを＋１する。",
+            "type": "live",
+            "valid_actions": []
+          },
+          {
+            "blade": 2,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 7,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "hp": 1,
+            "id": 396,
+            "img": "cards/PBnj/PL!N-pb1-013-P2.png",
+            "name": "上原歩夢",
+            "text": "【登場】 {{toujyou.png|登場}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：手札からコスト4以下の「上原歩夢」のメンバーカードを1枚ステージに登場させる",
+            "type": "member",
+            "valid_actions": [
+              16
+            ]
+          },
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "hearts": [
+              0,
+              0,
+              0,
+              0,
+              2,
+              0
+            ],
+            "hp": 2,
+            "id": 213,
+            "img": "cards/BP02/PL!HS-bp2-008-P.png",
+            "name": "徒町 小鈴",
+            "text": "【登場】 {{toujyou.png|登場}}このメンバーよりコストが低い『DOLLCHESTRA』のメンバーからバトンタッチして登場した場合、ライブ終了時まで、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る",
+            "type": "member",
+            "valid_actions": [
+              19,
+              20,
+              21
+            ]
+          }
+        ],
+        "hand_count": 7,
+        "is_active": true,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 0,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "energy": 0,
+            "hearts": [
+              0,
+              1,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 2,
+            "id": 730,
+            "img": "cards/PBSP/PL!SP-pb1_020-N.png",
+            "name": "鬼塚夏美",
+            "tapped": false,
+            "text": "【能力】 {{jidou.png|自動}}このメンバーがエリアを移動するたび、カードを1枚引く",
+            "type": "member"
+          },
+          null,
+          null
+        ],
+        "success_lives": []
+      },
+      {
+        "deck_count": 53,
+        "discard": [],
+        "discard_count": 0,
+        "energy": [
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 0,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 1,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 2,
+            "tapped": true
+          },
+          {
+            "card": {
+              "hidden": true,
+              "id": 2000,
+              "img": "cards/back.png",
+              "name": "???",
+              "type": "unknown"
+            },
+            "id": 3,
+            "tapped": true
+          }
+        ],
+        "energy_count": 4,
+        "energy_deck_count": 8,
+        "energy_untapped": 0,
+        "expected_yells": 1,
+        "hand": [
+          {
+            "hidden": true,
+            "id": 174,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 1058,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 60,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 608,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 1058,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          },
+          {
+            "hidden": true,
+            "id": 657,
+            "img": "cards/back.png",
+            "name": "???",
+            "type": "unknown"
+          }
+        ],
+        "hand_count": 6,
+        "is_active": false,
+        "live_zone": [],
+        "live_zone_count": 0,
+        "mulligan_selection": [],
+        "player_id": 1,
+        "restrictions": [],
+        "score": 0,
+        "stage": [
+          {
+            "blade": 1,
+            "blade_hearts": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "cost": 4,
+            "energy": 0,
+            "hearts": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "hp": 2,
+            "id": 72,
+            "img": "cards/BP04/PL!-bp4-013-N.png",
+            "name": "園田海未",
+            "tapped": false,
+            "text": "【ライブ開始】 {{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：ライブ終了時まで、自分のステージにいるこのメンバー以外のメンバー1人は、{{heart_01.png|heart01}}を得る",
+            "type": "member"
+          },
+          null,
+          null
+        ],
+        "success_lives": []
+      }
+    ],
+    "rule_log": [
+      "[Turn 1] [MULLIGAN_P1] [Rule 9.5] Processing action 0 in MULLIGAN_P1 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 303 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 302 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 304 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 305 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 301 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 300 in MULLIGAN_P2 phase.",
+      "[Turn 1] [MULLIGAN_P2] [Rule 9.5] Processing action 0 in MULLIGAN_P2 phase.",
+      "[Turn 1] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 1] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 4 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 0 plays 鬼塚夏美 from hand to slot 0.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 1.",
+      "[Turn 1] [ENERGY] [Rule 7.5] Energy Phase: Player 1 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 1] [DRAW] [Rule 7.6] Draw Phase: Player 1 draws 1 card.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 4 in MAIN phase.",
+      "[Turn 1] [MAIN] [Rule 9.6.2] Player 1 plays 園田海未 from hand to slot 0.",
+      "[Turn 1] [MAIN] [Rule 9.5] Processing action 0 in MAIN phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 403 in LIVE_SET phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [LIVE_SET] [Rule 9.5] Processing action 0 in LIVE_SET phase.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 9.5] Processing action 0 in PERFORMANCE_P1 phase.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.10] 🎺 YELL START: Player 0 has 1 total blades on stage → Revealing 1 cards from deck",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.11] Yell Zone: 1 cards revealed: 桜内梨子",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.12.1] Yell Draw Bonus: +0 cards.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.13] --- Heart Contribution Breakdown (Player 0) ---",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.13] Slot 0 [鬼塚夏美]: +[Blue:1, Pink:1]",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.14] --- Yell Heart Contributions ---",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.14.S] --- TOTAL HEARTS AVAILABLE: [Blue:1, Pink:1] (Total Vol: 2) ---",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.15.2] ❌ FAILED: 'ダイスキだったらダイジョウブ！' → [Blue 1/1, Yellow 0/1, Purple 0/1]",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.16.2] 💔 FAILURE! Player 0 failed one or more requirements. All face-down live cards discarded.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.17] Player 0 Live Score Bonus (Yell): +0.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.18] Yell cards moved to discard pile.",
+      "[Turn 1] [PERFORMANCE_P1] [Rule 8.3.19] Player 0's members are now in Wait state (tapped).",
+      "[Turn 1] [PERFORMANCE_P1] [PERF_SUMMARY] ━━━ PERFORMANCE SUMMARY (Player 0) ━━━",
+      "[Turn 1] [PERFORMANCE_P1] [PERF_SUMMARY]   Yell Cards: 0 cards revealed, +0 cards drawn",
+      "[Turn 1] [PERFORMANCE_P1] [PERF_SUMMARY]   Hearts: 2 total (2 from stage, ~0 from yells)",
+      "[Turn 1] [PERFORMANCE_P1] [PERF_SUMMARY]   Result: ✗ FAILURE - 0/0 lives cleared",
+      "[Turn 1] [PERFORMANCE_P1] [PERF_SUMMARY] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+      "[Turn 1] [PERFORMANCE_P2] [Rule 9.5] Processing action 0 in PERFORMANCE_P2 phase.",
+      "[Turn 1] [LIVE_RESULT] [Rule 9.7] Player 1 resolving automatic ability.",
+      "[Turn 1] [LIVE_RESULT] [Rule 9.7] Resolving effect: SWAP_CARDS (Value: 1)",
+      "[Turn 1] [LIVE_RESULT] [Rule 9.5] Processing action 0 in LIVE_RESULT phase.",
+      "[Turn 1] [LIVE_RESULT] [Rule 9.7] Resolving effect: ADD_HEARTS (Value: 1)",
+      "[Turn 1] [LIVE_RESULT] [Rule 9.5] Processing action 0 in LIVE_RESULT phase.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4] Live Winner Determination Phase starts.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.2] Score Calculation: P0=0 (0+0), P1=0 (0+0)",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.6.1] No winners (both scores 0 or no cards).",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 0.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.11] Cleaned up TURN_END effects for Player 1.",
+      "[Turn 1] [LIVE_RESULT] [Rule 8.4.14] Turn 1 finished.",
+      "[Turn 2] [ACTIVE] [Rule 9.5] Processing action 0 in ACTIVE phase.",
+      "[Turn 2] [ACTIVE] [Rule 7.4] Active Phase: Untapping all members and energy for Player 0.",
+      "[Turn 2] [ENERGY] [Rule 9.5] Processing action 0 in ENERGY phase.",
+      "[Turn 2] [ENERGY] [Rule 7.5] Energy Phase: Player 0 moves 1 card from Energy Deck to Energy Zone.",
+      "[Turn 2] [DRAW] [Rule 9.5] Processing action 0 in DRAW phase.",
+      "[Turn 2] [DRAW] [Rule 7.6] Draw Phase: Player 0 draws 1 card."
+    ],
+    "turn": 2,
+    "winner": -1
+  },
+  "history": [
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:09:39.869Z",
+      "phase": -1
+    },
+    {
+      "action_id": 4,
+      "timestamp": "2026-01-08T06:09:41.243Z",
+      "phase": 4
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:09:42.595Z",
+      "phase": 4
+    },
+    {
+      "action_id": 403,
+      "timestamp": "2026-01-08T06:09:44.488Z",
+      "phase": 5
+    },
+    {
+      "action_id": 0,
+      "timestamp": "2026-01-08T06:09:46.235Z",
+      "phase": 5
+    }
+  ],
+  "action_desc": "N/A"
+}
