@@ -7,6 +7,7 @@ Uses actual card data and simulated game states.
 
 import sys
 import os
+import random
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
@@ -18,6 +19,56 @@ from game.ability import EffectType, TriggerType, AbilityParser
 loader = CardDataLoader('data/cards.json')
 member_db, live_db, energy_pool = loader.load()
 
+def setup_test_state():
+    """Helper to set up a GameState with valid decks."""
+    gs = GameState()
+    gs.member_db = member_db
+    gs.live_db = live_db
+    gs.energy_db = energy_pool # Assuming generic energy logic uses this or simple IDs
+    
+    # Manually populate decks (simplified from server.py)
+    available_members = list(member_db.keys())
+    available_lives = list(live_db.keys())
+    
+    if not available_members or not available_lives:
+        raise ValueError("Database empty, cannot run tests")
+
+    for p in gs.players:
+        # 40 Members
+        deck = []
+        for _ in range(40):
+            deck.append(random.choice(available_members))
+        p.main_deck = deck
+        
+        # 10 Lives (not in main deck in this version, but available for other things)
+        # Note: server.py puts lives in main_deck for now based on rules? 
+        # Actually server.py puts 48 members + 12 lives in main_deck.
+        for _ in range(12):
+            p.main_deck.append(random.choice(available_lives))
+            
+        random.shuffle(p.main_deck)
+        
+        # Energy deck
+        p.energy_deck = [2000] * 10
+        
+        # Initial draw (6 cards)
+        for _ in range(6):
+            if p.main_deck:
+                p.hand.append(p.main_deck.pop())
+                
+        # Initial energy (3 cards)
+        for _ in range(3):
+            if p.energy_deck:
+                p.energy_zone.append(p.energy_deck.pop(0))
+
+    # Set initial phase and player
+    gs.phase = Phase.MAIN # Default to MAIN for ability testing
+    gs.current_player = 0
+    gs.turn_number = 1
+        
+    return gs
+
+
 class AbilityTestResult:
     def __init__(self, name, passed, details):
         self.name = name
@@ -25,7 +76,7 @@ class AbilityTestResult:
         self.details = details
     
     def __str__(self):
-        status = "✅ PASS" if self.passed else "❌ FAIL"
+        status = "PASS" if self.passed else "FAIL"
         return f"{status}: {self.name}\n    {self.details}"
 
 results = []
@@ -33,8 +84,8 @@ results = []
 def test_draw_effect():
     """Test DRAW effect - should add cards to player's hand."""
     try:
-        gs = GameState(member_db, live_db, energy_pool)
-        gs.setup_initial_state()
+        gs = setup_test_state()
+        # gs.setup_initial_state() removed
         
         p = gs.players[0]
         initial_hand_size = len(p.hand)
@@ -50,13 +101,14 @@ def test_draw_effect():
         details = f"Hand: {initial_hand_size}→{new_hand_size}, Deck: {initial_deck_size}→{new_deck_size}"
         results.append(AbilityTestResult("DRAW Effect", passed, details))
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         results.append(AbilityTestResult("DRAW Effect", False, f"Exception: {e}"))
 
 def test_add_blades_effect():
     """Test ADD_BLADES effect - should increase blade count."""
     try:
-        gs = GameState(member_db, live_db, energy_pool)
-        gs.setup_initial_state()
+        gs = setup_test_state()
         
         p = gs.players[0]
         # Find a member with blades
@@ -77,8 +129,7 @@ def test_add_blades_effect():
 def test_search_deck_effect():
     """Test that deck contains searchable cards."""
     try:
-        gs = GameState(member_db, live_db, energy_pool)
-        gs.setup_initial_state()
+        gs = setup_test_state()
         
         p = gs.players[0]
         
@@ -95,8 +146,7 @@ def test_search_deck_effect():
 def test_recover_member_from_discard():
     """Test RECOVER_MEMBER - add a member from discard to hand."""
     try:
-        gs = GameState(member_db, live_db, energy_pool)
-        gs.setup_initial_state()
+        gs = setup_test_state()
         
         p = gs.players[0]
         
@@ -189,8 +239,7 @@ def test_live_requirements_data():
 def test_action_menu_text():
     """Test that action descriptions are appropriate."""
     try:
-        gs = GameState(member_db, live_db, energy_pool)
-        gs.setup_initial_state()
+        gs = setup_test_state()
         gs.phase = Phase.MAIN
         
         # Get legal actions and check descriptions exist

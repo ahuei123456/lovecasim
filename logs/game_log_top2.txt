@@ -1,6 +1,0 @@
-=== Game 477 (Seed: 1475) ===
-Turn 2: YELL! Total: 1
-Turn 3: YELL! Total: 2
-Turn 4: YELL! Total: 3
-========================================
-Game Over. Winner: 1. Score: 0-3

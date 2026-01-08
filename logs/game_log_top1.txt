@@ -1,6 +1,0 @@
-=== Game 14 (Seed: 1012) ===
-Turn 2: YELL! Total: 1
-Turn 3: YELL! Total: 2
-Turn 5: YELL! Total: 3
-========================================
-Game Over. Winner: 1. Score: 0-3

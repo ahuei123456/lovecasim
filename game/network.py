@@ -14,10 +14,10 @@ from dataclasses import dataclass
 @dataclass
 class NetworkConfig:
     """Configuration for the neural network"""
-    input_size: int = 60  # Size of observation vector
+    input_size: int = 48  # Size of observation vector (Matches GameState.get_observation)
     hidden_size: int = 256
     num_hidden_layers: int = 3
-    action_size: int = 200  # Size of action space
+    action_size: int = 1000  # Size of action space (Matches GameState.get_legal_actions)
     learning_rate: float = 0.001
     l2_reg: float = 0.0001
 

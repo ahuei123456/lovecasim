@@ -481,7 +481,7 @@ def serialize_state():
         ],
         'legal_actions': legal_actions,
         'pending_choice': pending_choice_info,
-        'last_performance_result': getattr(game_state, 'last_performance_result', None),
+        'performance_results': getattr(game_state, 'performance_results', {}),
         'rule_log': game_state.rule_log # Full history
     }
 
@@ -642,6 +642,18 @@ def game_board():
 def serve_image(filename):
     return send_from_directory('img', filename)
 
+@app.route('/js/<path:filename>')
+def serve_js(filename):
+    return send_from_directory('web_ui/js', filename)
+
+@app.route('/css/<path:filename>')
+def serve_css(filename):
+    return send_from_directory('web_ui/css', filename)
+
+@app.route('/icon_blade.png')
+def serve_icon():
+    return send_from_directory('.', 'icon_blade.png')
+
 @app.route('/api/state')
 def get_state():
     if game_state is None:
@@ -772,7 +784,7 @@ def get_replay(filename):
     """Serve replay JSON files"""
     replay_path = f'replays/{filename}'
     if os.path.exists(replay_path):
-        with open(replay_path, 'r') as f:
+        with open(replay_path, 'r', encoding='utf-8') as f:
             return jsonify(json.load(f))
     return jsonify({'error': 'Replay not found'}), 404
 

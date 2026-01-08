@@ -133,63 +133,45 @@ class SmartHeuristicAgent(Agent):
                 if live_id in state.live_db:
                     pending_req += state.live_db[live_id].required_hearts
 
+            # --- Improved LIVE_SET Logic ---
             best_action = -1
             max_value = -1
             
             for action in live_actions:
                 hand_idx = action - 400
                 card_id = p.hand[hand_idx]
-                if card_id in state.live_db:
-                    live = state.live_db[card_id]
-                    
-                    # Check if we can afford this PLUS existing
-                    total_req = pending_req + live.required_hearts
-                    
-                    # Simple check: do we have enough raw volume?
-                    # Precise check is hard due to "Any" hearts, but we can do a loose check
-                    # Count hearts we have vs hearts needed
-                    # Treat "Any" as separate bucket for now or simple sum
-                    
-                    # Strict Check:
-                    needed = total_req.copy()
-                    have = current_hearts.copy()
-                    
-                    # 1. Satisfy colored hearts first
-                    possible = True
-                    for c in range(6):
-                        if have[c] >= needed[c]:
-                            have[c] -= needed[c]
-                            needed[c] = 0
-                        else:
-                            # Use Rainbow if available? (game doesn't fully support rainbow players yet, mostly strict)
-                            # But we might have leftover needed[c]
-                            # Check if we can cover with rainbow (index 7? No, 7th is 'Any'?)
-                            # HeartColor.ANY = 6.
-                            pass
-                    
-                    # Re-verify strict color requirements failure
-                    if np.any(needed[:6] > have[:6]):
+                if card_id not in state.live_db: continue
+                
+                live = state.live_db[card_id]
+                total_req = pending_req + live.required_hearts
+                
+                # Check feasibility
+                needed = total_req.copy()
+                have = current_hearts.copy()
+                
+                # 1. Colors
+                possible = True
+                for c in range(6):
+                    if have[c] >= needed[c]:
+                        have[c] -= needed[c]
+                        needed[c] = 0
+                    else:
                         possible = False
-                    
-                    # 2. Check "Any" requirement with remaining hearts
-                    remaining_any_needed = needed[6]
-                    remaining_total_have = np.sum(have) # All colors + Any/Rainbow
-                    
-                    if remaining_total_have < remaining_any_needed:
-                         possible = False
-                         
-                    if possible:
-                        # Value = score + matching hearts bonus
-                        # Simpler bonus: High score usually better. 
-                        # Prioritize low requirement?
-                        
-                        value = live.score * 10 
-                        # Bonus for having EXCESS hearts?
-                        value += (remaining_total_have - remaining_any_needed)
-                        
-                        if value > max_value:
-                            max_value = value
-                            best_action = action
+                        break
+                
+                if not possible: continue
+
+                # 2. Any hearts
+                if np.sum(have) < needed[6]: continue
+                
+                # If possible, calculate value
+                value = live.score * 10 
+                # Prefer cards we have hearts for
+                value += (np.sum(have) - needed[6])
+                
+                if value > max_value:
+                    max_value = value
+                    best_action = action
             
             if best_action != -1:
                 return int(best_action)
@@ -416,7 +398,16 @@ def setup_game(args):
             p.stage = np.array([-1, -1, -1], dtype=np.int32)
     else:
          # Normal Random Decks (Members + Lives mixed)
-         deck1, deck2 = generate_random_decks(state.member_db.keys(), state.live_db.keys())
+         member_keys = list(state.member_db.keys())
+         
+         if args.deck_type == 'ability_only':
+             # Filter for members with abilities
+             member_keys = [mid for mid in member_keys if state.member_db[mid].abilities]
+             if not member_keys:
+                 print("WARNING: No members with abilities found! Reverting to all members.")
+                 member_keys = list(state.member_db.keys())
+         
+         deck1, deck2 = generate_random_decks(member_keys, state.live_db.keys())
          state.players[0].main_deck = deck1
          state.players[0].energy_deck = [999] * 10
          
@@ -445,6 +436,239 @@ def setup_game(args):
                 p.energy_zone.append(p.energy_deck.pop(0))
                 
     return state
+
+class AbilityFocusAgent(SmartHeuristicAgent):
+    """
+    Agent that prioritizes activating abilities and playing cards with abilities.
+    Used for stress-testing ability implementations.
+    """
+    def choose_action(self, state: GameState, player_id: int) -> int:
+        from game.game_state import Phase, TriggerType
+        
+        legal_mask = state.get_legal_actions()
+        legal_indices = np.where(legal_mask)[0]
+        if len(legal_indices) == 0:
+            return 0
+            
+        p = state.players[player_id]
+        
+        # 1. (LIVE_SET is handled by superclass logic for smarter selection)
+        
+        # 2. MAIN Phase Priorities
+        if state.phase == Phase.MAIN:
+            priority_actions = []
+            
+            # Check Play Actions (1-180)
+            play_actions = [i for i in legal_indices if 1 <= i <= 180]
+            for action_id in play_actions:
+                hand_idx = (action_id - 1) // 3
+                if hand_idx < len(p.hand):
+                    card_id = p.hand[hand_idx]
+                    if card_id in state.member_db:
+                        card = state.member_db[card_id]
+                        if card.abilities:
+                            # Massive priority for cards with ON_PLAY or ACTIVATED
+                            has_prio = any(a.trigger in (1, 7) for a in card.abilities) # 1=ON_PLAY, 7=ACTIVATED
+                            if has_prio:
+                                priority_actions.append(action_id)
+            
+            # Check Activated Ability Actions (600+)
+            ability_actions = [i for i in legal_indices if i >= 600] 
+            priority_actions.extend(ability_actions)
+            
+            if priority_actions:
+                return int(np.random.choice(priority_actions))
+                
+        # Fallback to SmartHeuristic if no high-priority ability action found
+        return super().choose_action(state, player_id)
+
+class ConservativeAgent(SmartHeuristicAgent):
+    """
+    Very safe AI. Only sets Live cards if it has strictly sufficient hearts
+    available on stage right now (untapped members). Never gambles on future draws.
+    """
+    def choose_action(self, state: GameState, player_id: int) -> int:
+        from game.game_state import Phase
+        
+        # Override LIVE_SET phase with ultra-conservative logic
+        if state.phase == Phase.LIVE_SET:
+            p = state.players[player_id]
+            legal_indices = np.where(state.get_legal_actions())[0]
+            live_actions = [i for i in legal_indices if 400 <= i <= 459]
+            if not live_actions:
+                return 0  # Pass
+            
+            # ONLY count hearts on stage (no assumptions about future)
+            stage_hearts = p.get_total_hearts(state.member_db)
+            
+            # Calculate what we already need for pending live cards
+            pending_req = np.zeros(7, dtype=np.int32)
+            for live_id in p.live_zone:
+                if live_id in state.live_db:
+                    pending_req += state.live_db[live_id].required_hearts
+            
+            best_action = -1
+            max_value = -1
+            
+            for action in live_actions:
+                hand_idx = action - 400
+                card_id = p.hand[hand_idx]
+                if card_id not in state.live_db:
+                    continue
+                
+                live = state.live_db[card_id]
+                total_req = pending_req + live.required_hearts
+                
+                # Ultra-strict feasibility check: need EXACT hearts available
+                needed = total_req.copy()
+                have = stage_hearts.copy()
+                
+                # 1. Check colored hearts (must have exact matches)
+                possible = True
+                for c in range(6):
+                    if have[c] < needed[c]:
+                        possible = False
+                        break
+                    have[c] -= needed[c]
+                    needed[c] = 0
+                
+                if not possible:
+                    continue
+                
+                # 2. Check "Any" hearts (must have enough remaining)
+                if np.sum(have) < needed[6]:
+                    continue
+                
+                # If strictly possible, calculate conservative value
+                value = live.score * 10
+                # Small bonus for having extra hearts (prefer safer plays)
+                value += (np.sum(have) - needed[6])
+                
+                if value > max_value:
+                    max_value = value
+                    best_action = action
+            
+            if best_action != -1:
+                return int(best_action)
+            return 0  # Pass if no 100% safe plays
+        
+        # For all other phases, use SmartHeuristicAgent logic
+        return super().choose_action(state, player_id)
+
+class GambleAgent(SmartHeuristicAgent):
+    """
+    Risk-taking AI. Sets Live cards if it has enough hearts OR if it has
+    enough blades on stage to likely get the hearts from yell cards.
+    """
+    def choose_action(self, state: GameState, player_id: int) -> int:
+        from game.game_state import Phase
+        
+        if state.phase == Phase.LIVE_SET:
+            p = state.players[player_id]
+            legal_indices = np.where(state.get_legal_actions())[0]
+            live_actions = [i for i in legal_indices if 400 <= i <= 459]
+            if not live_actions: return 0
+            
+            # Current hearts on stage
+            stage_hearts = p.get_total_hearts(state.member_db)
+            # Total blades on stage (potential yells)
+            total_blades = p.get_total_blades(state.member_db)
+            
+            # Estimated hearts from yells: Roughly 0.5 hearts per blade?
+            # Or simplified: consider blades as "Any" hearts for feasibility check
+            est_extra_hearts = total_blades // 2 
+            
+            best_action = -1
+            max_value = -1
+            
+            # Pending req
+            pending_req = np.zeros(7, dtype=np.int32)
+            for live_id in p.live_zone:
+                if live_id in state.live_db:
+                    pending_req += state.live_db[live_id].required_hearts
+
+            for action in live_actions:
+                hand_idx = action - 400
+                card_id = p.hand[hand_idx]
+                if card_id not in state.live_db: continue
+                
+                live = state.live_db[card_id]
+                total_req = pending_req + live.required_hearts
+                
+                # Feasibility check with "Gamble" factor
+                needed = total_req.copy()
+                have = stage_hearts.copy()
+                
+                # satisfy colors
+                possible = True
+                for c in range(6):
+                    if have[c] < needed[c]:
+                        # Can we gamble on this color? 
+                        # Maybe if we have a lot of blades.
+                        # For simplicity, let's say we can only gamble on 'Any'
+                        possible = False
+                        break
+                    have[c] -= needed[c]
+                
+                if not possible: continue
+                
+                # Any hearts check with gamble
+                total_have = np.sum(have) + est_extra_hearts
+                if total_have >= needed[6]:
+                    value = live.score * 10 + (total_have - needed[6])
+                    if value > max_value:
+                        max_value = value
+                        best_action = action
+            
+            if best_action != -1:
+                return int(best_action)
+            return 0
+
+        return super().choose_action(state, player_id)
+
+class NNAgent(Agent):
+    """
+    Agent backed by a Neural Network (PyTorch), running on GPU if available.
+    """
+    def __init__(self, device=None):
+        try:
+            # Lazy import to avoid hard dependency if not used
+            from game.network import NetworkConfig
+            from game.network_torch import TorchNetworkWrapper
+            import torch
+            
+            self.config = NetworkConfig()
+            self.net = TorchNetworkWrapper(self.config, device=device)
+            self.device = self.net.device
+            # print(f"NNAgent initialized on device: {self.device}")
+            
+        except ImportError as e:
+            print(f"WARNING: PyTorch or network modules not found. NNAgent falling back to Random. Error: {e}")
+            self.net = None
+
+    def choose_action(self, state: GameState, player_id: int) -> int:
+        if self.net is None:
+            # Fallback to random if failed to load
+            legal_mask = state.get_legal_actions()
+            legal_indices = np.where(legal_mask)[0]
+            return int(np.random.choice(legal_indices)) if len(legal_indices) > 0 else 0
+            
+        # Predict policy (this runs on GPU if available)
+        policy, value = self.net.predict(state)
+        
+        # Choose action based on policy probabilities
+        # Direct policy sampling (fastest way to use the network without MCTS)
+        
+        # Ensure probabilities sum to 1 (handling float errors)
+        policy_sum = policy.sum()
+        if policy_sum > 0:
+            policy = policy / policy_sum
+            return int(np.random.choice(len(policy), p=policy))
+        else:
+            # Fallback if policy is all zeros (shouldn't happen with proper masking)
+            legal_mask = state.get_legal_actions()
+            legal_indices = np.where(legal_mask)[0]
+            return int(np.random.choice(legal_indices)) if len(legal_indices) > 0 else 0
 
 def run_simulation(args):
     import io
@@ -487,7 +711,21 @@ def run_simulation(args):
             random.seed(current_seed)
             np.random.seed(current_seed)
             
-            agents = [SmartHeuristicAgent(), RandomAgent()]
+            # Agent Selection
+            p0_agent = SmartHeuristicAgent()
+            if args.agent == "random":
+                p0_agent = RandomAgent()
+            elif args.agent == "ability_focus":
+                p0_agent = AbilityFocusAgent()
+            elif args.agent == "conservative":
+                p0_agent = ConservativeAgent()
+            elif args.agent == "gamble":
+                p0_agent = GambleAgent()
+            elif args.agent == "nn":
+                p0_agent = NNAgent()
+            
+            # P1 is always Random for now to provide chaos/noise
+            agents = [p0_agent, RandomAgent()]
             
             turn_count = 0
             while turn_count < args.max_turns:
@@ -581,11 +819,12 @@ def run_simulation(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--cards_path", default="data/cards.json", help="Path to cards.json")
-    parser.add_argument("--deck_type", default="normal", choices=["normal", "easy"], help="Deck type: normal or easy")
+    parser.add_argument("--deck_type", default="normal", choices=["normal", "easy", "ability_only"], help="Deck type: normal, easy, or ability_only")
     parser.add_argument("--max_turns", type=int, default=1000, help="Max steps/turns to run")
     parser.add_argument("--log_file", default="game_log.txt", help="Output log file")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--num_games", type=int, default=1, help="Number of games to run")
+    parser.add_argument("--agent", default="smart", choices=["random", "smart", "ability_focus", "conservative", "gamble", "nn"], help="Agent type to control P0")
     
     args = parser.parse_args()
     
