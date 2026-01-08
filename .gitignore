@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+
+# Generated data
+logs/
+replays/
+stress_reports/
+diagnostic_logs/
+reports/
+
+# Debug files
+debug_*.txt
+debug_*.py
+out*.txt
+*_output.txt
+crash_*.txt
+*_test.txt
+loop_debug*.txt
+
+# Generated JSON (keep cards.json and rule_map.json)
+analysis_*.json
+verified_parsing_status.json
+mapping.json
+name_id_mapping.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.log

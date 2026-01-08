@@ -1,3 +1,0 @@
-Parsed Condition Value: 19
-Parsed Condition Name: COUNT_SUCCESS_LIVE
-Min param: 2

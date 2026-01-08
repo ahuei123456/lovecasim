@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "C:\Users\trios\.gemini\antigravity\scratch\loveca-copy\debug_server_crash.py", line 21, in <module>
-    game_state.phase = Phase.LIVE_SET
-    ^^^^^^^^^^^^^^^^
-AttributeError: 'NoneType' object has no attribute 'phase' and no __dict__ for setting new attributes
