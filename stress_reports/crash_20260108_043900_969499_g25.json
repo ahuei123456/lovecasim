@@ -1,0 +1,141 @@
+{
+  "timestamp": "20260108_043900_969499",
+  "game_id": 25,
+  "error": "operands could not be broadcast together with shapes (7,) (6,) (7,) ",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\tools\\stress_test_game.py\", line 135, in run_single_game_stress\n    state = state.step(action)\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 612, in step\n    new_state._execute_action(action_id)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 1177, in _execute_action\n    self._do_performance(0)\n    ~~~~~~~~~~~~~~~~~~~~^^^\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 1755, in _do_performance\n    total_hearts += m_hearts\nValueError: operands could not be broadcast together with shapes (7,) (6,) (7,) \n",
+  "history": [
+    {
+      "action": 305,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 0
+    },
+    {
+      "action": 305,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 0
+    },
+    {
+      "action": 305,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 0
+    },
+    {
+      "action": 304,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MULLIGAN_P2",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "ACTIVE",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "ENERGY",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "DRAW",
+      "player": 0
+    },
+    {
+      "action": 5,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 16,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 15,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 200,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 660,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 502,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 402,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 405,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "PERFORMANCE_P1",
+      "player": 0
+    }
+  ],
+  "turn": 1
+}

@@ -1,0 +1,15 @@
+﻿Starting ELO Tournament (300 random pairings)...
+  Completed 100/300 games...
+  Completed 200/300 games...
+  Completed 300/300 games...
+
+========================================
+TOURNAMENT RESULTS
+========================================
+Agent           | ELO    | Games | Win Rate     | Avg Turns
+-----------------------------------------------------------------
+Smart           | 1000   | 199   | 1/199        | 2.6
+Random          | 1000   | 204   | 0/204        | 2.6
+TrueRandom      | 999    | 197   | 0/197        | 3.2
+========================================
+Total Time: 7.83s

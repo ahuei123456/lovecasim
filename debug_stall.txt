@@ -1,0 +1,503 @@
+=== Game 1 ===
+----------------------------------------
+Turn 1 | Phase ACTIVE | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase ENERGY | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase DRAW | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase MAIN | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(6) - P1(5)
+Action: P0 chooses 16
+----------------------------------------
+Turn 1 | Phase MAIN | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(6)
+Action: P1 chooses 7
+----------------------------------------
+Turn 1 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P1 chooses 0
+----------------------------------------
+Turn 1 | Phase LIVE_SET | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase LIVE_SET | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P1 chooses 402
+----------------------------------------
+Turn 1 | Phase LIVE_SET | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P1 chooses 403
+----------------------------------------
+Turn 1 | Phase LIVE_SET | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P1 chooses 0
+----------------------------------------
+Turn 1 | Phase PERFORMANCE_P1 | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P0 chooses 0
+----------------------------------------
+Turn 1 | Phase PERFORMANCE_P2 | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(5)
+Action: P1 chooses 0
+----------------------------------------
+Turn 1 | Phase LIVE_RESULT | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(6)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase ACTIVE | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(6)
+Action: P0 chooses 0
+----------------------------------------
+Turn 2 | Phase ENERGY | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(6)
+Action: P0 chooses 0
+----------------------------------------
+Turn 2 | Phase DRAW | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(6)
+Action: P0 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(6) - P1(6)
+Action: P0 chooses 17
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(5) - P1(6)
+Action: P0 chooses 1
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(4) - P1(6)
+Action: P0 chooses 201
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(4) - P1(6)
+Action: P0 chooses 500
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P0
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(6)
+Action: P0 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(7)
+Action: P1 chooses 16
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(6)
+Action: P1 chooses 3
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(5)
+Action: P1 chooses 502
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(5)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(5)
+Action: P1 chooses 502
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(4)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(4)
+Action: P1 chooses 502
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(3)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(3)
+Action: P1 chooses 500
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(2)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(2)
+Action: P1 chooses 501
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(1)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(1)
+Action: P1 chooses 500
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 0
+----------------------------------------
+Turn 2 | Phase MAIN | Active: P1
+Score: P0(0) - P1(0)
+Hand: P0(3) - P1(0)
+Action: P1 chooses 200
+========================================
+Game Over. Winner: -1. Score: 0-0

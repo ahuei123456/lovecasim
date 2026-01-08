@@ -10,7 +10,7 @@ from game.ability import AbilityParser, Ability
 def analyze_coverage():
     loader = CardDataLoader("game/../data/cards.json")
     try:
-        members, lives = loader.load()
+        members, lives, energy = loader.load()
     except Exception as e:
         print(f"Load failed: {e}")
         return

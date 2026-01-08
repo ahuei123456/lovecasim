@@ -1,0 +1,8 @@
+{
+  "timestamp": "20260108_042019_292009",
+  "game_id": 7,
+  "error": "name 'Phase' is not defined",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\tools\\stress_test_game.py\", line 113, in run_single_game_stress\n    state.phase = Phase.MULLIGAN_P1\n                  ^^^^^\nNameError: name 'Phase' is not defined. Did you mean: 'hash'?\n",
+  "history": [],
+  "turn": 1
+}

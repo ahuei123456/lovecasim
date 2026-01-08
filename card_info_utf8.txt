@@ -1,0 +1,18 @@
+--- PL!-sd1-001-SD (高坂 穂乃果) ---
+Ability: {{toujyou.png|登場}}自分の成功ライブカード置き場にカードが2枚以上ある場合、自分の控え室からライブカードを1枚手札に加える。
+{{jyouji.png|常時}}自分の成功ライブカード置き場にあるカード1枚につき、{{icon_blade.png|ブレード}}を得る。
+FAQ: []
+--- PL!HS-PR-007-PR (百生 吟子) ---
+Ability: None
+FAQ: []
+--- PL!S-PR-004-PR (松浦果南) ---
+Ability: None
+FAQ: []
+--- PL!S-PR-003-PR (桜内梨子) ---
+Ability: None
+FAQ: []
+--- PL!S-PR-008-PR (国木田花丸) ---
+Ability: None
+FAQ: []
+
+Found 5/5 cards.

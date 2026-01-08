@@ -1,0 +1,165 @@
+{
+  "timestamp": "20260108_044324_968934",
+  "game_id": 1,
+  "error": "No legal actions available in phase MAIN (Turn 1)",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\tools\\stress_test_game.py\", line 122, in run_single_game_stress\n    raise Exception(f\"No legal actions available in phase {phase_name} (Turn {state.turn_number})\")\nException: No legal actions available in phase MAIN (Turn 1)\n",
+  "history": [
+    {
+      "action": 301,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 1
+    },
+    {
+      "action": 303,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 1
+    },
+    {
+      "action": 303,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 1
+    },
+    {
+      "action": 301,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 1
+    },
+    {
+      "action": 302,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 1
+    },
+    {
+      "action": 300,
+      "turn": 1,
+      "phase": "MULLIGAN_P2",
+      "player": 0
+    },
+    {
+      "action": 300,
+      "turn": 1,
+      "phase": "MULLIGAN_P2",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MULLIGAN_P2",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "ACTIVE",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "ENERGY",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "DRAW",
+      "player": 1
+    },
+    {
+      "action": 7,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 200,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 502,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 200,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 504,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 200,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 503,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 200,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 500,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 200,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 501,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 200,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 500,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 200,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    }
+  ],
+  "turn": 1
+}

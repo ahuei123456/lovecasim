@@ -1,0 +1,30 @@
+Analyzing 1329 cards...
+
+=== Coverage Report ===
+Total Cards: 886
+Fully Supported: 209 (23.6%)
+Partially Supported (Need Handlers): 677 (76.4%)
+Parse Failures: 0 (0.0%)
+
+--- Top Missing Effects (Need Implementation) ---
+SWAP_CARDS: 449
+LOOK_AND_CHOOSE: 106
+TAP_OPPONENT: 106
+ADD_TO_HAND: 104
+LOOK_DECK: 102
+REVEAL_CARDS: 96
+RECOVER_LIVE: 84
+RECOVER_MEMBER: 77
+ENERGY_CHARGE: 58
+CHEER_REVEAL: 56
+
+--- Top Missing Conditions ---
+GROUP_FILTER: 254
+TURN_1: 119
+COUNT_STAGE: 57
+IS_CENTER: 26
+OPPONENT_HAS: 13
+HAS_MEMBER: 11
+COUNT_DISCARD: 9
+LIFE_LEAD: 7
+MODAL_ANSWER: 3

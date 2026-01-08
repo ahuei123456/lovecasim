@@ -1,0 +1,99 @@
+<!-- Add this to game_board.html after the header section controls -->
+
+<!-- Replay Controls (add after line 958) -->
+<div class="replay-controls" id="replay-controls"
+    style="display:none; gap:8px; padding:8px; background:rgba(0,0,0,0.3); border-radius:6px; margin-top:8px;">
+    <button class="btn" onclick="loadReplay()" style="font-size:0.9rem;">📂 Load</button>
+    <input type="text" id="replay-file" placeholder="game_14.json"
+        style="width:150px; padding:4px 8px; background:rgba(0,0,0,0.5); border:1px solid #444; color:white; border-radius:4px;">
+    <button class="btn" onclick="replayPrev()" style="font-size:0.9rem;">◀ Prev</button>
+    <button class="btn" id="play-btn" onclick="togglePlay()" style="font-size:0.9rem;">▶ Play</button>
+    <button class="btn" onclick="replayNext()" style="font-size:0.9rem;">Next ▶</button>
+    <span style="color:#aaa;">Frame: <span id="frame-num">0</span>/<span id="total-frames">0</span></span>
+</div>
+<button class="btn" onclick="toggleReplayMode()" style="margin-top:8px;">🎬 Replay Mode</button>
+
+<!-- Add this JavaScript before the closing </script> tag (before line 1714) -->
+
+<script>
+    // ===== REPLAY SYSTEM =====
+    let replayMode = false;
+    let replayData = null;
+    let currentFrame = 0;
+    let playInterval = null;
+
+    function toggleReplayMode() {
+        replayMode = !replayMode;
+        const controls = document.getElementById('replay-controls');
+        controls.style.display = replayMode ? 'flex' : 'none';
+        if (!replayMode) {
+            stopPlay();
+            fetchState(); // Return to live game
+        }
+    }
+
+    async function loadReplay() {
+        const filename = document.getElementById('replay-file').value || 'game_14.json';
+        try {
+            const res = await fetch(`/api/replay/${filename}`);
+            replayData = await res.json();
+            currentFrame = 0;
+            document.getElementById('total-frames').textContent = replayData.states.length;
+            displayReplayFrame();
+            log(`Loaded replay: Game ${replayData.game_id + 1}, Winner: ${replayData.winner}`);
+        } catch (e) {
+            log('Failed to load replay: ' + e.message);
+        }
+    }
+
+    function displayReplayFrame() {
+        if (!replayData || currentFrame >= replayData.states.length) return;
+
+        const frame = replayData.states[currentFrame];
+        document.getElementById('frame-num').textContent = currentFrame;
+        document.getElementById('turn').textContent = frame.turn;
+        document.getElementById('phase').textContent = frame.phase_name;
+        document.getElementById('score').textContent = `${frame.p0_score} - ${frame.p1_score}`;
+
+        log(`Frame ${currentFrame}: Turn ${frame.turn}, ${frame.phase_name}, Score ${frame.p0_score}-${frame.p1_score}, Action: ${frame.action}`);
+    }
+
+    function replayPrev() {
+        if (currentFrame > 0) {
+            currentFrame--;
+            displayReplayFrame();
+        }
+    }
+
+    function replayNext() {
+        if (replayData && currentFrame < replayData.states.length - 1) {
+            currentFrame++;
+            displayReplayFrame();
+        } else {
+            stopPlay();
+        }
+    }
+
+    function togglePlay() {
+        if (playInterval) {
+            stopPlay();
+        } else {
+            startPlay();
+        }
+    }
+
+    function startPlay() {
+        document.getElementById('play-btn').textContent = '⏸ Pause';
+        playInterval = setInterval(() => {
+            replayNext();
+        }, 500); // 500ms between frames
+    }
+
+    function stopPlay() {
+        if (playInterval) {
+            clearInterval(playInterval);
+            playInterval = null;
+            document.getElementById('play-btn').textContent = '▶ Play';
+        }
+    }
+</script>

@@ -10,6 +10,7 @@ import numpy as np
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from flask import Flask, jsonify, request, send_from_directory
+from datetime import datetime
 from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
 from headless_runner import RandomAgent, create_easy_cards
@@ -155,6 +156,24 @@ def init_game(deck_type='normal'):
 def serialize_card(cid):
     if cid in member_db:
         m = member_db[cid]
+        
+        # Format ability text for display
+        ability_text = getattr(m, 'ability_text', '')
+        if hasattr(m, 'abilities') and m.abilities:
+            # Concatenate all ability descriptions
+            ability_lines = []
+            from game.ability import TriggerType
+            for ab in m.abilities:
+                trigger_icon = {
+                    TriggerType.ACTIVATED: '【起動】',
+                    TriggerType.ON_PLAY: '【登場】',
+                    TriggerType.CONSTANT: '【常時】',
+                    TriggerType.ON_LIVE_START: '【ライブ開始】',
+                    TriggerType.ON_LIVE_SUCCESS: '【ライブ成功】',
+                }.get(ab.trigger, '【能力】')
+                ability_lines.append(f"{trigger_icon} {ab.raw_text}")
+            ability_text = '\\n'.join(ability_lines)
+        
         return {
             'id': int(cid), 
             'name': m.name, 
@@ -165,7 +184,7 @@ def serialize_card(cid):
             'blade': int(m.blades),
             'hearts': m.hearts.tolist(),  # Array of 6 colors
             'blade_hearts': m.blade_hearts.tolist(),  # Yell contribution
-            'text': getattr(m, 'ability_text', '')
+            'text': ability_text
         }
     elif cid in live_db:
         l = live_db[cid]
@@ -190,24 +209,31 @@ def serialize_card(cid):
     else:
         # Fallback for special IDs or unknown cards
         if cid == 888:
-            return {'id': 888, 'name': 'Member (Easy)', 'cost': 1, 'img': 'img/cards/PLSD01/PL!-sd1-001-SD.png', 'type': 'member', 'hp': 1, 'blade': 1, 'hearts': [1,0,0,0,0,0], 'blade_hearts': [0,0,0,0,0,0], 'text': ''}
+            return {'id': 888, 'name': 'Member (Easy)', 'cost': 1, 'img': 'cards/PLSD01/PL!-sd1-001-SD.png', 'type': 'member', 'hp': 1, 'blade': 1, 'hearts': [1,0,0,0,0,0], 'blade_hearts': [0,0,0,0,0,0], 'text': ''}
         if cid == 999:
-            return {'id': 999, 'name': 'Live (Easy)', 'score': 1, 'img': 'img/cards/PLSD01/PL!-pb1-019-SD.png', 'type': 'live', 'cost': 1, 'required_hearts': [0,0,0,0,0,0,1], 'text': ''}
+            return {'id': 999, 'name': 'Live (Easy)', 'score': 1, 'img': 'cards/PLSD01/PL!-pb1-019-SD.png', 'type': 'live', 'cost': 1, 'required_hearts': [0,0,0,0,0,0,1], 'text': ''}
         return {'id': int(cid), 'name': f'Card {cid}', 'type': 'unknown', 'img': None}
 
-def serialize_player(p, is_human):
-    legal_mask = game_state.get_legal_actions()
+def serialize_player(p, is_viewable=True):
+    """Serialize one player's state."""
+    
+    # Calculate expected yell count based on total blades
+    expected_yells = 0
+    if game_state and hasattr(game_state, 'member_db'):
+        for i, card_id in enumerate(p.stage):
+            if card_id >= 0 and not p.tapped_members[i] and card_id in game_state.member_db:
+                member = game_state.member_db[card_id]
+                expected_yells += member.blades
+    
+    legal_mask = game_state.get_legal_actions() # This needs to be here for valid_actions calculation
     
     hand = []
-    if is_human:
+    if is_viewable:
         for i, cid in enumerate(p.hand):
             c = serialize_card(cid)
             # Find legal actions for this card index (i)
             # Logic from game_state.get_legal_actions:
             # Play Member: 1 + i*3 + area (0,1,2)
-            # Set Live: 64 + i (if phase is LIVE_SET)
-            # Mulligan: 181 + i
-            
             valid_actions = []
             
             # Check Play Member actions
@@ -217,9 +243,14 @@ def serialize_player(p, is_human):
                     valid_actions.append(aid)
             
             # Check Live Set action
-            aid_live = 64 + i
+            aid_live = 400 + i
             if aid_live < len(legal_mask) and legal_mask[aid_live]:
                 valid_actions.append(aid_live)
+            
+            # Check Mulligan toggle
+            aid_mull = 300 + i
+            if aid_mull < len(legal_mask) and legal_mask[aid_mull]:
+                valid_actions.append(aid_mull)
                 
             c['valid_actions'] = valid_actions
             hand.append(c)
@@ -240,14 +271,13 @@ def serialize_player(p, is_human):
     discard = [serialize_card(cid) for cid in p.discard]
     energy = [{'id': i, 'tapped': bool(p.tapped_energy[i]) if i < len(p.tapped_energy) else False} for i, _ in enumerate(p.energy_zone)]
     live_zone = [serialize_card(cid) for cid in p.live_zone]
-    success_lives = [serialize_card(cid) for cid in p.success_lives]
     
     return {
         'player_id': p.player_id,
-        'is_active': is_human,
+        'is_active': is_viewable, # Changed from is_human
         'hand': hand,
         'hand_count': len(p.hand),
-        'mulligan_selection': list(getattr(p, 'mulligan_selection', [])) if is_human else [],
+        'mulligan_selection': list(getattr(p, 'mulligan_selection', [])) if is_viewable else [],
         'deck_count': len(p.main_deck),
         'energy_deck_count': len(p.energy_deck), # NEW
         'discard': discard,
@@ -257,9 +287,10 @@ def serialize_player(p, is_human):
         'energy_untapped': int(p.count_untapped_energy()),
         'live_zone': live_zone,
         'live_zone_count': len(p.live_zone), # Useful for AI
-        'success_lives': success_lives,
-        'score': len(p.success_lives),
-        'stage': stage
+        'stage': stage,
+        'success_lives': [serialize_card(cid, is_viewable) for cid in p.success_lives],
+        'restrictions': list(p.restrictions),
+        'expected_yells': expected_yells  # New field
     }
 
 def serialize_state():
@@ -268,67 +299,84 @@ def serialize_state():
     
     legal_mask = game_state.get_legal_actions()
     legal_actions = []
+    p = game_state.active_player
     for i, v in enumerate(legal_mask):
         if v:
             desc = get_action_desc(i, game_state)
-            
-            # Create rich metadata for hover effects
             meta = {'id': i, 'desc': desc}
             
-            p = game_state.active_player
-            # 1. Play Member (1-180)
+            # Add rich metadata for highlighting and UI display
+            name = ""
+            img = ""
+            cost = 0
+            
             if 1 <= i <= 180:
-                idx = (i - 1) // 3
-                area = (i - 1) % 3
                 meta['type'] = 'PLAY'
-                meta['hand_idx'] = idx
-                meta['area_idx'] = area
-                
-                # Check baton touch for cost info
-                cost = 0
-                if idx < len(p.hand) and p.hand[idx] in game_state.member_db:
-                    cost = game_state.member_db[p.hand[idx]].cost
-                
-                if p.stage[area] >= 0 and p.stage[area] in game_state.member_db:
-                    prev = game_state.member_db[p.stage[area]]
-                    meta['is_baton'] = True
-                    meta['prev_cost'] = prev.cost
-                    meta['final_cost'] = max(0, cost - prev.cost)
-                else:
-                    meta['final_cost'] = cost
-
-            # 2. Mulligan (181-240)
-            elif 181 <= i <= 240:
-                idx = i - 181
-                meta['type'] = 'MULLIGAN'
-                meta['hand_idx'] = idx
-            
-            # 3. Live Set (64-123)
-            elif 64 <= i <= 123:
-                idx = i - 64
-                meta['type'] = 'LIVE_SET'
-                meta['hand_idx'] = idx
-            
-            # 4. Ability (200-202)
+                meta['hand_idx'] = (i - 1) // 3
+                meta['area_idx'] = (i - 1) % 3
+                if meta['hand_idx'] < len(p.hand):
+                    cid = p.hand[meta['hand_idx']]
+                    c_data = serialize_card(cid)
+                    meta['img'] = c_data['img']
+                    meta['name'] = c_data['name']
+                    meta['cost'] = c_data.get('cost', 0)
+                    
             elif 200 <= i <= 202:
-                area = i - 200
                 meta['type'] = 'ABILITY'
-                meta['area_idx'] = area
-
+                meta['area_idx'] = i - 200
+                if p.stage[meta['area_idx']] >= 0:
+                    cid = p.stage[meta['area_idx']]
+                    c_data = serialize_card(cid)
+                    meta['img'] = c_data['img']
+                    meta['name'] = c_data['name']
+                    
+            elif 300 <= i <= 359:
+                meta['type'] = 'MULLIGAN'
+                meta['hand_idx'] = i - 300
+                if meta['hand_idx'] < len(p.hand):
+                    cid = p.hand[meta['hand_idx']]
+                    c_data = serialize_card(cid)
+                    meta['img'] = c_data['img']
+                    meta['name'] = c_data['name']
+                    
+            elif 400 <= i <= 459:
+                meta['type'] = 'LIVE_SET'
+                meta['hand_idx'] = i - 400
+                if meta['hand_idx'] < len(p.hand):
+                    cid = p.hand[meta['hand_idx']]
+                    c_data = serialize_card(cid)
+                    meta['img'] = c_data['img']
+                    meta['name'] = c_data['name']
+            
             legal_actions.append(meta)
+    
+    
+    # Serialize pending choice with metadata
+    pending_choice_info = None
+    if game_state.pending_choices:
+        choice_type, params = game_state.pending_choices[0]
+        pending_choice_info = {
+            'type': choice_type,
+            'description': params.get('effect_description', ''),
+            'source_ability': params.get('source_ability', ''),
+            'source_member': params.get('source_member', ''),
+            'is_optional': params.get('is_optional', False),
+            'params': params  # Include all original params
+        }
     
     return {
         'turn': game_state.turn_number,
         'phase': int(game_state.phase),  # Return numeric phase, not string name
         'active_player': int(active_idx),
+        'game_over': game_state.game_over,
+        'winner': game_state.winner,
         'players': [
             serialize_player(game_state.players[0], True), # P0 is ALWAYS human-viewable
             serialize_player(game_state.players[1], False) # P1 is ALWAYS hidden (AI)
         ],
         'legal_actions': legal_actions,
-        'resolution_zone': [serialize_card(cid) for cid in game_state.yell_cards],
-        'pending_choice': game_state.pending_choices[0] if game_state.pending_choices else None,
-        'rule_log': game_state.rule_log[-10:] # Last 10 rules for display
+        'pending_choice': pending_choice_info,
+        'rule_log': game_state.rule_log[-20:] # Include rule log for debugging
     }
 
 def get_action_desc(a, gs):
@@ -347,22 +395,23 @@ def get_action_desc(a, gs):
         area_name = areas[area_idx]
         
         card_name = f"手札[{idx}]"
+        new_card_cost = 0
         if idx < len(p.hand):
             cid = p.hand[idx]
             if cid in gs.member_db:
                 card_name = gs.member_db[cid].name
+                new_card_cost = gs.member_db[cid].cost
         
-        # Check for Baton Touch (Stacking on existing member)
-        suffix = ""
-        if p.stage[area_idx] >= 0:
-            if p.stage[area_idx] in gs.member_db:
-                prev_cost = gs.member_db[p.stage[area_idx]].cost
-                suffix = f" (バトンタッチ: -{prev_cost}コスト)"
+        # Check if Baton Touch applies (slot is occupied)
+        if p.stage[area_idx] >= 0 and p.stage[area_idx] in gs.member_db:
+            old_card = gs.member_db[p.stage[area_idx]]
+            actual_cost = max(0, new_card_cost - old_card.cost)
+            return f"{card_name}を{area_name}に置く (バトンタッチ: {old_card.name}, コスト {actual_cost})"
         
-        return f"{card_name}を{area_name}に置く{suffix}"
+        return f"{card_name}を{area_name}に置く (コスト {new_card_cost})"
         
-    elif 181 <= a <= 240:
-        idx = a - 181
+    elif 300 <= a <= 359:
+        idx = a - 300
         card_name = f"手札[{idx}]"
         if idx < len(p.hand):
             cid = p.hand[idx]
@@ -371,9 +420,8 @@ def get_action_desc(a, gs):
             
         return f"{card_name}をマリガン対象にする/外す"
         
-    elif 64 <= a <= 123:
-        idx = a - 64
-        card_name = f"Hand[{idx}]"
+    elif 400 <= a <= 459:
+        idx = a - 400
         card_name = f"手札[{idx}]"
         if idx < len(p.hand):
             cid = p.hand[idx]
@@ -382,17 +430,45 @@ def get_action_desc(a, gs):
         
     elif 200 <= a <= 202:
         areas = ["左", "中", "右"]
-        area_name = areas[a - 200]
-        cid = p.stage[a - 200]
+        area_idx = a - 200
+        area_name = areas[area_idx]
+        cid = p.stage[area_idx]
         card_name = "メンバー"
-        if cid in gs.member_db: card_name = gs.member_db[cid].name
-        return f"{card_name}のスキル発動 ({area_name})"
+        ability_summary = ""
         
-    elif 270 <= a <= 279:
-        return f"モード選択 {a - 270}"
-    elif 280 <= a <= 285:
+        if cid >= 0 and cid in gs.member_db:
+            card_name = gs.member_db[cid].name
+            member = gs.member_db[cid]
+            
+            # Get ability text if available
+            if hasattr(member, 'abilities') and member.abilities:
+                # Find activated abilities (ACTIVATED trigger type)
+                from game.ability import TriggerType
+                activated_abs = [ab for ab in member.abilities if ab.trigger == TriggerType.ACTIVATED]
+                
+                if activated_abs:
+                    # Show the raw text of the first activated ability
+                    ability_summary = f" - {activated_abs[0].raw_text[:50]}..."
+                    if len(activated_abs[0].raw_text) <= 50:
+                        ability_summary = f" - {activated_abs[0].raw_text}"
+        
+        return f"{card_name}のスキル発動 ({area_name}){ability_summary}"
+        
+    elif 570 <= a <= 579:
+        return f"モード選択 {a - 570}"
+    elif 590 <= a <= 599:
+        idx = a - 590
+        # Try to look up context if possible, but generic is better than nothing
+        if idx < len(gs.triggered_abilities):
+            pid, ability, ctx = gs.triggered_abilities[idx]
+            on_card = "Unknown"
+            # It's hard to get the source card name easily here without complex lookup
+            # But we can say "Trigger #idx"
+            return f"自動能力の解決 ({idx+1}/{len(gs.triggered_abilities)})"
+        return f"自動能力の解決 {idx}"
+    elif 580 <= a <= 585:
         colors = ["赤", "青", "緑", "黄", "紫", "ピンク"]
-        return f"色選択: {colors[a-280]}"
+        return f"色選択: {colors[a-580]}"
     return f"Action {a}"
 
 @app.route('/')
@@ -428,31 +504,36 @@ def do_action():
     print(f"DEBUG do_action: action={action_id}, force={force}, is_legal={is_legal}, phase={game_state.phase}, player={game_state.current_player}")
     
     if force or is_legal:
-        game_state = game_state.step(action_id)
-        
-        # AUTO-ADVANCE LOOP
-        # Advance through automatic phases AND AI turns
-        max_safety = 100
-        while not game_state.is_terminal() and max_safety > 0:
-            max_safety -= 1
+        try:
+            game_state = game_state.step(action_id)
             
-            # 1. Automatic phases (phases that don't need real human interaction beyond a 'confirm' or 'auto')
-            if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
-                                   Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
-                game_state = game_state.step(0)
-                continue
-            
-            # 2. AI Turn (P1 is always the AI)
-            if game_state.current_player == 1:
-                aid = ai_agent.choose_action(game_state, 1)
-                print(f"DEBUG AI Move: action={aid}, phase={game_state.phase}")
-                game_state = game_state.step(aid)
-                continue
+            # AUTO-ADVANCE LOOP
+            # Advance through automatic phases AND AI turns
+            max_safety = 100
+            while not game_state.is_terminal() and max_safety > 0:
+                max_safety -= 1
                 
-            # If it's P0's turn and not an automatic phase, wait for user
-            break
-            
-        return jsonify({'success': True, 'state': serialize_state()})
+                # 1. Automatic phases (phases that don't need real human interaction beyond a 'confirm' or 'auto')
+                if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
+                                       Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
+                    game_state = game_state.step(0)
+                    continue
+                
+                # 2. AI Turn (P1 is always the AI)
+                if game_state.current_player == 1:
+                    aid = ai_agent.choose_action(game_state, 1)
+                    print(f"DEBUG AI Move: action={aid}, phase={game_state.phase}")
+                    game_state = game_state.step(aid)
+                    continue
+                    
+                # If it's P0's turn and not an automatic phase, wait for user
+                break
+                
+            return jsonify({'success': True, 'state': serialize_state()})
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({'success': False, 'error': str(e), 'trace': traceback.format_exc()}), 500
     else:
         return jsonify({'success': False, 'error': f'Illegal action {action_id} in {game_state.phase}'})
 
@@ -514,7 +595,75 @@ def reset():
         traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/replay/<filename>')
+def get_replay(filename):
+    """Serve replay JSON files"""
+    replay_path = f'replays/{filename}'
+    if os.path.exists(replay_path):
+        with open(replay_path, 'r') as f:
+            return jsonify(json.load(f))
+    return jsonify({'error': 'Replay not found'}), 404
+
+@app.route('/api/advance', methods=['POST'])
+def advance():
+    global game_state
+    from game.game_state import Phase
+    
+    # Run auto-advance loop
+    max_safety = 50
+    while not game_state.is_terminal() and max_safety > 0:
+        max_safety -= 1
+        if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
+                               Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
+            game_state = game_state.step(0)
+            continue
+        if game_state.current_player == 1:
+            aid = ai_agent.choose_action(game_state, 1)
+            game_state = game_state.step(aid)
+            continue
+        break
+        
+    return jsonify({'success': True, 'state': serialize_state()})
+
+@app.route('/api/full_log', methods=['GET'])
+def get_full_log():
+    """Return the complete rule log without truncation."""
+    return jsonify({'log': game_state.rule_log, 'total_entries': len(game_state.rule_log)})
+
+
+@app.route('/api/report_issue', methods=['POST'])
+def report_issue():
+    """Save the current game state and user explanation to a report file."""
+    try:
+        data = request.json
+        explanation = data.get('explanation', '')
+        # We can take the current state from the request or just use our global game_state
+        # Providing it in the request is safer if the user is looking at a specific frame (e.g. in replay mode)
+        # But for now, let's use the provided state if it exists, otherwise capture the current one.
+        state_to_save = data.get('state') or serialize_state()
+        history = data.get('history', []) # Optionally capture action history if UI has it
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        os.makedirs('reports', exist_ok=True)
+        
+        filename = f'reports/report_{timestamp}.json'
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump({
+                'timestamp': timestamp,
+                'explanation': explanation,
+                'state': state_to_save,
+                'history': history,
+                'action_desc': get_action_desc(state_to_save.get('last_action', 0), game_state) if 'last_action' in state_to_save else "N/A"
+            }, f, indent=2, ensure_ascii=False)
+            
+        return jsonify({'success': True, 'filename': filename})
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     init_game()
-    print("Starting server at http://localhost:5000")
-    app.run(debug=True, port=5000)
+    print("Starting server at http://127.0.0.1:5000")
+    app.run(debug=True, host='0.0.0.0', port=5000)

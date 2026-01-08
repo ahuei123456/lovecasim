@@ -1,0 +1,43 @@
+﻿py :   [WARN] Game 0 (TrueRandom vs Random) li
+kely infinite loop. Actions sample:
+発生場所 行:1 文字:1
++ py tools/elo_tournament.py --games 10 > loop
+_debug.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( 
+     [WARN] Game 0...Actions sample::String)  
+   [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandEr 
+   ror
+ 
+    Action 4991: Player Random (1) in 4 phase 
+did 504
+    Action 4992: Player Random (1) in 4 phase 
+did 201
+    Action 4993: Player Random (1) in 4 phase 
+did 504
+    Action 4994: Player Random (1) in 4 phase 
+did 201
+    Action 4995: Player Random (1) in 4 phase 
+did 505
+    Action 4996: Player Random (1) in 4 phase 
+did 201
+    Action 4997: Player Random (1) in 4 phase 
+did 503
+    Action 4998: Player Random (1) in 4 phase 
+did 201
+    Action 4999: Player Random (1) in 4 phase 
+did 505
+Starting ELO Tournament (10 random pairings)...
+
+========================================
+TOURNAMENT RESULTS
+========================================
+Agent           | ELO    | Games | Win Rate     | Avg Turns
+-----------------------------------------------------------------
+TrueRandom      | 1000   | 7     | 0/7          | 2.4
+Random          | 1000   | 6     | 0/6          | 2.0
+Smart           | 1000   | 7     | 0/7          | 1.9
+========================================
+Total Time: 2.43s

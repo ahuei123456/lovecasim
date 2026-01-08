@@ -1,0 +1,309 @@
+{
+  "timestamp": "20260108_042132_015182",
+  "game_id": 17,
+  "error": "'PlayerState' object has no attribute 'get_member_hearts'",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\tools\\stress_test_game.py\", line 135, in run_single_game_stress\n    state = state.step(action)\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 610, in step\n    new_state._execute_action(action_id)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 1178, in _execute_action\n    self._do_performance(1)\n    ~~~~~~~~~~~~~~~~~~~~^^^\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 1752, in _do_performance\n    m_hearts = p.get_member_hearts(i, self.member_db)\n               ^^^^^^^^^^^^^^^^^^^\nAttributeError: 'PlayerState' object has no attribute 'get_member_hearts'. Did you mean: 'get_total_hearts'?\n",
+  "history": [
+    {
+      "action": 406,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 1
+    },
+    {
+      "action": 401,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 402,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 404,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "PERFORMANCE_P2",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "PERFORMANCE_P1",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "LIVE_RESULT",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "ACTIVE",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "ENERGY",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "DRAW",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 8,
+      "turn": 2,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 201,
+      "turn": 2,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 661,
+      "turn": 2,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 502,
+      "turn": 2,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "LIVE_SET",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "PERFORMANCE_P2",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "PERFORMANCE_P1",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 2,
+      "phase": "LIVE_RESULT",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "ACTIVE",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "ENERGY",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "DRAW",
+      "player": 1
+    },
+    {
+      "action": 27,
+      "turn": 3,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 13,
+      "turn": 3,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "LIVE_SET",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "PERFORMANCE_P2",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "PERFORMANCE_P1",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 3,
+      "phase": "LIVE_RESULT",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 4,
+      "phase": "ACTIVE",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 4,
+      "phase": "ENERGY",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 4,
+      "phase": "DRAW",
+      "player": 1
+    },
+    {
+      "action": 6,
+      "turn": 4,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 23,
+      "turn": 4,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 201,
+      "turn": 4,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 660,
+      "turn": 4,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 500,
+      "turn": 4,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 4,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 9,
+      "turn": 4,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 4,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 406,
+      "turn": 4,
+      "phase": "LIVE_SET",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 4,
+      "phase": "LIVE_SET",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 4,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 4,
+      "phase": "PERFORMANCE_P2",
+      "player": 1
+    }
+  ],
+  "turn": 4
+}

@@ -54,6 +54,7 @@
         .header h1 {
             font-size: 1.1rem;
             background: linear-gradient(90deg, var(--accent-pink), var(--accent-purple));
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -80,6 +81,11 @@
             gap: 8px;
         }
 
+        #report-btn {
+            background: linear-gradient(135deg, #ff8c00, #e67300);
+            border-color: #ffaa33;
+        }
+
         .btn {
             padding: 6px 14px;
             border: none;
@@ -99,6 +105,74 @@
 
         .btn-primary {
             background: linear-gradient(135deg, var(--accent-pink), #e05080);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            border-color: #ff8888;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-pink);
+            border-radius: 12px;
+            padding: 20px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            color: var(--accent-pink);
+            font-weight: bold;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .report-textarea {
+            width: 100%;
+            height: 150px;
+            background: var(--bg-zone);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 10px;
+            font-family: inherit;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
         }
 
         /* Game Board Container */
@@ -689,16 +763,18 @@
         /* Hover Highlights */
         .highlight-target {
             border-color: var(--accent-green) !important;
-            box-shadow: 0 0 15px var(--accent-green) !important;
-            transform: scale(1.05);
-            z-index: 10;
+            box-shadow: 0 0 25px var(--accent-green), 0 0 10px var(--accent-green) inset !important;
+            transform: scale(1.08) !important;
+            z-index: 100 !important;
+            border-width: 3px !important;
         }
 
         .highlight-source {
             border-color: var(--accent-pink) !important;
-            box-shadow: 0 0 15px var(--accent-pink) !important;
-            transform: translateY(-10px);
-            z-index: 10;
+            box-shadow: 0 0 25px var(--accent-pink), 0 0 10px var(--accent-pink) inset !important;
+            transform: translateY(-15px) scale(1.05) !important;
+            z-index: 100 !important;
+            border-width: 3px !important;
         }
 
         /* Actions Panel */
@@ -707,8 +783,6 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 10px;
-            max-height: 200px;
-            overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 5px;
@@ -816,33 +890,71 @@
         .action-list {
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            max-height: 250px;
-            overflow-y: auto;
+            gap: 8px;
         }
 
-        .action-btn {
-            padding: 8px 10px;
-            background: var(--bg-zone);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text);
-            cursor: pointer;
-            text-align: left;
+        .action-icon {
+            font-size: 1rem;
+        }
+
+        .action-badge {
             font-size: 0.7rem;
-            transition: all 0.2s;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .action-btn:hover {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
+        /* Log Styles */
+        .log-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .log-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .log-btn:hover {
+            color: var(--text);
+            border-color: var(--text-dim);
+        }
+
+        /* Yell Count */
+        .yell-badge {
+            font-size: 0.8rem;
+            background: linear-gradient(135deg, #e67300, #ff8c00);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .action-btn.pass {
             background: linear-gradient(135deg, var(--accent-green), #30a060);
-            color: #000;
             font-weight: 600;
             border-color: var(--accent-green);
+        }
+
+        .action-group-label {
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+            border-bottom: 1px solid rgba(74, 158, 255, 0.2);
+            padding-bottom: 2px;
         }
 
         /* Rule Log Styling */
@@ -906,23 +1018,27 @@
 
         /* Log */
         .log-section {
-            flex: 1;
+            /* Remove flex:1 to let it shrink if needed, or fixed height */
+            flex: 0 0 auto;
             min-height: 100px;
+            margin-bottom: 10px;
         }
 
         .log-list {
-            max-height: 120px;
+            height: 150px;
+            /* Fixed height instead of max-height */
             overflow-y: auto;
             font-size: 0.65rem;
             color: var(--text-dim);
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
             padding: 8px;
+            border: 1px solid var(--border);
         }
 
         .log-entry {
             padding: 2px 0;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Scrollbar */
@@ -956,8 +1072,23 @@
         </div>
         <div class="controls">
             <button class="btn" onclick="fetchState()">🔄 更新</button>
-            <button class="btn btn-primary" onclick="resetGame()">🎮 新規ゲーム</button>
+            <button class="btn btn-primary" onclick="resetGame()">RESET</button>
+            <button id="report-btn" class="btn" onclick="openReportModal()">Report Issue</button>
         </div>
+        <div class="replay-controls" id="replay-controls"
+            style="display:none; gap:8px; padding:8px; background:rgba(0,0,0,0.3); border-radius:6px; margin-top:8px; align-items:center;">
+            <button class="btn" onclick="loadReplay()" style="font-size:0.9rem; padding:4px 12px;">📂 Load</button>
+            <input type="text" id="replay-file" placeholder="game_14.json"
+                style="width:150px; padding:4px 8px; background:rgba(0,0,0,0.5); border:1px solid #444; color:white; border-radius:4px;">
+            <button class="btn" onclick="replayPrev()" style="font-size:0.9rem; padding:4px 12px;">◀</button>
+            <button class="btn" id="play-btn" onclick="togglePlay()" style="font-size:0.9rem; padding:4px 12px;">▶
+                Play</button>
+            <button class="btn" onclick="replayNext()" style="font-size:0.9rem; padding:4px 12px;">▶</button>
+            <span style="color:#aaa; font-size:0.9rem;">Frame: <span id="frame-num">0</span>/<span
+                    id="total-frames">0</span></span>
+        </div>
+        <button class="btn" onclick="toggleReplayMode()" style="margin-top:8px; font-size:0.9rem;">🎬 Replay
+            Mode</button>
     </header>
 
     <div class="game-container">
@@ -1011,7 +1142,7 @@
 
             <!-- RESOLUTION ZONE (Shared) -->
             <div class="zone resolution-zone">
-                <div class="zone-title">🔮 解決領域 (Resolution Zone)</div>
+                <div class="zone-title">解決領域 (Resolution Zone)</div>
                 <div class="resolution-cards" id="resolution"></div>
             </div>
 
@@ -1027,7 +1158,8 @@
                         <div class="card-stack-horizontal" id="my-success"></div>
                     </div>
                     <div class="zone">
-                        <div class="zone-title">ライブ置場</div>
+                        <div class="zone-title">ライブ置場 <span id="yell-count-display" class="yell-badge"
+                                style="display:none">Expected Yells: 0</span></div>
                         <div class="live-zone-cards" id="my-live"></div>
                     </div>
                 </div>
@@ -1076,20 +1208,38 @@
                 <h3>⚡ アクション</h3>
                 <div class="action-list" id="actions"></div>
             </div>
+            <div class="sidebar-section diagnostic-section" id="diagnostic-panel"
+                style="display:none; border: 1px solid var(--accent-blue); background: rgba(0,0,0,0.2);">
+                <h3 style="color: var(--accent-blue);">🔍 診断情報 (Diag)</h3>
+                <div id="diag-content" style="font-size: 0.75rem; padding: 5px; color: #ccc;">
+                    <div>Phase: <span id="diag-phase">-</span></div>
+                    <div>Player: <span id="diag-player">-</span></div>
+                    <div>Legal Actions: <span id="diag-actions">-</span></div>
+                    <div>Game Over: <span id="diag-gameover">-</span></div>
+                    <div style="margin-top: 5px;">
+                        <button class="action-btn" onclick="forceAdvance()"
+                            style="font-size:0.7rem; padding: 2px 8px; background: var(--accent-blue);">Force
+                            Advance</button>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h3>� Rule Audit Log</h3>
+                <div class="rule-log-list" id="rule-log"></div>
+            </div>
+            <div class="sidebar-section log-section">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h3 style="margin:0">📜 ログ</h3>
+                    <button class="log-btn" id="full-log-btn" onclick="toggleFullLog()">Show Full Log</button>
+                </div>
+                <div class="log-list" id="log"></div>
+            </div>
             <div class="sidebar-section god-mode">
-                <h3>🔮 God Mode</h3>
+                <h3>� God Mode</h3>
                 <input type="number" id="force-id" placeholder="Action ID">
                 <button class="btn" onclick="forceAction()">強制実行</button>
                 <textarea id="god-code" rows="2" placeholder="p.hand.append(p.main_deck.pop())"></textarea>
                 <button class="btn" onclick="execCode()">コード実行</button>
-            </div>
-            <div class="sidebar-section">
-                <h3>📜 Rule Audit Log</h3>
-                <div class="rule-log-list" id="rule-log"></div>
-            </div>
-            <div class="sidebar-section log-section">
-                <h3>📜 ログ</h3>
-                <div class="log-list" id="log"></div>
             </div>
         </div>
     </div>
@@ -1097,22 +1247,24 @@
     <script>
         // Phase enum from game_state.py
         const Phase = {
-            SETUP: -2,
-            MULLIGAN_P1: -1,
-            MULLIGAN_P2: 0,
-            ACTIVE: 1,
-            ENERGY: 2,
-            DRAW: 3,
-            MAIN: 4,
-            LIVE_SET: 5,
-            PERFORMANCE_P1: 6,
-            PERFORMANCE_P2: 7,
-            LIVE_RESULT: 8
+            SETUP: -2, "-2": "SETUP",
+            MULLIGAN_P1: -1, "-1": "MULLIGAN_P1",
+            MULLIGAN_P2: 0, "0": "MULLIGAN_P2",
+            ACTIVE: 1, "1": "ACTIVE",
+            ENERGY: 2, "2": "ENERGY",
+            DRAW: 3, "3": "DRAW",
+            MAIN: 4, "4": "MAIN",
+            LIVE_SET: 5, "5": "LIVE_SET",
+            PERFORMANCE_P1: 6, "6": "PERFORMANCE_P1",
+            PERFORMANCE_P2: 7, "7": "PERFORMANCE_P2",
+            LIVE_RESULT: 8, "8": "LIVE_RESULT"
         };
 
         let state = null;
         let logs = [];
         let selectedHandIdx = -1; // -1 means no selection
+        let showingFullLog = false;
+        let fullLogData = null;
 
         function log(msg) {
             logs.unshift(`[${new Date().toLocaleTimeString()}] ${msg}`);
@@ -1127,7 +1279,17 @@
                 render();
                 log('State refreshed');
             } catch (e) {
-                log('Error: ' + e.message);
+                console.error("Fetch Error:", e);
+                // Try to see if it was a server error page
+                try {
+                    const res = await fetch('/api/state');
+                    const text = await res.text();
+                    if (text.startsWith('<')) {
+                        console.error("Server returned HTML (likely 500 error):", text.substring(0, 500));
+                        log('Server Error: Check console');
+                    }
+                } catch (e2) { }
+                log('Connection Error');
             }
         }
 
@@ -1192,41 +1354,237 @@
             renderCards('my-discard', p0.discard);
             renderLiveZone('my-live', p0.live_zone, true);
             renderLiveZone('opp-live', p1.live_zone, false);
-            renderLiveZone('opp-live', p1.live_zone, false);
             renderCards('my-success', p0.success_lives, false, true);
+
+            // Yell Count Display
+            const yellBadge = document.getElementById('yell-count-display');
+            if (yellBadge) {
+                if (p0.expected_yells > 0) {
+                    yellBadge.textContent = `${p0.expected_yells} cards`;
+                    yellBadge.style.display = 'inline-flex';
+                } else {
+                    yellBadge.style.display = 'none';
+                }
+            }
 
             // Resolution Zone (Shared Yell)
             renderCards('resolution', state.resolution_zone || [], false, true);
 
+            // Populate Diagnostic Panel
+            document.getElementById('diag-phase').textContent = `${state.phase} (${Phase[state.phase] || 'Unknown'})`;
+            document.getElementById('diag-player').textContent = state.active_player;
+            document.getElementById('diag-actions').textContent = state.legal_actions ? state.legal_actions.length : 0;
+            document.getElementById('diag-gameover').textContent = state.game_over ? `Yes (Winner: ${state.winner})` : 'No';
+            document.getElementById('diagnostic-panel').style.display = 'block';
+
             // Rule Log
             const ruleLogEl = document.getElementById('rule-log');
-            if (ruleLogEl && state.rule_log) {
-                ruleLogEl.innerHTML = state.rule_log.map(entry => {
+            if (ruleLogEl) {
+                let logData = state.rule_log;
+                if (showingFullLog && fullLogData) {
+                    logData = fullLogData;
+                }
+
+                ruleLogEl.innerHTML = logData.map(entry => {
                     const match = entry.match(/\[(.*?)\] (.*)/);
                     if (match) {
                         return `<div class="rule-entry"><span class="rule-id">${match[1]}</span>${match[2]}</div>`;
                     }
                     return `<div class="rule-entry">${entry}</div>`;
                 }).join('');
-                ruleLogEl.scrollTop = ruleLogEl.scrollHeight;
+
+                // Only auto-scroll if NOT showing full log (viewing history)
+                if (!showingFullLog) {
+                    ruleLogEl.scrollTop = ruleLogEl.scrollHeight;
+                }
+
+                // Update toggle button text
+                const logBtn = document.getElementById('full-log-btn');
+                if (logBtn) logBtn.textContent = showingFullLog ? 'Show Recent' : 'Show Full Log';
+            }
+
+            // Check for game over
+            if (state.game_over) {
+                const actionsDiv = document.getElementById('actions');
+                if (actionsDiv) {
+                    let winnerText = '';
+                    if (state.winner === 0) winnerText = '🎉 P0 (あなた) Wins!';
+                    else if (state.winner === 1) winnerText = '🎉 P1 (相手) Wins!';
+                    else winnerText = '⚖️ Draw (引き分け)';
+
+                    actionsDiv.innerHTML = `
+                        <div style="padding:20px; text-align:center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border-radius:8px;">
+                            <h2 style="margin:0 0 10px 0; font-size:24px;">${winnerText}</h2>
+                            <p style="margin:0; opacity:0.9;">Game Over - Final Score: ${state.players[0].score} - ${state.players[1].score}</p>
+                        </div>
+                    `;
+                }
+                return; // Don't render actions
             }
 
             renderActions();
         }
 
-        function playCard(idx) {
-            // Check if Mulligan Phase
-            if (state.phase === Phase.MULLIGAN_P1 || state.phase === Phase.MULLIGAN_P2) {
-                // Action 181-240: Toggle Hand[idx] for Mulligan
-                // Action = 181 + idx
-                const actionId = 181 + idx;
-                // Verify if legitimate (check if action exists in legal_actions list)
-                const action = state.legal_actions.find(a => a.id === actionId);
-                if (action) {
-                    doAction(actionId);
-                } else {
-                    log(`Cannot toggle card ${idx} in Mulligan`);
+        function renderActions() {
+            const actionsDiv = document.getElementById('actions');
+            if (!actionsDiv || !state) return;
+
+            actionsDiv.innerHTML = '';
+
+            if (!state.legal_actions || state.legal_actions.length === 0) {
+                // Diagnostic data for debugging missing actions
+                const diag = {
+                    phase: state.phase,
+                    phase_name: Phase[state.phase] || 'Unknown',
+                    turn: state.turn || state.turn_number,
+                    active: state.active_player
+                };
+                console.warn('[UI] Empty actions:', diag);
+
+                actionsDiv.innerHTML = `
+                    <div style="padding:15px; text-align:center;">
+                        <div style="color:#ff6b6b; margin-bottom:10px;">⚠️ No actions available</div>
+                        <div style="display:flex; gap:10px; justify-content:center;">
+                            <button class="action-btn" onclick="fetchState()" style="background:#4a9eff; width:auto; padding:5px 15px;">Refresh</button>
+                            <button class="action-btn" onclick="forceAdvance()" style="background:#ff6b6b; width:auto; padding:5px 15px;">Force Advance</button>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+            // Grouping Logic
+            const groups = new Map();
+            const standalone = [];
+
+            state.legal_actions.forEach(action => {
+                let key = null;
+                if (action.hand_idx !== undefined) {
+                    key = `hand_${action.hand_idx}`;
+                } else if (action.area_idx !== undefined && action.type === 'ABILITY') {
+                    key = `stage_${action.area_idx}`;
                 }
+
+                if (key) {
+                    if (!groups.has(key)) {
+                        let imgPath = action.img || '';
+                        if (imgPath && !imgPath.startsWith('/') && !imgPath.startsWith('http')) {
+                            imgPath = '/img/' + imgPath;
+                        }
+                        groups.set(key, { img: imgPath, label: action.name || 'Card', actions: [] });
+                    }
+                    groups.get(key).actions.push(action);
+                } else {
+                    standalone.push(action);
+                }
+            });
+
+            // 1. Render Groups (Card + Actions)
+            groups.forEach((group, key) => {
+                const container = document.createElement('div');
+                container.className = 'action-group-card';
+                container.style.display = 'flex';
+                container.style.gap = '10px';
+                container.style.marginBottom = '12px';
+                container.style.padding = '8px';
+                container.style.background = 'rgba(255,255,255,0.05)';
+                container.style.borderRadius = '8px';
+                container.style.border = '1px solid rgba(255,255,255,0.1)';
+
+                if (group.img) {
+                    const imgDiv = document.createElement('div');
+                    imgDiv.style.flex = '0 0 60px';
+                    imgDiv.style.width = '60px';
+                    const img = document.createElement('img');
+                    img.src = group.img;
+                    img.style.width = '100%';
+                    img.style.borderRadius = '4px';
+                    img.style.display = 'block';
+                    img.onerror = function () { this.style.display = 'none'; };
+                    imgDiv.appendChild(img);
+                    container.appendChild(imgDiv);
+                }
+
+                const rightCol = document.createElement('div');
+                rightCol.style.flex = '1';
+                rightCol.style.display = 'flex';
+                rightCol.style.flexDirection = 'column';
+                rightCol.style.gap = '6px';
+                rightCol.style.justifyContent = 'center';
+
+                group.actions.forEach(action => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn';
+                    let text = action.desc || 'Action';
+                    if (action.type === 'PLAY') {
+                        text = text.split('を')[1] || text;
+                        text = text.replace('に置く', '');
+                    } else if (action.type === 'LIVE_SET') {
+                        text = "Set Live";
+                    }
+                    btn.textContent = text;
+                    btn.onclick = () => doAction(action.id);
+                    btn.onmouseenter = () => highlightAction(action);
+                    btn.onmouseleave = () => clearHighlight();
+                    btn.style.padding = '6px 10px';
+                    btn.style.textAlign = 'left';
+                    btn.style.fontSize = '0.8rem';
+                    rightCol.appendChild(btn);
+                });
+                container.appendChild(rightCol);
+                actionsDiv.appendChild(container);
+            });
+
+            // 2. Render standalone actions
+            if (standalone.length > 0) {
+                const miscDiv = document.createElement('div');
+                miscDiv.className = 'action-group-misc';
+                miscDiv.style.display = 'flex';
+                miscDiv.style.flexDirection = 'column';
+                miscDiv.style.gap = '8px';
+                miscDiv.style.marginTop = '10px';
+                standalone.forEach(action => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn';
+                    if (action.id === 0) btn.classList.add('pass');
+                    btn.textContent = action.desc;
+                    btn.onclick = () => doAction(action.id);
+                    btn.onmouseenter = () => highlightAction(action);
+                    btn.onmouseleave = () => clearHighlight();
+                    miscDiv.appendChild(btn);
+                });
+                actionsDiv.appendChild(miscDiv);
+            }
+        }
+
+        async function toggleFullLog() {
+            showingFullLog = !showingFullLog;
+            if (showingFullLog) {
+                try {
+                    const btn = document.getElementById('full-log-btn');
+                    if (btn) btn.textContent = 'Loading...';
+                    const res = await fetch('/api/full_log');
+                    const data = await res.json();
+                    fullLogData = data.log;
+                    render();
+                } catch (e) {
+                    console.error("Failed to fetch full log", e);
+                    showingFullLog = false;
+                    render();
+                }
+            } else {
+                render();
+            }
+        }
+
+        function playCard(idx) {
+            // Check if this card can be toggled for Mulligan by looking at legal_actions
+            // IMPORTANT: Backend uses 301-360 for Mulligan (300 + index + 1)
+            const mulliganActionId = 301 + idx;
+            const isMulliganAction = state.legal_actions && state.legal_actions.find(a => a.id === mulliganActionId);
+
+            if (isMulliganAction) {
+                // We're in Mulligan phase and this is a valid toggle action
+                doAction(mulliganActionId);
                 return;
             }
 
@@ -1240,12 +1598,18 @@
         }
 
         function onStageSlotClick(areaIdx) {
+            console.log('[DEBUG] Stage clicked:', areaIdx, 'selectedHandIdx:', selectedHandIdx);
+            console.log('[DEBUG] legal_actions:', state.legal_actions);
+
             if (selectedHandIdx === -1) {
                 // If clicking an existing member, maybe use ability? (Actions 200-202)
                 const actionId = 200 + areaIdx;
                 const action = state.legal_actions.find(a => a.id === actionId);
+                console.log('[DEBUG] Looking for ability action:', actionId, 'found:', action);
                 if (action) {
                     doAction(actionId);
+                } else {
+                    log(`No ability available for slot ${areaIdx}`);
                 }
                 return;
             }
@@ -1254,14 +1618,16 @@
             // Action ID = 1 + (card_idx * 3) + area_idx
             // Range 1-180
             const actionId = 1 + (selectedHandIdx * 3) + areaIdx;
+            console.log('[DEBUG] Trying to play card:', selectedHandIdx, 'to area:', areaIdx, 'actionId:', actionId);
 
             const action = state.legal_actions.find(a => a.id === actionId);
             if (action) {
-                log(`Playing Hand[${selectedHandIdx}] to Area ${areaIdx}`);
+                log(`Playing Hand[${selectedHandIdx}] to Area ${areaIdx} `);
                 doAction(actionId);
                 selectedHandIdx = -1; // Reset selection after play
             } else {
-                log(`Cannot play Hand[${selectedHandIdx}] to Area ${areaIdx} (Cost/Req?)`);
+                log(`Cannot play Hand[${selectedHandIdx}] to Area ${areaIdx} (Cost / Req ?)`);
+                console.log('[DEBUG] Action not found in legal_actions');
             }
         }
 
@@ -1283,18 +1649,17 @@
                     (card.type === 'live' ? ' type-live' : '') +
                     (mini ? ' card-mini' : '') +
                     highlightClass;
-                div.id = `hand-card-${idx}`;
+                div.id = `${containerId}-card-${idx}`;
 
                 if (card.text) div.setAttribute('data-text', card.text);
 
                 if (!card.hidden) {
                     // Fix image path - server sends paths like "cards/..."
-                    // Flask route is /img/<path>, so we need /img/cards/...
                     let imgPath = card.img || '';
                     if (imgPath && !imgPath.startsWith('http') && !imgPath.startsWith('/')) {
                         imgPath = '/img/' + imgPath;
                     }
-                    const imgHtml = imgPath ? `<img src="${imgPath}" onerror="this.style.display='none'">` : '';
+                    const imgHtml = imgPath ? `<img src="${imgPath}" onerror="console.error('Img Fail:', this.src); this.style.display='none'">` : '';
 
                     // Build heart pips HTML for member cards
                     let heartPipsHtml = '';
@@ -1337,17 +1702,17 @@
                     let statsHtml = '';
                     if (card.type === 'member') {
                         statsHtml = `
-                            <div class="stats">
+                    <div class="stats">
                                 <div class="stat-blade">⚔ ${card.blade || 0}</div>
                                 <div class="stat-hp">♥ ${card.hp || 0}</div>
                             </div>
-                        `;
+                    `;
                     } else if (card.type === 'live') {
                         statsHtml = `
-                            <div class="stats">
-                                <div class="stat-hp">★ ${card.score || 0}</div>
+                    <div class="stats">
+                        <div class="stat-hp">★ ${card.score || 0}</div>
                             </div>
-                        `;
+                    `;
                     }
 
                     div.innerHTML = `${imgHtml}<span class="cost">${card.cost !== undefined ? card.cost : '★'}</span>
@@ -1374,7 +1739,7 @@
 
                 const slotDiv = document.createElement('div');
                 slotDiv.className = 'member-slot' + (slot ? ' filled' : '') + (slot?.tapped ? ' tapped' : '');
-                slotDiv.id = `stage-slot-${i}`;
+                slotDiv.id = `${containerId}-slot-${i}`;
 
                 // Highlight slot if it's a valid target for the selected card
                 if (clickable && selectedHandIdx !== -1) {
@@ -1387,8 +1752,11 @@
                 }
 
                 if (slot) {
-                    const imgPath = slot.img ? `/img/${slot.img}` : '';
-                    const imgHtml = imgPath ? `<img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">` : '';
+                    // Use standard /img/ prefix logic matching renderCards
+                    let imgPath = slot.img ? slot.img : '';
+                    if (imgPath && !imgPath.startsWith('/')) imgPath = '/img/' + imgPath;
+
+                    const imgHtml = imgPath ? `<img src="${imgPath}" alt="${slot.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'; this.parentElement.innerText='${slot.name}'; this.parentElement.style.color='white'; this.parentElement.style.fontSize='0.7rem';">` : '';
 
                     // Build heart pips HTML
                     let heartPipsHtml = '';
@@ -1397,7 +1765,7 @@
                         let pips = '';
                         for (let c = 0; c < 6; c++) {
                             for (let h = 0; h < (slot.hearts[c] || 0); h++) {
-                                pips += `<div class="heart-pip color-${c}" title="${colorNames[c]}"></div>`;
+                                pips += `<div class="heart-pip color-${c}"></div>`;
                             }
                         }
                         if (pips) heartPipsHtml = `<div class="heart-pips">${pips}</div>`;
@@ -1412,12 +1780,12 @@
                                 pips += `<div class="blade-pip color-${c}"></div>`;
                             }
                         }
-                        if (pips) bladeHeartsHtml = `<div class="blade-hearts" title="Yell Hearts">${pips}</div>`;
+                        if (pips) bladeHeartsHtml = `<div class="blade-hearts">${pips}</div>`;
                     }
 
                     // Stats
                     const statsHtml = `
-                        <div class="stats">
+                    <div class="stats">
                             <div class="stat-blade">⚔ ${slot.blade || 0}</div>
                             <div class="stat-hp">♥ ${slot.hp || 0}</div>
                         </div>
@@ -1500,41 +1868,19 @@
                     reqHtml += '</div>';
 
                     slot.innerHTML = `${imgHtml}
-                                      <div class="cost" style="background:var(--accent-pink)">${card.score || 0}</div>
+                <div class="cost" style="background:var(--accent-pink)">${card.score || 0}</div>
                                       ${reqHtml}
-                                      <div class="name">${card.name || ''}</div>`;
+                <div class="name">${card.name || ''}</div>`;
                 } else {
                     slot.style.border = '2px dashed #555';
                     slot.style.opacity = '0.5';
                     slot.innerHTML = `<div class="name" style="top:50%;transform:translateY(-50%);">空き ${i + 1}</div>`;
                 }
 
-                // In LIVE_SET phase, clicking empty slot does nothing
-                // Clicking an occupied slot might trigger removal? (For now, no action)
-
                 el.appendChild(slot);
             }
         }
 
-        function renderActions() {
-            const el = document.getElementById('actions');
-            el.innerHTML = '';
-            el.className = 'actions-panel';
-            if (!state.legal_actions) return;
-            state.legal_actions.forEach(a => {
-                const btn = document.createElement('div');
-                btn.className = 'action-item';
-                btn.style.pointerEvents = 'auto'; // Force pointer events
-                btn.textContent = `[${a.id}] ${a.desc}`;
-
-                // Use addEventListener for robustness
-                btn.onclick = () => doAction(a.id);
-                btn.addEventListener('mouseenter', () => highlightAction(a));
-                btn.addEventListener('mouseleave', () => clearHighlight());
-
-                el.appendChild(btn);
-            });
-        }
 
         // Tooltip Logic
         const tooltip = document.createElement('div');
@@ -1545,8 +1891,36 @@
             const card = e.target.closest('.card, .member-slot');
             if (card && card.dataset.text) {
                 let text = card.dataset.text;
-                // Parse text: {{img|alt}} -> <img src="/img/img">
+
+                // 1. Text Replacement for [Keyword] -> Image
+                const iconMap = {
+                    '登場時': 'texticon/toujyou.png',
+                    '自動': 'texticon/jidou.png',
+                    '永続': 'texticon/jyouji.png',
+                    '起動': 'texticon/kidou.png',
+                    'ターン1': 'texticon/turn1.png',
+                    'ライブスタート': 'texticon/live_start.png',
+                    'LIVE START': 'texticon/live_start.png',
+                    'オール': 'texticon/icon_all.png',
+                    'ブレード': 'texticon/icon_blade.png',
+                    'エナジー': 'texticon/icon_energy.png'
+                };
+                for (const [key, path] of Object.entries(iconMap)) {
+                    const regex = new RegExp(`\\[${key}\\]`, 'g');
+                    text = text.replace(regex, `<img src="/img/${path}" alt="${key}">`);
+                }
+
+                // 2. Handle {{img|alt}} format from JSON
                 text = text.replace(/{{(.*?)\|(.*?)}}/g, (match, img, alt) => {
+                    // Fix path if it's one of our known texticons but missing the prefix
+                    if (img.endsWith('.png') && !img.includes('/')) {
+                        // Check if it matches known icons
+                        if (img === 'toujyou.png' || img === 'jidou.png' || img === 'jyouji.png' ||
+                            img === 'kidou.png' || img === 'turn1.png' || img === 'live_start.png' ||
+                            img.startsWith('icon_') || img.startsWith('heart_')) {
+                            return `<img src="/img/texticon/${img}" alt="${alt}">`;
+                        }
+                    }
                     return `<img src="/img/${img}" alt="${alt}">`;
                 });
                 // Simple newlines
@@ -1572,22 +1946,29 @@
         });
 
         function highlightAction(a) {
-            console.log('Highlighting:', a);
+            console.log('[DEBUG] Highlighting action:', a);
             clearHighlight();
+
+            const addHighlight = (id, className) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add(className);
+                    console.log(`[DEBUG] Added ${className} to ${id} `);
+                } else {
+                    console.warn(`[DEBUG] Element NOT FOUND for highlighting: ${id} `);
+                }
+            };
+
             if (a.type === 'PLAY') {
-                const handEl = document.getElementById(`hand-card-${a.hand_idx}`);
-                if (handEl) handEl.classList.add('highlight-source');
-                const stageEl = document.getElementById(`stage-slot-${a.area_idx}`);
-                if (stageEl) stageEl.classList.add('highlight-target');
+                addHighlight(`my-hand-card-${a.hand_idx}`, 'highlight-source');
+                addHighlight(`my-stage-slot-${a.area_idx}`, 'highlight-target');
             } else if (a.type === 'LIVE_SET') {
-                const handEl = document.getElementById(`hand-card-${a.hand_idx}`);
-                if (handEl) handEl.classList.add('highlight-source');
-                // Highlight full live zone
-                const liveEl = document.getElementById('live-zone');
-                if (liveEl) liveEl.classList.add('highlight-target');
+                addHighlight(`my-hand-card-${a.hand_idx}`, 'highlight-source');
+                addHighlight(`my-live`, 'highlight-target');
             } else if (a.type === 'ABILITY') {
-                const stageEl = document.getElementById(`stage-slot-${a.area_idx}`);
-                if (stageEl) stageEl.classList.add('highlight-source');
+                addHighlight(`my-stage-slot-${a.area_idx}`, 'highlight-source');
+            } else if (a.type === 'MULLIGAN') {
+                addHighlight(`my-hand-card-${a.hand_idx}`, 'highlight-source');
             }
         }
 
@@ -1597,7 +1978,7 @@
         }
 
         async function doAction(id) {
-            log(`Action: ${id}`);
+            log(`Action: ${id} `);
             const res = await fetch('/api/action', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1615,7 +1996,7 @@
 
         async function forceAction() {
             const id = parseInt(document.getElementById('force-id').value);
-            log(`Force action: ${id}`);
+            log(`Force action: ${id} `);
             const res = await fetch('/api/action', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1650,7 +2031,7 @@
 
                 if (!res.ok) {
                     const errorText = await res.text();
-                    log(`Reset failed: ${res.status} - ${errorText}`);
+                    log(`Reset failed: ${res.status} - ${errorText} `);
                     console.error('Reset error:', errorText);
                     return;
                 }
@@ -1661,16 +2042,198 @@
                     render();
                     log('New game started');
                 } else {
-                    log(`Reset failed: ${data.error || 'Unknown error'}`);
+                    log(`Reset failed: ${data.error || 'Unknown error'} `);
                 }
             } catch (error) {
-                log(`Reset error: ${error.message}`);
+                log(`Reset error: ${error.message} `);
                 console.error('Reset exception:', error);
+            }
+        }
+
+        // ===== REPLAY SYSTEM =====
+        let replayMode = false;
+        let replayData = null;
+        let currentFrame = 0;
+        let playInterval = null;
+
+        window.toggleReplayMode = function () {
+            replayMode = !replayMode;
+            const controls = document.getElementById('replay-controls');
+            if (controls) controls.style.display = replayMode ? 'flex' : 'none';
+            if (!replayMode && playInterval) stopPlay();
+        };
+
+        window.loadReplay = async function () {
+            const filename = document.getElementById('replay-file')?.value || 'game_14.json';
+            try {
+                const res = await fetch(`/ api / replay / ${filename} `);
+                replayData = await res.json();
+                currentFrame = 0;
+                const totalEl = document.getElementById('total-frames');
+                if (totalEl) totalEl.textContent = replayData.states.length;
+                displayReplayFrame();
+                log(`Loaded: Game ${replayData.game_id + 1}, Winner: ${replayData.winner}, ${replayData.states.length} frames`);
+            } catch (e) {
+                log('Failed to load replay: ' + e.message);
+            }
+        };
+
+        function displayReplayFrame() {
+            if (!replayData || currentFrame >= replayData.states.length) return;
+            const frame = replayData.states[currentFrame];
+            const frameEl = document.getElementById('frame-num');
+            if (frameEl) frameEl.textContent = currentFrame;
+
+            // If we have full state data, render it completely
+            if (frame.players && frame.players.length >= 2) {
+                state = frame; // Set global state to the replay frame
+                render(); // Use the existing render function
+                log(`Frame ${currentFrame}: T${frame.turn} ${frame.phase} P${frame.current_player} (Act: ${frame.action_taken || 0
+                    })`);
+            } else {
+                // Fallback to minimal display
+                document.getElementById('turn').textContent = frame.turn;
+                document.getElementById('phase').textContent = frame.phase_name || frame.phase;
+                document.getElementById('score').textContent = `${frame.p0_score} - ${frame.p1_score} `;
+                log(`Frame ${currentFrame}: T${frame.turn} ${frame.phase_name} ${frame.p0_score} -${frame.p1_score}`);
+            }
+        }
+
+        window.replayPrev = function () {
+            if (currentFrame > 0) { currentFrame--; displayReplayFrame(); }
+        };
+
+        window.replayNext = function () {
+            if (replayData && currentFrame < replayData.states.length - 1) {
+                currentFrame++; displayReplayFrame();
+            } else if (playInterval) stopPlay();
+        };
+
+        window.togglePlay = function () {
+            playInterval ? stopPlay() : startPlay();
+        };
+
+        function startPlay() {
+            const btn = document.getElementById('play-btn');
+            if (btn) btn.textContent = '⏸ Pause';
+            playInterval = setInterval(window.replayNext, 500);
+        }
+
+        function stopPlay() {
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+                const btn = document.getElementById('play-btn');
+                if (btn) btn.textContent = '▶ Play';
+            }
+        }
+
+        async function forceAdvance() {
+            log('Forcing advance...');
+            try {
+                const res = await fetch('/api/advance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await res.json();
+                if (data.success) {
+                    state = data.state;
+                    render();
+                    log('Advance complete');
+                } else {
+                    log('Advance error: ' + data.error);
+                }
+            } catch (e) {
+                log('Advance failed: ' + e.message);
             }
         }
 
         // Initialize
         fetchState();
+    </script>
+
+    <!-- Reporting Modal -->
+    <div id="report-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Report Issue / Save State</div>
+                <button class="btn" onclick="closeReportModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.85rem; color: var(--text-dim);">
+                    Describe what happened or the failure point. The current game state and your last few actions will
+                    be saved for debugging.
+                </p>
+                <textarea id="report-explanation" class="report-textarea"
+                    placeholder="Explain the issue here..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeReportModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitReport()">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Extended logic for reporting
+        let actionHistory = [];
+
+        window.openReportModal = function () {
+            document.getElementById('report-modal').style.display = 'flex';
+            document.getElementById('report-explanation').focus();
+        };
+
+        window.closeReportModal = function () {
+            document.getElementById('report-modal').style.display = 'none';
+        };
+
+        window.submitReport = async function () {
+            const explanation = document.getElementById('report-explanation').value;
+            if (!explanation.trim()) {
+                alert("Please provide an explanation.");
+                return;
+            }
+
+            log("Submitting report...");
+            try {
+                const res = await fetch('/api/report_issue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        explanation: explanation,
+                        state: state,
+                        history: actionHistory
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    log(`Report saved: ${data.filename} `);
+                    alert(`Report saved successfully to ${data.filename}. Thank you!`);
+                    closeReportModal();
+                } else {
+                    log(`Report failed: ${data.error} `);
+                    alert(`Failed to save report: ${data.error} `);
+                }
+            } catch (e) {
+                log(`Report error: ${e.message} `);
+                alert(`Error submitting report: ${e.message}`);
+            }
+        };
+
+        // Update doAction to track history
+        const originalDoAction = window.doAction;
+        window.doAction = async function (id) {
+            actionHistory.push({
+                action_id: id,
+                timestamp: new Date().toISOString(),
+                phase: state ? state.phase : 'unknown'
+            });
+            // Keep only last 50 actions
+            if (actionHistory.length > 50) actionHistory.shift();
+
+            return originalDoAction(id);
+        };
     </script>
 </body>
 

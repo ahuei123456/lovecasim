@@ -1,0 +1,27 @@
+EF
+======================================================================
+ERROR: test_look_deck (__main__.TestHandMechanics.test_look_deck)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigravity\scratch\loveca-copy\game\tests_mechanics_hand.py", line 88, in test_look_deck
+    look_eff = next(e for e in effects if e.effect_type == EffectType.LOOK_DECK)
+StopIteration
+
+======================================================================
+FAIL: test_swap_cards_draw_discard (__main__.TestHandMechanics.test_swap_cards_draw_discard)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigravity\scratch\loveca-copy\game\tests_mechanics_hand.py", line 56, in test_swap_cards_draw_discard
+    self.assertEqual(len(self.p0.hand), initial_hand + 2)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 != 5
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.006s
+
+FAILED (failures=1, errors=1)
+DEBUG: Effect 0: Type=0, Value=2, Params={}
+DEBUG: Effect 1: Type=11, Value=1, Params={'target': 'discard', 'from': 'hand'}
+DEBUG: GameState attributes: ['_resolve_pending_effect']
+DEBUG: _resolve_pending_effect called. Effects: 1
+DEBUG: Executing Draw for 2 cards

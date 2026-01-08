@@ -1,0 +1,147 @@
+{
+  "timestamp": "20260108_044309_051593",
+  "game_id": 27,
+  "error": "name 'params' is not defined",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\tools\\stress_test_game.py\", line 135, in run_single_game_stress\n    state = state.step(action)\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 619, in step\n    new_state._process_rule_checks()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 738, in _process_rule_checks\n    self._play_automatic_ability(pid, ab, ctx)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 749, in _play_automatic_ability\n    if not self._check_condition(p, cond, context):\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\trios\\.gemini\\antigravity\\scratch\\loveca-copy\\game\\game_state.py\", line 1088, in _check_condition\n    met = (params.get('answer') == cond.params.get('answer'))\n           ^^^^^^\nNameError: name 'params' is not defined\n",
+  "history": [
+    {
+      "action": 302,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 1
+    },
+    {
+      "action": 303,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MULLIGAN_P1",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MULLIGAN_P2",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "ACTIVE",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "ENERGY",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "DRAW",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 1
+    },
+    {
+      "action": 5,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 201,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 660,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 500,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 16,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 200,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 660,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 505,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "MAIN",
+      "player": 0
+    },
+    {
+      "action": 406,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 1
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 1
+    },
+    {
+      "action": 401,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 400,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "LIVE_SET",
+      "player": 0
+    },
+    {
+      "action": 0,
+      "turn": 1,
+      "phase": "PERFORMANCE_P2",
+      "player": 1
+    }
+  ],
+  "turn": 1
+}

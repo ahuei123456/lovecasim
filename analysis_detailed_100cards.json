@@ -1,0 +1,4810 @@
+{
+  "total_analyzed": 100,
+  "effect_usage": {
+    "RECOVER_LIVE": 12,
+    "SWAP_CARDS": 95,
+    "ADD_BLADES": 24,
+    "BUFF_POWER": 15,
+    "RECOVER_MEMBER": 11,
+    "ADD_HEARTS": 10,
+    "LOOK_DECK": 26,
+    "LOOK_AND_CHOOSE": 26,
+    "REVEAL_CARDS": 10,
+    "ADD_TO_HAND": 19,
+    "SWAP_ZONE": 2,
+    "DRAW": 16,
+    "BOOST_SCORE": 2,
+    "ORDER_DECK": 10,
+    "ACTIVATE_MEMBER": 8,
+    "SELECT_MODE": 3,
+    "TAP_OPPONENT": 4,
+    "CHEER_REVEAL": 2,
+    "ENERGY_CHARGE": 7,
+    "META_RULE": 3,
+    "FLAVOR_ACTION": 1,
+    "SET_BLADES": 4
+  },
+  "condition_usage": {
+    "COUNT_STAGE": 5,
+    "GROUP_FILTER": 14,
+    "HAS_LIVE_CARD": 1,
+    "TURN_1": 15,
+    "COUNT_GROUP": 1,
+    "OPPONENT_HAS": 3,
+    "COUNT_ENERGY": 3,
+    "MODAL_ANSWER": 3
+  },
+  "trigger_usage": {
+    "ON_PLAY": 62,
+    "CONSTANT": 9,
+    "ACTIVATED": 60,
+    "ON_LIVE_START": 26,
+    "ON_LIVE_SUCCESS": 1,
+    "ON_LEAVES": 2
+  },
+  "cards": [
+    {
+      "card_no": "PL!-sd1-001-SD",
+      "name": "高坂 穂乃果",
+      "ability_text": "{{toujyou.png|登場}}自分の成功ライブカード置き場にカードが2枚以上ある場合、自分の控え室からライブカードを1枚手札に加える。\n{{jyouji.png|常時}}自分の成功ライブカード置き場にあるカード1枚につき、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "COUNT_STAGE",
+              {
+                "count": 2,
+                "zone": "SUCCESS_LIVE"
+              }
+            ],
+            [
+              "COUNT_STAGE",
+              {
+                "min": 2,
+                "zone": "SUCCESS_LIVE"
+              }
+            ]
+          ],
+          "costs": []
+        },
+        {
+          "trigger": "CONSTANT",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {}
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true,
+                "per_live": true
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-002-SD",
+      "name": "絢瀬 絵里",
+      "ability_text": "{{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からメンバーカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "SACRIFICE_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-003-SD",
+      "name": "南 ことり",
+      "ability_text": "{{toujyou.png|登場}}自分の控え室からコスト4以下の『μ's』のメンバーカードを1枚手札に加える。\n{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：{{heart_01.png|heart01}}か{{heart_03.png|heart03}}か{{heart_06.png|heart06}}のうち、1つを選ぶ。ライブ終了時まで、選んだハートを1つ得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "to": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "μ's",
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": []
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-004-SD",
+      "name": "園田 海未",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを5枚見る。その中から『μ's』のライブカードを1枚公開して手札に加えてもよい。残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              5,
+              {}
+            ],
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "μ's",
+                "zone": "HAND"
+              }
+            ]
+          ],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-005-SD",
+      "name": "星空 凛",
+      "ability_text": "{{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からライブカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "SACRIFICE_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-006-SD",
+      "name": "西木野 真姫",
+      "ability_text": "{{toujyou.png|登場}}手札のライブカードを1枚公開してもよい：自分の成功ライブカード置き場にあるカードを1枚手札に加える。そうした場合、これにより公開したカードを自分の成功ライブカード置き場に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "success_live"
+              }
+            ],
+            [
+              "SWAP_ZONE",
+              1,
+              {}
+            ],
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "SWAP_ZONE",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-007-SD",
+      "name": "東條 希",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを5枚控え室に置く。それらの中にライブカードがある場合、カードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              5,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "DRAW",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "HAS_LIVE_CARD",
+              {}
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-008-SD",
+      "name": "小泉 花陽",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}：自分のデッキの上からカードを10枚控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              10,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-009-SD",
+      "name": "矢澤 にこ",
+      "ability_text": "{{live_start.png|ライブ開始時}}自分の控え室に『μ's』のカードが25枚以上ある場合、ライブ終了時まで、「{{jyouji.png|常時}}ライブの合計スコアを＋１する。」を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "CONSTANT",
+          "effects": [
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "until": "live_end",
+                "temporary": true
+              }
+            ],
+            [
+              "BOOST_SCORE",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "COUNT_GROUP",
+              {
+                "group": "μ's",
+                "min": 25,
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-011-SD",
+      "name": "絢瀬 絵里",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-012-SD",
+      "name": "南 ことり",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-015-SD",
+      "name": "西木野 真姫",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを5枚見る。その中からメンバーカードを1枚公開して手札に加えてもよい。残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              5,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-016-SD",
+      "name": "東條 希",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-019-SD",
+      "name": "START:DASH!!",
+      "ability_text": "{{live_success.png|ライブ成功時}}自分のデッキの上からカードを3枚見る。その中から好きな枚数を好きな順番でデッキの上に置き、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_SUCCESS",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-sd1-022-SD",
+      "name": "僕らは今のなかで",
+      "ability_text": "{{live_start.png|ライブ開始時}}自分の成功ライブカード置き場にあるカード1枚につき、このカードを成功させるための必要ハートは{{heart_00.png|heart0}}{{heart_00.png|heart0}}少なくなる。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true,
+                "per_live": true
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-bp3-012-PR",
+      "name": "南 ことり",
+      "ability_text": "{{live_start.png|ライブ開始時}}{{heart_01.png|heart01}}か{{heart_03.png|heart03}}か{{heart_06.png|heart06}}のうち、1つを選ぶ。ライブ終了時まで、自分の成功ライブカード置き場にあるカード1枚につき、選んだハートを1つ得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true,
+                "per_live": true,
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-PR-001-PR",
+      "name": "高坂穂乃果",
+      "ability_text": "{{jidou.png|自動}}このメンバーがステージから控え室に置かれたとき、メンバー1人をアクティブにしてもよい。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LEAVES",
+          "effects": [
+            [
+              "ACTIVATE_MEMBER",
+              1,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-PR-002-PR",
+      "name": "絢瀬絵里",
+      "ability_text": "{{jidou.png|自動}}このメンバーがステージから控え室に置かれたとき、メンバー1人をアクティブにしてもよい。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LEAVES",
+          "effects": [
+            [
+              "ACTIVATE_MEMBER",
+              1,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-PR-003-PR",
+      "name": "南ことり",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の控え室から必要ハートに{{heart_03.png|heart03}}を3以上含むライブカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand",
+                "filter": "heart_req"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              2,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-PR-004-PR",
+      "name": "園田海未",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を2枚控え室に置く：自分の控え室から必要ハートに{{heart_01.png|heart01}}を3以上含むライブカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand",
+                "filter": "heart_req"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              2,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-PR-005-PR",
+      "name": "星空 凛",
+      "ability_text": "{{toujyou.png|登場}}以下から1つを選ぶ。\n・カードを1枚引き、手札を1枚控え室に置く。\n・相手のステージにいるすべてのコスト2以下のメンバーをウェイトにする。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "SELECT_MODE",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-PR-006-PR",
+      "name": "西木野真姫",
+      "ability_text": "{{toujyou.png|登場}}以下から1つを選ぶ。\n・カードを1枚引き、手札を1枚控え室に置く。\n・相手のステージにいるすべてのコスト2以下のメンバーをウェイトにする。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "SELECT_MODE",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-PR-007-PR",
+      "name": "東條 希",
+      "ability_text": "{{toujyou.png|登場}}/{{live_start.png|ライブ開始時}}このメンバーをウェイトにしてもよい：相手のステージにいるコスト4以下のメンバー1人をウェイトにする。（ウェイト状態のメンバーが持つ{{icon_blade.png|ブレード}}は、エールで公開する枚数を増やさない。）",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "TAP_OPPONENT",
+              1,
+              {}
+            ],
+            [
+              "TAP_OPPONENT",
+              1,
+              {}
+            ],
+            [
+              "CHEER_REVEAL",
+              1,
+              {}
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true,
+                "per_member": true
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "TAP_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-PR-008-PR",
+      "name": "小泉花陽",
+      "ability_text": "{{toujyou.png|登場}}以下から1つを選ぶ。\n・カードを1枚引き、手札を1枚控え室に置く。\n・相手のステージにいるすべてのコスト2以下のメンバーをウェイトにする。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "SELECT_MODE",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!-PR-009-PR",
+      "name": "矢澤にこ",
+      "ability_text": "{{toujyou.png|登場}}/{{live_start.png|ライブ開始時}}このメンバーをウェイトにしてもよい：相手のステージにいるコスト4以下のメンバー1人をウェイトにする。（ウェイト状態のメンバーが持つ{{icon_blade.png|ブレード}}は、エールで公開する枚数を増やさない。）",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "TAP_OPPONENT",
+              1,
+              {}
+            ],
+            [
+              "TAP_OPPONENT",
+              1,
+              {}
+            ],
+            [
+              "CHEER_REVEAL",
+              1,
+              {}
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true,
+                "per_member": true
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "TAP_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-013-PR",
+      "name": "高海千歌",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-016-PR",
+      "name": "黒澤ダイヤ",
+      "ability_text": "{{toujyou.png|登場}}ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-019-PR",
+      "name": "国木田花丸",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-020-PR",
+      "name": "小原鞠莉",
+      "ability_text": "{{toujyou.png|登場}}ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-021-PR",
+      "name": "黒澤ルビィ",
+      "ability_text": "{{toujyou.png|登場}}ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-025-PR",
+      "name": "高海千歌",
+      "ability_text": "{{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からメンバーカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "SACRIFICE_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-026-PR",
+      "name": "桜内梨子",
+      "ability_text": "{{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からライブカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "SACRIFICE_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-027-PR",
+      "name": "松浦果南",
+      "ability_text": "{{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からメンバーカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "SACRIFICE_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-028-PR",
+      "name": "黒澤ダイヤ",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを3枚見る。その中から好きな枚数を好きな順番でデッキの上に置き、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-029-PR",
+      "name": "渡辺 曜",
+      "ability_text": "{{jyouji.png|常時}}自分か相手のステージにコスト13以上のメンバーがいる場合、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "CONSTANT",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "OPPONENT_HAS",
+              {}
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-030-PR",
+      "name": "津島善子",
+      "ability_text": "{{jyouji.png|常時}}自分か相手のステージにコスト13以上のメンバーがいる場合、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "CONSTANT",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "OPPONENT_HAS",
+              {}
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-031-PR",
+      "name": "国木田花丸",
+      "ability_text": "{{jyouji.png|常時}}自分か相手のステージにコスト13以上のメンバーがいる場合、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "CONSTANT",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "OPPONENT_HAS",
+              {}
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-032-PR",
+      "name": "小原鞠莉",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを3枚見る。その中から好きな枚数を好きな順番でデッキの上に置き、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!S-PR-033-PR",
+      "name": "黒澤ルビィ",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを3枚見る。その中から好きな枚数を好きな順番でデッキの上に置き、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-019-PR",
+      "name": "優木せつ菜",
+      "ability_text": "{{toujyou.png|登場}}カードを1枚引き、手札を1枚控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "DRAW",
+              1,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-003-PR",
+      "name": "上原歩夢",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札をすべて公開する：自分のステージにほかのメンバーがおり、かつこれにより公開した手札の中にライブカードがない場合、自分のデッキの上からカードを5枚見る。その中からライブカードを1枚公開して手札に加えてもよい。残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_DECK",
+              5,
+              {}
+            ],
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-004-PR",
+      "name": "中須かすみ",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-005-PR",
+      "name": "桜坂しずく",
+      "ability_text": "{{toujyou.png|登場}}カードを2枚引き、手札を2枚控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "DRAW",
+              2,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              2,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-006-PR",
+      "name": "朝香果林",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-007-PR",
+      "name": "宮下 愛",
+      "ability_text": "{{toujyou.png|登場}}カードを2枚引き、手札を2枚控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "DRAW",
+              2,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              2,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-008-PR",
+      "name": "近江彼方",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札をすべて公開する：自分のステージにほかのメンバーがおり、かつこれにより公開した手札の中にライブカードがない場合、自分のデッキの上からカードを5枚見る。その中からライブカードを1枚公開して手札に加えてもよい。残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_DECK",
+              5,
+              {}
+            ],
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-009-PR",
+      "name": "優木せつ菜",
+      "ability_text": "{{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からライブカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "SACRIFICE_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-010-PR",
+      "name": "エマ・ヴェルデ",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札をすべて公開する：自分のステージにほかのメンバーがおり、かつこれにより公開した手札の中にライブカードがない場合、自分のデッキの上からカードを5枚見る。その中からライブカードを1枚公開して手札に加えてもよい。残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_DECK",
+              5,
+              {}
+            ],
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "REVEAL_CARDS",
+              1,
+              {}
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-011-PR",
+      "name": "天王寺璃奈",
+      "ability_text": "{{toujyou.png|登場}}カードを2枚引き、手札を2枚控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "DRAW",
+              2,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              2,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-012-PR",
+      "name": "三船栞子",
+      "ability_text": "{{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からライブカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "SACRIFICE_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-013-PR",
+      "name": "ミア・テイラー",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-PR-014-PR",
+      "name": "鐘 嵐珠",
+      "ability_text": "{{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からライブカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "SACRIFICE_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!SP-PR-003-PR",
+      "name": "澁谷かのん",
+      "ability_text": "{{toujyou.png|登場}}自分のエネルギーが7枚以上ある場合、カードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "DRAW",
+              7,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "COUNT_STAGE",
+              {
+                "min": 7
+              }
+            ],
+            [
+              "COUNT_ENERGY",
+              {
+                "min": 7
+              }
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!SP-PR-004-PR",
+      "name": "唐 可可",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ENERGY_CHARGE",
+              1,
+              {
+                "from": "deck"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!SP-PR-006-PR",
+      "name": "平安名すみれ",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ENERGY_CHARGE",
+              1,
+              {
+                "from": "deck"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!SP-PR-007-PR",
+      "name": "葉月 恋",
+      "ability_text": "{{toujyou.png|登場}}自分のエネルギーが7枚以上ある場合、カードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "DRAW",
+              7,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "COUNT_STAGE",
+              {
+                "min": 7
+              }
+            ],
+            [
+              "COUNT_ENERGY",
+              {
+                "min": 7
+              }
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!SP-PR-009-PR",
+      "name": "米女メイ",
+      "ability_text": "{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。これによりライブカードを控え室に置いた場合、さらにカードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "DRAW",
+              1,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!SP-PR-010-PR",
+      "name": "若菜四季",
+      "ability_text": "{{toujyou.png|登場}}自分のエネルギーが7枚以上ある場合、カードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "DRAW",
+              7,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "COUNT_STAGE",
+              {
+                "min": 7
+              }
+            ],
+            [
+              "COUNT_ENERGY",
+              {
+                "min": 7
+              }
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!SP-PR-011-PR",
+      "name": "鬼塚夏美",
+      "ability_text": "{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。これによりライブカードを控え室に置いた場合、さらにカードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "DRAW",
+              1,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!SP-PR-012-PR",
+      "name": "ウィーン・マルガレーテ",
+      "ability_text": "{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。これによりライブカードを控え室に置いた場合、さらにカードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "DRAW",
+              1,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!SP-PR-013-PR",
+      "name": "鬼塚冬毬",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ENERGY_CHARGE",
+              1,
+              {
+                "from": "deck"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-bp2-011-PR",
+      "name": "村野さやか",
+      "ability_text": "{{toujyou.png|登場}}デッキの上からカードを5枚控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              5,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-001-PR",
+      "name": "日野下花帆",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。\n{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-002-PR",
+      "name": "村野さやか",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。\n{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-005-PR",
+      "name": "大沢瑠璃乃",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。\n{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-010-PR",
+      "name": "Reflection in the mirror",
+      "ability_text": "(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)",
+      "parsed_abilities": [
+        {
+          "trigger": "CONSTANT",
+          "effects": [
+            [
+              "META_RULE",
+              0,
+              {
+                "type": "heart_rule"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-011-PR",
+      "name": "Sparkly Spot",
+      "ability_text": "(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)",
+      "parsed_abilities": [
+        {
+          "trigger": "CONSTANT",
+          "effects": [
+            [
+              "META_RULE",
+              0,
+              {
+                "type": "heart_rule"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-012-PR",
+      "name": "アイデンティティ",
+      "ability_text": "(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)",
+      "parsed_abilities": [
+        {
+          "trigger": "CONSTANT",
+          "effects": [
+            [
+              "META_RULE",
+              0,
+              {
+                "type": "heart_rule"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-014-PR",
+      "name": "日野下花帆",
+      "ability_text": "{{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からメンバーカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "SACRIFICE_SELF",
+              0
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-016-PR",
+      "name": "日野下花帆",
+      "ability_text": "{{live_start.png|ライブ開始時}}手札の同じユニット名を持つカード2枚を控え室に置いてもよい：ライブ終了時まで、{{heart_04.png|heart04}}{{heart_04.png|heart04}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              2,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-017-PR",
+      "name": "村野さやか",
+      "ability_text": "{{live_start.png|ライブ開始時}}手札の同じユニット名を持つカード2枚を控え室に置いてもよい：ライブ終了時まで、{{heart_05.png|heart05}}{{heart_05.png|heart05}}{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              2,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-018-PR",
+      "name": "大沢瑠璃乃",
+      "ability_text": "{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-019-PR",
+      "name": "百生 吟子",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを3枚控え室に置く。それらがすべて{{heart_04.png|heart04}}を持つメンバーカードの場合、ライブ終了時まで、{{heart_04.png|heart04}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              3,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "heart04を持つメンバーカード",
+                "context": "revealed"
+              }
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-020-PR",
+      "name": "徒町 小鈴",
+      "ability_text": "{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：自分の控え室にあるメンバーカード2枚を好きな順番でデッキの一番上に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              2,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {
+                "filter": "live"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-021-PR",
+      "name": "安養寺 姫芽",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを3枚控え室に置く。それらがすべて{{heart_01.png|heart01}}を持つメンバーカードの場合、ライブ終了時まで、{{heart_01.png|heart01}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              3,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "heart01を持つメンバーカード",
+                "context": "revealed"
+              }
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-022-PR",
+      "name": "桂城 泉",
+      "ability_text": "{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：自分の控え室にあるメンバーカード2枚を好きな順番でデッキの一番上に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "SWAP_CARDS",
+              2,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {
+                "filter": "live"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!HS-PR-023-PR",
+      "name": "セラス 柳田 リリエンフェルト",
+      "ability_text": "{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "LL-PR-004-PR",
+      "name": "愛♡スクリ～ム！",
+      "ability_text": "{{live_start.png|ライブ開始時}}相手に何が好き？と聞く。\n回答がチョコミントかストロベリーフレイバーかクッキー＆クリームの場合、自分と相手は手札を1枚控え室に置く。\n回答があなたの場合、自分と相手はカードを1枚引く。\n回答がそれ以外の場合、ライブ終了時まで、自分と相手のステージにいるメンバーは{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "FLAVOR_ACTION",
+              1,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ],
+            [
+              "DRAW",
+              1,
+              {}
+            ],
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "MODAL_ANSWER",
+              {
+                "answer": "チョコミントかストロベリーフレイバーかクッキー＆クリーム"
+              }
+            ],
+            [
+              "MODAL_ANSWER",
+              {
+                "answer": "あなた"
+              }
+            ],
+            [
+              "MODAL_ANSWER",
+              {
+                "answer": "それ以外"
+              }
+            ]
+          ],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "LL-bp1-001-R＋",
+      "name": "上原歩夢&澁谷かのん&日野下花帆",
+      "ability_text": "{{toujyou.png|登場}}自分の控え室からメンバーカードを1枚手札に加える。\n{{live_start.png|ライブ開始時}}手札の「上原歩夢」と「澁谷かのん」と「日野下花帆」を、好きな組み合わせで合計3枚、控え室に置いてもよい：ライブ終了時まで、「{{jyouji.png|常時}}ライブの合計スコアを＋３する。」を得る。\n（手札のこのカードもこの効果で控え室に置ける。）",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "to": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "CONSTANT",
+          "effects": [
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "until": "live_end",
+                "temporary": true
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              3,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ],
+            [
+              "BOOST_SCORE",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-001-R",
+      "name": "上原歩夢",
+      "ability_text": "{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-001-P",
+      "name": "上原歩夢",
+      "ability_text": "{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-002-R＋",
+      "name": "中須かすみ",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを3枚見る。その中から好きな枚数を好きな順番でデッキの上に置き、残りを控え室に置く。\n{{kidou.png|起動}}{{icon_energy.png|E}}{{icon_energy.png|E}}手札を1枚控え室に置く：このカードを控え室からステージに登場させる。この能力は、このカードが控え室にある場合のみ起動できる。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "auto_play": true,
+                "from": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ],
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-002-P",
+      "name": "中須かすみ",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを3枚見る。その中から好きな枚数を好きな順番でデッキの上に置き、残りを控え室に置く。\n{{kidou.png|起動}}{{icon_energy.png|E}}{{icon_energy.png|E}}手札を1枚控え室に置く：このカードを控え室からステージに登場させる。この能力は、このカードが控え室にある場合のみ起動できる。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "auto_play": true,
+                "from": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ],
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-002-P＋",
+      "name": "中須かすみ",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを3枚見る。その中から好きな枚数を好きな順番でデッキの上に置き、残りを控え室に置く。\n{{kidou.png|起動}}{{icon_energy.png|E}}{{icon_energy.png|E}}手札を1枚控え室に置く：このカードを控え室からステージに登場させる。この能力は、このカードが控え室にある場合のみ起動できる。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "auto_play": true,
+                "from": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ],
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-002-SEC",
+      "name": "中須かすみ",
+      "ability_text": "{{toujyou.png|登場}}自分のデッキの上からカードを3枚見る。その中から好きな枚数を好きな順番でデッキの上に置き、残りを控え室に置く。\n{{kidou.png|起動}}{{icon_energy.png|E}}{{icon_energy.png|E}}手札を1枚控え室に置く：このカードを控え室からステージに登場させる。この能力は、このカードが控え室にある場合のみ起動できる。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "BUFF_POWER",
+              1,
+              {
+                "multiplier": true
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ],
+            [
+              "ORDER_DECK",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        },
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "auto_play": true,
+                "from": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ],
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-003-R＋",
+      "name": "桜坂しずく",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分の控え室から『虹ヶ咲』のライブカードを1枚手札に加える。\n{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：好きなハートの色を1つ指定する。ライブ終了時まで、そのハートを1つ得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "SET_BLADES",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-003-P",
+      "name": "桜坂しずく",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分の控え室から『虹ヶ咲』のライブカードを1枚手札に加える。\n{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：好きなハートの色を1つ指定する。ライブ終了時まで、そのハートを1つ得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "SET_BLADES",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-003-P＋",
+      "name": "桜坂しずく",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分の控え室から『虹ヶ咲』のライブカードを1枚手札に加える。\n{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：好きなハートの色を1つ指定する。ライブ終了時まで、そのハートを1つ得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "SET_BLADES",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-003-SEC",
+      "name": "桜坂しずく",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分の控え室から『虹ヶ咲』のライブカードを1枚手札に加える。\n{{live_start.png|ライブ開始時}}{{icon_energy.png|E}}支払ってもよい：好きなハートの色を1つ指定する。ライブ終了時まで、そのハートを1つ得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "RECOVER_LIVE",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "SET_BLADES",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "ENERGY",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "ADD_HEARTS",
+              1,
+              {
+                "until": "live_end"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-004-R",
+      "name": "朝香果林",
+      "ability_text": "{{toujyou.png|登場}}自分のステージにほかの『虹ヶ咲』のメンバーがいる場合、エネルギーを1枚アクティブにする。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ACTIVATE_MEMBER",
+              1,
+              {
+                "target": "energy"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "STAGE"
+              }
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-004-P",
+      "name": "朝香果林",
+      "ability_text": "{{toujyou.png|登場}}自分のステージにほかの『虹ヶ咲』のメンバーがいる場合、エネルギーを1枚アクティブにする。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ACTIVATE_MEMBER",
+              1,
+              {
+                "target": "energy"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "STAGE"
+              }
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-005-R",
+      "name": "宮下 愛",
+      "ability_text": "{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-005-P",
+      "name": "宮下 愛",
+      "ability_text": "{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_LIVE_START",
+          "effects": [
+            [
+              "ADD_BLADES",
+              1,
+              {
+                "until": "live_end"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-006-R＋",
+      "name": "近江彼方",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を1枚控え室に置く：このターン、自分のステージに『虹ヶ咲』のメンバーが登場している場合、エネルギーを2枚アクティブにする。\n{{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}：カードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ENERGY_CHARGE",
+              1,
+              {}
+            ],
+            [
+              "ACTIVATE_MEMBER",
+              1,
+              {
+                "target": "energy"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ],
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "DRAW",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-006-P",
+      "name": "近江彼方",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を1枚控え室に置く：このターン、自分のステージに『虹ヶ咲』のメンバーが登場している場合、エネルギーを2枚アクティブにする。\n{{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}：カードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ENERGY_CHARGE",
+              1,
+              {}
+            ],
+            [
+              "ACTIVATE_MEMBER",
+              1,
+              {
+                "target": "energy"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ],
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "DRAW",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-006-P＋",
+      "name": "近江彼方",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を1枚控え室に置く：このターン、自分のステージに『虹ヶ咲』のメンバーが登場している場合、エネルギーを2枚アクティブにする。\n{{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}：カードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ENERGY_CHARGE",
+              1,
+              {}
+            ],
+            [
+              "ACTIVATE_MEMBER",
+              1,
+              {
+                "target": "energy"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ],
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "DRAW",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-006-SEC",
+      "name": "近江彼方",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札を1枚控え室に置く：このターン、自分のステージに『虹ヶ咲』のメンバーが登場している場合、エネルギーを2枚アクティブにする。\n{{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}：カードを1枚引く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "ENERGY_CHARGE",
+              1,
+              {}
+            ],
+            [
+              "ACTIVATE_MEMBER",
+              1,
+              {
+                "target": "energy"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ],
+            [
+              "GROUP_FILTER",
+              {
+                "group": "虹ヶ咲",
+                "zone": "DISCARD"
+              }
+            ]
+          ],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "DRAW",
+              1,
+              {}
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": [
+            [
+              "ENERGY",
+              2
+            ]
+          ]
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-007-R",
+      "name": "優木せつ菜",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-007-P",
+      "name": "優木せつ菜",
+      "ability_text": "{{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを3枚見る。その中から1枚を手札に加え、残りを控え室に置く。",
+      "parsed_abilities": [
+        {
+          "trigger": "ON_PLAY",
+          "effects": [
+            [
+              "LOOK_DECK",
+              3,
+              {}
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "deck"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": [
+            [
+              "DISCARD_HAND",
+              1
+            ]
+          ]
+        },
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "LOOK_AND_CHOOSE",
+              1,
+              {
+                "source": "looked"
+              }
+            ],
+            [
+              "ADD_TO_HAND",
+              1,
+              {
+                "to": "hand",
+                "from": "discard"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    },
+    {
+      "card_no": "PL!N-bp1-008-R",
+      "name": "エマ・ヴェルデ",
+      "ability_text": "{{kidou.png|起動}}{{turn1.png|ターン1回}}手札のメンバーカードを1枚控え室に置く：自分の控え室から、これにより控え室に置いたメンバーカードより、コストの低いメンバーカードを1枚手札に加える。",
+      "parsed_abilities": [
+        {
+          "trigger": "ACTIVATED",
+          "effects": [
+            [
+              "RECOVER_MEMBER",
+              1,
+              {
+                "to": "hand"
+              }
+            ],
+            [
+              "SWAP_CARDS",
+              1,
+              {
+                "target": "discard",
+                "from": "hand"
+              }
+            ]
+          ],
+          "conditions": [
+            [
+              "TURN_1",
+              {}
+            ]
+          ],
+          "costs": []
+        }
+      ],
+      "missing_handlers": [],
+      "notes": []
+    }
+  ]
+}

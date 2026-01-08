@@ -1,0 +1,162 @@
+Total cards: 1329
+
+================================================================================
+
+### SAMPLE BY TRIGGER TYPE ###
+
+
+## ACTIVATED (97 cards)
+
+PL!-sd1-002-SD - 絢瀬 絵里
+Text: {{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からメンバーカードを1枚手札に加える。...
+Effects: ['RECOVER_MEMBER', 'SWAP_CARDS']
+
+PL!-sd1-005-SD - 星空 凛
+Text: {{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からライブカードを1枚手札に加える。...
+Effects: ['RECOVER_LIVE', 'SWAP_CARDS']
+
+PL!-sd1-008-SD - 小泉 花陽
+Text: {{kidou.png|起動}}{{turn1.png|ターン1回}}{{icon_energy.png|E}}{{icon_energy.png|E}}：自分のデッキの上からカードを10枚控え室に置く。...
+Effects: ['SWAP_CARDS']
+
+## CONSTANT (80 cards)
+
+PL!-sd1-009-SD - 矢澤 にこ
+Text: {{live_start.png|ライブ開始時}}自分の控え室に『μ's』のカードが25枚以上ある場合、ライブ終了時まで、「{{jyouji.png|常時}}ライブの合計スコアを＋１する。」を得る。...
+Effects: ['BUFF_POWER', 'BOOST_SCORE']
+
+PL!S-PR-029-PR - 渡辺 曜
+Text: {{jyouji.png|常時}}自分か相手のステージにコスト13以上のメンバーがいる場合、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。...
+Effects: ['ADD_BLADES']
+
+PL!S-PR-030-PR - 津島善子
+Text: {{jyouji.png|常時}}自分か相手のステージにコスト13以上のメンバーがいる場合、{{icon_blade.png|ブレード}}{{icon_blade.png|ブレード}}を得る。...
+Effects: ['ADD_BLADES']
+
+## ON_LEAVES (27 cards)
+
+PL!-PR-001-PR - 高坂穂乃果
+Text: {{jidou.png|自動}}このメンバーがステージから控え室に置かれたとき、メンバー1人をアクティブにしてもよい。...
+Effects: ['ACTIVATE_MEMBER', 'SWAP_CARDS']
+
+PL!-PR-002-PR - 絢瀬絵里
+Text: {{jidou.png|自動}}このメンバーがステージから控え室に置かれたとき、メンバー1人をアクティブにしてもよい。...
+Effects: ['ACTIVATE_MEMBER', 'SWAP_CARDS']
+
+PL!SP-pb1-020-N - 鬼塚夏美
+Text: {{jidou.png|自動}}このメンバーがエリアを移動するたび、カードを1枚引く。
+(対戦相手のカードの効果でも発動する。)...
+Effects: ['DRAW', 'MOVE_MEMBER']
+
+## ON_LIVE_START (138 cards)
+
+PL!-sd1-022-SD - 僕らは今のなかで
+Text: {{live_start.png|ライブ開始時}}自分の成功ライブカード置き場にあるカード1枚につき、このカードを成功させるための必要ハートは{{heart_00.png|heart0}}{{heart_00.png|heart0}}少なくなる。...
+Effects: ['BUFF_POWER']
+
+PL!-bp3-012-PR - 南 ことり
+Text: {{live_start.png|ライブ開始時}}{{heart_01.png|heart01}}か{{heart_03.png|heart03}}か{{heart_06.png|heart06}}のうち、1つを選ぶ。ライブ終了時まで、自分の成功ライブカード置き場にあるカード1枚につき、選んだハート...
+Effects: []
+
+PL!SP-PR-009-PR - 米女メイ
+Text: {{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。これによりライブカードを控え室に置いた場合、さらにカードを1枚引く。...
+Effects: ['ADD_BLADES', 'SWAP_CARDS']
+
+## ON_LIVE_SUCCESS (39 cards)
+
+PL!-sd1-019-SD - START:DASH!!
+Text: {{live_success.png|ライブ成功時}}自分のデッキの上からカードを3枚見る。その中から好きな枚数を好きな順番でデッキの上に置き、残りを控え室に置く。...
+Effects: ['LOOK_DECK']
+
+PL!N-bp1-026-L - Poppin' Up!
+Text: {{live_success.png|ライブ成功時}}ライブの合計スコアが相手より高い場合、エールにより公開された自分のカードの中から、『虹ヶ咲』のカードを1枚手札に加える。
+
+(必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。)...
+Effects: ['ADD_TO_HAND', 'CHEER_REVEAL', 'SWAP_ZONE', 'META_RULE']
+
+PL!SP-bp1-023-L - START!! True dreams
+Text: {{live_success.png|ライブ成功時}}ライブの合計スコアが相手より高い場合、自分のエネルギーデッキから、エネルギーカードを1枚ウェイト状態で置く。
+
+(エールで出た{{icon_score.png|スコア}}1つにつき、成功したライブのスコアの合計に1を加算する。)...
+Effects: ['ENERGY_CHARGE', 'TAP_OPPONENT', 'TAP_OPPONENT', 'BUFF_POWER', 'META_RULE']
+
+## ON_PLAY (360 cards)
+
+PL!-sd1-001-SD - 高坂 穂乃果
+Text: {{toujyou.png|登場}}自分の成功ライブカード置き場にカードが2枚以上ある場合、自分の控え室からライブカードを1枚手札に加える。
+{{jyouji.png|常時}}自分の成功ライブカード置き場にあるカード1枚につき、{{icon_blade.png|ブレード}}を得る。...
+Effects: ['RECOVER_LIVE', 'SWAP_CARDS']
+
+PL!-sd1-003-SD - 南 ことり
+Text: {{toujyou.png|登場}}自分の控え室からコスト4以下の『μ's』のメンバーカードを1枚手札に加える。
+{{live_start.png|ライブ開始時}}手札を1枚控え室に置いてもよい：{{heart_01.png|heart01}}か{{heart_03.png|heart03}}か{{...
+Effects: ['RECOVER_MEMBER']
+
+PL!-sd1-004-SD - 園田 海未
+Text: {{toujyou.png|登場}}自分のデッキの上からカードを5枚見る。その中から『μ's』のライブカードを1枚公開して手札に加えてもよい。残りを控え室に置く。...
+Effects: ['LOOK_DECK', 'LOOK_AND_CHOOSE', 'REVEAL_CARDS', 'ADD_TO_HAND']
+
+
+### SAMPLE BY EFFECT COMPLEXITY ###
+
+
+## 5 Effects (39 cards)
+
+PL!-sd1-006-SD - 西木野 真姫
+Text: {{toujyou.png|登場}}手札のライブカードを1枚公開してもよい：自分の成功ライブカード置き場にあるカードを1枚手札に加える。そうした場合、これにより公開したカードを自分の成功ライブカード置き場に置く。...
+  1. REVEAL_CARDS (value=1, params={})
+  2. ADD_TO_HAND (value=1, params={'to': 'hand', 'from': 'success_live'})
+  3. SWAP_ZONE (value=1, params={})
+  4. REVEAL_CARDS (value=1, params={})
+  5. SWAP_ZONE (value=1, params={})
+
+PL!-sd1-015-SD - 西木野 真姫
+Text: {{toujyou.png|登場}}手札を1枚控え室に置いてもよい：自分のデッキの上からカードを5枚見る。その中からメンバーカードを1枚公開して手札に加えてもよい。残りを控え室に置く。...
+  1. LOOK_DECK (value=5, params={})
+  2. SWAP_CARDS (value=1, params={'target': 'discard', 'from': 'deck'})
+  3. LOOK_AND_CHOOSE (value=1, params={'source': 'looked'})
+  4. REVEAL_CARDS (value=1, params={})
+  5. ADD_TO_HAND (value=1, params={'to': 'hand'})
+
+## 4 Effects (36 cards)
+
+PL!-sd1-004-SD - 園田 海未
+Text: {{toujyou.png|登場}}自分のデッキの上からカードを5枚見る。その中から『μ's』のライブカードを1枚公開して手札に加えてもよい。残りを控え室に置く。...
+  1. LOOK_DECK (value=5, params={})
+  2. LOOK_AND_CHOOSE (value=1, params={'source': 'looked'})
+  3. REVEAL_CARDS (value=1, params={})
+  4. ADD_TO_HAND (value=1, params={'to': 'hand'})
+
+PL!-PR-007-PR - 東條 希
+Text: {{toujyou.png|登場}}/{{live_start.png|ライブ開始時}}このメンバーをウェイトにしてもよい：相手のステージにいるコスト4以下のメンバー1人をウェイトにする。（ウェイト状態のメンバーが持つ{{icon_blade.png|ブレード}}は、エールで公開する枚数を増やさない...
+  1. TAP_OPPONENT (value=1, params={})
+  2. TAP_OPPONENT (value=1, params={})
+  3. CHEER_REVEAL (value=1, params={})
+  4. BUFF_POWER (value=1, params={'multiplier': True, 'per_member': True})
+
+## 3 Effects (67 cards)
+
+PL!HS-PR-016-PR - 日野下花帆
+Text: {{live_start.png|ライブ開始時}}手札の同じユニット名を持つカード2枚を控え室に置いてもよい：ライブ終了時まで、{{heart_04.png|heart04}}{{heart_04.png|heart04}}{{icon_blade.png|ブレード}}{{icon_blade.pn...
+  1. ADD_BLADES (value=1, params={'until': 'live_end'})
+  2. ADD_HEARTS (value=1, params={'until': 'live_end'})
+  3. SWAP_CARDS (value=2, params={'target': 'discard', 'from': 'hand'})
+
+PL!HS-PR-017-PR - 村野さやか
+Text: {{live_start.png|ライブ開始時}}手札の同じユニット名を持つカード2枚を控え室に置いてもよい：ライブ終了時まで、{{heart_05.png|heart05}}{{heart_05.png|heart05}}{{icon_blade.png|ブレード}}{{icon_blade.pn...
+  1. ADD_BLADES (value=1, params={'until': 'live_end'})
+  2. ADD_HEARTS (value=1, params={'until': 'live_end'})
+  3. SWAP_CARDS (value=2, params={'target': 'discard', 'from': 'hand'})
+
+## 2 Effects (265 cards)
+
+PL!-sd1-001-SD - 高坂 穂乃果
+Text: {{toujyou.png|登場}}自分の成功ライブカード置き場にカードが2枚以上ある場合、自分の控え室からライブカードを1枚手札に加える。
+{{jyouji.png|常時}}自分の成功ライブカード置き場にあるカード1枚につき、{{icon_blade.png|ブレード}}を得る。...
+  1. RECOVER_LIVE (value=1, params={'to': 'hand'})
+  2. SWAP_CARDS (value=1, params={'target': 'discard', 'from': 'hand'})
+
+PL!-sd1-002-SD - 絢瀬 絵里
+Text: {{kidou.png|起動}}このメンバーをステージから控え室に置く：自分の控え室からメンバーカードを1枚手札に加える。...
+  1. RECOVER_MEMBER (value=1, params={'to': 'hand'})
+  2. SWAP_CARDS (value=1, params={'target': 'discard', 'from': 'hand'})
