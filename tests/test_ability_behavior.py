@@ -68,6 +68,8 @@ class TestRecoverLiveBehavior(unittest.TestCase):
                        "A SELECT_FROM_DISCARD choice should be pending")
         
         choice_type, params = self.game.pending_choices[0]
+        print(f"DEBUG: Choice Type: {choice_type}")
+        print(f"DEBUG: Params Cards: {params.get('cards')}")
         self.assertEqual(choice_type, "SELECT_FROM_DISCARD")
         self.assertIn(200, params['cards'], "Live card 200 should be in choices")
         self.assertNotIn(100, params['cards'], "Member card 100 should NOT be in choices (wrong type)")
@@ -76,6 +78,9 @@ class TestRecoverLiveBehavior(unittest.TestCase):
         # The action ID depends on how get_legal_actions maps it
         # For SELECT_FROM_DISCARD, action IDs are 660 + index
         new_state = self.game.step(660)  # Select first card (index 0 = card 200)
+        
+        print(f"DEBUG: Hand after step: {new_state.players[0].hand}")
+        print(f"DEBUG: Discard after step: {new_state.players[0].discard}")
         
         # Verify: Card moved from discard to hand
         self.assertIn(200, new_state.players[0].hand, "Live card 200 should be in hand")
