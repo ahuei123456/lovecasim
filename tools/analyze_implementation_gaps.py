@@ -1,12 +1,13 @@
 """
 Analyze which parsed abilities are missing implementation in game_state.py
 """
+
 import json
 import re
 from collections import Counter
 
 # Load parsed abilities
-with open('docs/full_ability_coverage.json', 'r', encoding='utf-8') as f:
+with open("docs/full_ability_coverage.json", "r", encoding="utf-8") as f:
     coverage = json.load(f)
 
 # Collect all parsed effect types, conditions, and costs
@@ -15,12 +16,12 @@ all_conditions = []
 all_costs = []
 all_triggers = []
 
-for card in coverage['with_ability']:
-    if card['parsed']:
-        all_effects.extend(card['parsed']['effects'])
-        all_conditions.extend(card['parsed']['conditions'])
-        all_costs.extend(card['parsed']['costs'])
-        all_triggers.extend(card['parsed']['triggers'])
+for card in coverage["with_ability"]:
+    if card["parsed"]:
+        all_effects.extend(card["parsed"]["effects"])
+        all_conditions.extend(card["parsed"]["conditions"])
+        all_costs.extend(card["parsed"]["costs"])
+        all_triggers.extend(card["parsed"]["triggers"])
 
 effect_counts = Counter(all_effects)
 condition_counts = Counter(all_conditions)
@@ -28,13 +29,13 @@ cost_counts = Counter(all_costs)
 trigger_counts = Counter(all_triggers)
 
 # Now read game_state.py to find implemented effects
-with open('game/game_state.py', 'r', encoding='utf-8') as f:
+with open("game/game_state.py", "r", encoding="utf-8") as f:
     game_state_code = f.read()
 
 # Find all EffectType checks in game_state.py
-implemented_effects = set(re.findall(r'EffectType\.(\w+)', game_state_code))
-implemented_conditions = set(re.findall(r'ConditionType\.(\w+)', game_state_code))
-implemented_costs = set(re.findall(r'AbilityCostType\.(\w+)', game_state_code))
+implemented_effects = set(re.findall(r"EffectType\.(\w+)", game_state_code))
+implemented_conditions = set(re.findall(r"ConditionType\.(\w+)", game_state_code))
+implemented_costs = set(re.findall(r"AbilityCostType\.(\w+)", game_state_code))
 
 # Compare
 parsed_effects = set(effect_counts.keys())
@@ -93,27 +94,27 @@ print(f"Total Missing Implementations: {len(missing_effects) + len(missing_condi
 
 # Save detailed report
 report = {
-    'effects': {
-        'parsed': list(parsed_effects),
-        'implemented': list(implemented_effects),
-        'missing': list(missing_effects),
-        'counts': dict(effect_counts)
+    "effects": {
+        "parsed": list(parsed_effects),
+        "implemented": list(implemented_effects),
+        "missing": list(missing_effects),
+        "counts": dict(effect_counts),
     },
-    'conditions': {
-        'parsed': list(parsed_conditions),
-        'implemented': list(implemented_conditions),
-        'missing': list(missing_conditions),
-        'counts': dict(condition_counts)
+    "conditions": {
+        "parsed": list(parsed_conditions),
+        "implemented": list(implemented_conditions),
+        "missing": list(missing_conditions),
+        "counts": dict(condition_counts),
     },
-    'costs': {
-        'parsed': list(parsed_costs),
-        'implemented': list(implemented_costs),
-        'missing': list(missing_costs),
-        'counts': dict(cost_counts)
-    }
+    "costs": {
+        "parsed": list(parsed_costs),
+        "implemented": list(implemented_costs),
+        "missing": list(missing_costs),
+        "counts": dict(cost_counts),
+    },
 }
 
-with open('docs/implementation_gaps.json', 'w', encoding='utf-8') as f:
+with open("docs/implementation_gaps.json", "w", encoding="utf-8") as f:
     json.dump(report, f, indent=2, ensure_ascii=False)
 
 print("\nDetailed report saved to: docs/implementation_gaps.json")

@@ -7,29 +7,26 @@ class ResourceMonitor:
     def get_free_vram() -> int:
         try:
             output = subprocess.check_output(
-                ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"],
-                encoding='utf-8'
+                ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"], encoding="utf-8"
             )
-            return int(output.strip().split('\n')[0])
+            return int(output.strip().split("\n")[0])
         except Exception:
             return 999999
 
     @staticmethod
     def get_free_ram() -> int:
         try:
-            output = subprocess.check_output(
-                ["wmic", "OS", "get", "FreePhysicalMemory", "/Value"],
-                encoding='utf-8'
-            )
+            output = subprocess.check_output(["wmic", "OS", "get", "FreePhysicalMemory", "/Value"], encoding="utf-8")
             for line in output.splitlines():
                 if "FreePhysicalMemory" in line:
-                    val = int(line.split('=')[1].strip())
+                    val = int(line.split("=")[1].strip())
                     print(f"DEBUG: FreePhysicalMemory (KB): {val}")
                     return val // 1024
             return 4096
         except Exception as e:
             print(f"DEBUG: Error in RAM check: {e}")
             return 4096
+
 
 ram_free = ResourceMonitor.get_free_ram()
 vram_free = ResourceMonitor.get_free_vram()

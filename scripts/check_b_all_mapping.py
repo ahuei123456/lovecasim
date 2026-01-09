@@ -6,8 +6,8 @@ gs = StatePool.get_game_state()
 live_db = GameState.live_db
 
 target_id = -1
-for cid, card in live_db.items():
-    if "PL!HS-PR-010-PR" in str(card.name) or "Reflection" in str(card.name): # Name might be Japanese
+for _cid, card in live_db.items():
+    if "PL!HS-PR-010-PR" in str(card.name) or "Reflection" in str(card.name):  # Name might be Japanese
         # Actually checking by ID is hard since IDs are ints.
         # But data_loader maps them.
         # Let's search by checking `blade_hearts` or `raw_text`
@@ -17,12 +17,12 @@ for cid, card in live_db.items():
 found = False
 for cid, card in live_db.items():
     # Reflection in the mirror
-    if getattr(card, 'name', '') == "Reflection in the mirror":
+    if getattr(card, "name", "") == "Reflection in the mirror":
         print(f"Found Card: {card.name} (ID: {cid})")
         print(f"blade_hearts: {card.blade_hearts} (Type: {type(card.blade_hearts)})")
-        if hasattr(card, 'blade_hearts') and hasattr(card.blade_hearts, 'shape'):
-             print(f"Shape: {card.blade_hearts.shape}")
-        
+        if hasattr(card, "blade_hearts") and hasattr(card.blade_hearts, "shape"):
+            print(f"Shape: {card.blade_hearts.shape}")
+
         # Check specific index values
         # Expecting if b_all is mapped, some index is > 0
         found = True

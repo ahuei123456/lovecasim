@@ -1,18 +1,12 @@
 import json
 
-target_ids = [
-    "PL!-sd1-001-SD",
-    "PL!HS-PR-007-PR",
-    "PL!S-PR-004-PR",
-    "PL!S-PR-003-PR",
-    "PL!S-PR-008-PR"
-]
+target_ids = ["PL!-sd1-001-SD", "PL!HS-PR-007-PR", "PL!S-PR-004-PR", "PL!S-PR-003-PR", "PL!S-PR-008-PR"]
 
 try:
-    with open('data/cards.json', 'r', encoding='utf-8') as f:
+    with open("data/cards.json", "r", encoding="utf-8") as f:
         data = json.load(f)
-        
-    with open('card_info_utf8.txt', 'w', encoding='utf-8') as outfile:
+
+    with open("card_info_utf8.txt", "w", encoding="utf-8") as outfile:
         found = 0
         for cid in target_ids:
             if cid in data:

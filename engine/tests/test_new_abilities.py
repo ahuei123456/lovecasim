@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from engine.game.ability import Effect, EffectType
@@ -17,7 +16,7 @@ def test_deck_search():
     state.member_db[3] = MemberCard(3, "AQ-02", "AqoursMember", 2, np.zeros(6), np.zeros(7), 2, group="Aqours")
 
     # Effect: Search "μ's" member
-    effect = Effect(EffectType.SEARCH_DECK, 1, params={'group': "μ's"})
+    effect = Effect(EffectType.SEARCH_DECK, 1, params={"group": "μ's"})
     state.pending_effects.append(effect)
 
     # Resolve effect -> SELECT_FROM_LIST
@@ -28,20 +27,21 @@ def test_deck_search():
     assert len(state.pending_choices) > 0, "Should have pending choice for search"
     choice_type, choice_data = state.pending_choices[0]
     assert choice_type == "SELECT_FROM_LIST", "Choice should be SELECT_FROM_LIST"
-    
+
     # Select first available option (which corresponds to action 600 + index)
     # Verify valid search results
-    cards_found = choice_data['cards']
+    cards_found = choice_data["cards"]
     assert 2 in cards_found, "Should find Member 2 (μ's)"
     assert 1 not in cards_found, "Should NOT find Member 1 (Aqours)"
 
     # Select index 0 (Action 600)
     state = state.step(600)
     p0 = state.players[0]
-    
+
     # Verify
     assert 2 in p0.hand, "Member 2 should be in hand"
     assert len(p0.main_deck) == 2, "Deck should have 2 cards left"
+
 
 def test_formation_change():
     """Test FORMATION_CHANGE effect"""
@@ -50,10 +50,10 @@ def test_formation_change():
     state.phase = Phase.MAIN
     p0 = state.players[0]
     # Setup stage: 1, 2, Empty
-    p0.stage = np.array([1, 2, -1], dtype=np.int32) 
+    p0.stage = np.array([1, 2, -1], dtype=np.int32)
     state.member_db[1] = MemberCard(1, "M-01", "Member1", 1, np.zeros(6), np.zeros(7), 1)
     state.member_db[2] = MemberCard(2, "M-02", "Member2", 1, np.zeros(6), np.zeros(7), 1)
-    
+
     # Trigger Formation Change
     effect = Effect(EffectType.FORMATION_CHANGE, 1)
     state.pending_effects.append(effect)
@@ -69,14 +69,14 @@ def test_formation_change():
     # Available list: [(0, 1), (1, 2)] (Order: slot, card_id)
     # We want Member 2 (from slot 1). In available list, it is index 1.
     # So action 701.
-    
+
     state = state.step(701)
 
     # Choice 2: Select for Slot 1 (Center)
     # Available: [(0, 1)] (Member 1 from slot 0)
     # We want Member 1. Index 0 in available list.
     # So action 700.
-    
+
     state = state.step(700)
 
     p0 = state.players[0]

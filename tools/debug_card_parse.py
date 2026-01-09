@@ -1,6 +1,6 @@
 import sys
 
-sys.path.insert(0, 'game')
+sys.path.insert(0, "game")
 from ability import AbilityParser
 
 text = "{{toujyou.png|登場}}ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。"

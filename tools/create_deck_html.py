@@ -1,4 +1,3 @@
-
 import json
 
 
@@ -35,11 +34,11 @@ def create_embedded_html():
         "PL!N-sd1-011-SD": 3,
         "PL!S-pb1-004-R": 3,
         "PL!SP-bp1-020-N": 4,
-        "PL!SP-bp2-009-R＋": 4
+        "PL!SP-bp2-009-R＋": 4,
     }
 
     # 2. Load all cards
-    with open('data/cards.json', 'r', encoding='utf-8') as f:
+    with open("data/cards.json", "r", encoding="utf-8") as f:
         all_cards = json.load(f)
 
     # 3. Extract subset
@@ -175,10 +174,11 @@ def create_embedded_html():
 </body>
 </html>
 """
-    
-    with open('deck_viewer_embedded.html', 'w', encoding='utf-8') as f:
+
+    with open("deck_viewer_embedded.html", "w", encoding="utf-8") as f:
         f.write(html_content)
     print("Created deck_viewer_embedded.html")
+
 
 if __name__ == "__main__":
     create_embedded_html()

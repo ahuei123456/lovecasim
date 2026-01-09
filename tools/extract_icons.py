@@ -1,6 +1,6 @@
 import re
 
-with open('temp_source_text.html', 'r', encoding='utf-8') as f:
+with open("temp_source_text.html", "r", encoding="utf-8") as f:
     content = f.read()
 
 # Pattern for /wordpress/wp-content/images/texticon/...

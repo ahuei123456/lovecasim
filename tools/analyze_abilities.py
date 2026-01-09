@@ -1,4 +1,3 @@
-
 import json
 import os
 import sys
@@ -15,7 +14,7 @@ SUPPORTED_TRIGGERS = {
     TriggerType.ON_LIVE_START,
     TriggerType.CONSTANT,
     # ON_LIVE_SUCCESS / TURN_START / TURN_END are stubs or partially there, allow for now
-    TriggerType.ON_LIVE_SUCCESS, 
+    TriggerType.ON_LIVE_SUCCESS,
 }
 
 SUPPORTED_EFFECTS = {
@@ -35,9 +34,10 @@ SUPPORTED_CONDITIONS = {
     ConditionType.HAS_LIVE_CARD,
 }
 
+
 def analyze_coverage():
     try:
-        with open('data/cards.json', 'r', encoding='utf-8') as f:
+        with open("data/cards.json", "r", encoding="utf-8") as f:
             data = json.load(f)
     except FileNotFoundError:
         print("Error: data/cards.json not found")
@@ -47,22 +47,20 @@ def analyze_coverage():
     fully_supported = 0
     partially_supported = 0
     parse_failures = 0
-    
+
     unsupported_effects: Dict[str, int] = {}
     unsupported_conditions: Dict[str, int] = {}
-    
-    tier_stats = {"S": [0, 0], "A": [0, 0], "B": [0, 0], "C": [0, 0], "Unranked": [0, 0]} # [Supported, Total]
 
     print(f"Analyzing {len(data)} cards...")
 
-    for cid, card in data.items():
-        if card.get('type') not in ('メンバー', 'ライブ'):
+    for _cid, card in data.items():
+        if card.get("type") not in ("メンバー", "ライブ"):
             continue
-            
+
         total_cards += 1
-        raw_text = card.get('ability', '')
+        raw_text = card.get("ability", "")
         if not raw_text:
-            fully_supported += 1 # No ability = supported
+            fully_supported += 1  # No ability = supported
             continue
 
         try:
@@ -75,9 +73,8 @@ def analyze_coverage():
                 else:
                     fully_supported += 1
                 continue
-                
+
             is_full = True
-            missing_features = []
 
             for ab in abilities:
                 if ab.trigger not in SUPPORTED_TRIGGERS:
@@ -89,7 +86,7 @@ def analyze_coverage():
                         is_full = False
                         ename = eff.effect_type.name
                         unsupported_effects[ename] = unsupported_effects.get(ename, 0) + 1
-                
+
                 for cond in ab.conditions:
                     if cond.type not in SUPPORTED_CONDITIONS:
                         is_full = False
@@ -107,24 +104,29 @@ def analyze_coverage():
 
     print("\n=== Coverage Report ===")
     print(f"Total Cards: {total_cards}")
-    print(f"Fully Supported: {fully_supported} ({fully_supported/total_cards*100:.1f}%)")
-    print(f"Partially Supported (Need Handlers): {partially_supported} ({partially_supported/total_cards*100:.1f}%)")
-    print(f"Parse Failures: {parse_failures} ({parse_failures/total_cards*100:.1f}%)")
+    print(f"Fully Supported: {fully_supported} ({fully_supported / total_cards * 100:.1f}%)")
+    print(
+        f"Partially Supported (Need Handlers): {partially_supported} ({partially_supported / total_cards * 100:.1f}%)"
+    )
+    print(f"Parse Failures: {parse_failures} ({parse_failures / total_cards * 100:.1f}%)")
 
     print("\n--- Top Missing Effects (Need Implementation) ---")
     for k, v in sorted(unsupported_effects.items(), key=lambda x: x[1], reverse=True)[:10]:
         print(f"{k}: {v}")
-        
+
     print("\n--- Top Missing Conditions ---")
     for k, v in sorted(unsupported_conditions.items(), key=lambda x: x[1], reverse=True)[:10]:
         print(f"{k}: {v}")
-        
+
     # Write detailed log
-    with open('coverage_report.txt', 'w', encoding='utf-8') as f:
-        f.write(f"Coverage Report\nTotal: {total_cards}\nSupported: {fully_supported}\nPartial: {partially_supported}\nFailures: {parse_failures}\n")
+    with open("coverage_report.txt", "w", encoding="utf-8") as f:
+        f.write(
+            f"Coverage Report\nTotal: {total_cards}\nSupported: {fully_supported}\nPartial: {partially_supported}\nFailures: {parse_failures}\n"
+        )
         f.write("\nMissing Effects:\n")
         for k, v in sorted(unsupported_effects.items(), key=lambda x: x[1], reverse=True):
             f.write(f"{k}: {v}\n")
+
 
 if __name__ == "__main__":
     analyze_coverage()
