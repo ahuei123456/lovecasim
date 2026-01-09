@@ -1,28 +1,28 @@
-import sys
+import argparse
 import os
 import random
+import sys
 import time
-import numpy as np
-import io
-import contextlib
-import argparse
-from typing import Dict, List, Tuple
 from multiprocessing import Pool, cpu_count
+from typing import Tuple
+
+import numpy as np
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, Phase
 from headless_runner import (
-    TrueRandomAgent, 
-    RandomAgent, 
-    SmartHeuristicAgent, 
-    AbilityFocusAgent, 
-    ConservativeAgent, 
+    AbilityFocusAgent,
+    ConservativeAgent,
     GambleAgent,
-    NNAgent
+    NNAgent,
+    RandomAgent,
+    SmartHeuristicAgent,
+    TrueRandomAgent,
 )
+
 
 class EloRating:
     def __init__(self, k_factor=32):
@@ -70,6 +70,7 @@ class EloRating:
         self.ratings[agent_b] = rb + k_b * ((1 - score_a) - eb)
 
 import subprocess
+
 
 class ResourceMonitor:
     @staticmethod

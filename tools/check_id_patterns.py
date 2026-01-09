@@ -1,7 +1,8 @@
 
 import json
-import re
 import os
+import re
+
 
 def check_id_patterns():
     # Load all cards

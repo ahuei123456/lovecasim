@@ -1,15 +1,16 @@
-import sys
 import os
 import random
+import sys
 import time
 import traceback
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, Phase
 from headless_runner import RandomAgent, SmartHeuristicAgent
+
 
 class TrueRandomAgent:
     """Completely random agent with no heuristics"""
@@ -83,8 +84,8 @@ def run_single_game(game_idx, seed):
         state.phase = Phase.MULLIGAN_P1
         
         # Run game silently - redirect stdout to suppress all prints
-        import io
         import contextlib
+        import io
         
         turn_count = 0
         with contextlib.redirect_stdout(io.StringIO()):
@@ -128,7 +129,7 @@ def run_single_game(game_idx, seed):
 def run_timed_games(duration_seconds=10):
     """Run AI games for a specified duration"""
     print(f"Starting timed AI game runner for {duration_seconds} seconds...")
-    print(f"Loading card data...\n")
+    print("Loading card data...\n")
     
     # Pre-load data
     loader = CardDataLoader("data/cards.json")
@@ -160,17 +161,17 @@ def run_timed_games(duration_seconds=10):
                 if winner == 0 or winner == 1:
                     print(f"Winner:       P{winner}")
                 else:
-                    print(f"Winner:       Draw")
+                    print("Winner:       Draw")
             else:
-                print(f"Stop Reason:  Timeout (max turns reached)")
+                print("Stop Reason:  Timeout (max turns reached)")
             
             p0_score, p1_score = result['scores']
             print(f"Final Score:  P0={p0_score} | P1={p1_score}")
         else:
-            print(f"Stop Reason:  CRASH")
+            print("Stop Reason:  CRASH")
             print(f"Error:        {result['error']}")
             if 'traceback' in result:
-                print(f"\nTraceback:")
+                print("\nTraceback:")
                 print(result['traceback'])
         
         game_count += 1
@@ -178,7 +179,7 @@ def run_timed_games(duration_seconds=10):
     # Final summary
     elapsed = time.time() - start_time
     print(f"\n{'='*70}")
-    print(f"FINAL SUMMARY")
+    print("FINAL SUMMARY")
     print(f"{'='*70}")
     print(f"Total Time:       {elapsed:.2f}s")
     print(f"Total Games:      {game_count}")
@@ -200,7 +201,7 @@ def run_timed_games(duration_seconds=10):
         print(f"\nAverage Turns:    {avg_turns:.1f}")
     
     if crashed:
-        print(f"\nCrash Reasons:")
+        print("\nCrash Reasons:")
         error_counts = {}
         for r in crashed:
             err = r['error']

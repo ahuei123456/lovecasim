@@ -1,5 +1,6 @@
 import math
 
+
 def calculate_expected_elo_for_winrate(win_rate, opponent_avg_elo):
     """Calculate what ELO a player should have given their win rate against opponents."""
     if win_rate >= 1.0:

@@ -1,9 +1,11 @@
-import sys
 import os
+import sys
+
 sys.path.append(os.getcwd())
 
+from game.ability import ConditionType, EffectType, TriggerType
 from game.data_loader import CardDataLoader
-from game.ability import EffectType, ConditionType, TriggerType
+
 
 def calculate_complexity(card):
     score = 0

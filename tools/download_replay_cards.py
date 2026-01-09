@@ -1,8 +1,8 @@
 
-import os
 import json
+import os
+
 import requests
-import time
 
 REPLAY_FILE = "replays/game_14.json"
 DATA_FILE = "data/cards.json"

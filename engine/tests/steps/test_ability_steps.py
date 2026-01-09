@@ -1,23 +1,23 @@
-import pytest
-from pytest_bdd import scenario, given, when, then, parsers
-import numpy as np
-import sys
 import os
 import random
+import sys
+
+import pytest
+from pytest_bdd import given, parsers, scenario, then, when
 
 # Add parent path to find game module
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 # Use try-except import based on how pytest runs it
 try:
-    from engine.game.game_state import GameState, Phase, MemberCard, LiveCard, PlayerState
+    from engine.game.ability import AbilityParser, Effect, EffectType, TriggerType
     from engine.game.data_loader import CardDataLoader
-    from engine.game.ability import Effect, EffectType, AbilityParser, TriggerType
+    from engine.game.game_state import GameState, LiveCard, MemberCard, Phase, PlayerState
 except ImportError:
     # Fallback if path appending isn't enough or different context
-    from game.game_state import GameState, Phase, MemberCard, LiveCard, PlayerState
+    from game.ability import AbilityParser, TriggerType
     from game.data_loader import CardDataLoader
-    from game.ability import Effect, EffectType, AbilityParser, TriggerType
+    from game.game_state import GameState, Phase
 
 @pytest.fixture
 def loader():

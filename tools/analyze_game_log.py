@@ -1,5 +1,5 @@
 import re
-import sys
+
 
 def analyze_log(log_path):
     with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:

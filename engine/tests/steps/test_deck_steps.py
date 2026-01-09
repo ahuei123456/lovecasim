@@ -1,12 +1,14 @@
-import pytest
-from pytest_bdd import scenario, given, when, then
-import sys
 import os
+import sys
+
+import pytest
+from pytest_bdd import given, scenario, then, when
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from engine.game.game_state import GameState
 from engine.game.ability import Effect, EffectType
+from engine.game.game_state import GameState
+
 
 @pytest.fixture
 def game_state():

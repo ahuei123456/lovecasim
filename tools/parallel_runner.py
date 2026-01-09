@@ -1,19 +1,21 @@
 """
 Parallel game runner with easier live cards and detailed logging
 """
-import sys
+import io
 import os
 import random
-import numpy as np
-from multiprocessing import Pool, cpu_count
+import sys
 import time
-import io
+from multiprocessing import Pool, cpu_count
+
+import numpy as np
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, Phase
 from headless_runner import RandomAgent
+
 
 def run_single_game(game_idx):
     """Run a single game in a worker process"""
@@ -115,7 +117,7 @@ def run_single_game(game_idx):
             json.dumps(full_state)
             full_state['action_taken'] = act
             return full_state
-        except (TypeError, AttributeError) as e:
+        except (TypeError, AttributeError):
             # Fallback to minimal state if serialization fails
             return {
                 'turn': gs.turn_number,

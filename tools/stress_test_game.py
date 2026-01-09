@@ -1,20 +1,21 @@
 
-import sys
+import argparse
+import json
 import os
 import random
+import sys
+import time
 import traceback
-import json
-import argparse
 from datetime import datetime
 from multiprocessing import Pool, cpu_count
-import time
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.game_state import GameState, initialize_game, Phase
-from headless_runner import RandomAgent
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, Phase
+from headless_runner import RandomAgent
+
 
 def init_worker():
     """Initializer for worker processes to load data once."""

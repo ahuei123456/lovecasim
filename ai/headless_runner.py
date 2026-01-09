@@ -1,10 +1,11 @@
-import sys
-import os
-import random
-import numpy as np
 import argparse
 import logging
+import os
+import random
+import sys
 import time
+
+import numpy as np
 
 # Add parent dir to path
 # Add parent dir to path (for ai directory)
@@ -12,8 +13,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Add engine directory
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'engine'))
 
-from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, Phase
+
 
 class Agent:
     def choose_action(self, state: GameState, player_id: int) -> int:
@@ -30,7 +32,6 @@ class TrueRandomAgent(Agent):
 
 class RandomAgent(Agent):
     def choose_action(self, state: GameState, player_id: int) -> int:
-        from game.game_state import Phase
         legal_mask = state.get_legal_actions()
         legal_indices = np.where(legal_mask)[0]
         if len(legal_indices) == 0:
@@ -76,7 +77,6 @@ class SmartHeuristicAgent(Agent):
         self.turn_action_counts = {}
 
     def choose_action(self, state: GameState, player_id: int) -> int:
-        from game.game_state import Phase, TriggerType, AbilityCostType
         
         # --- Loop Protection ---
         if state.turn_number != self.last_turn_num:
@@ -344,8 +344,8 @@ def initialize_game(use_real_data: bool = True, cards_path: str = "data/cards.js
 
 def create_easy_cards():
     """Create custom easy cards for testing scoring"""
-    from game.game_state import MemberCard, LiveCard
     import numpy as np
+    from game.game_state import LiveCard, MemberCard
     
     # Easy Member: Cost 1, provides 1 of each heart + 1 blade
     m = MemberCard(
@@ -452,7 +452,6 @@ class AbilityFocusAgent(SmartHeuristicAgent):
     Used for stress-testing ability implementations.
     """
     def choose_action(self, state: GameState, player_id: int) -> int:
-        from game.game_state import Phase, TriggerType
         
         legal_mask = state.get_legal_actions()
         legal_indices = np.where(legal_mask)[0]
@@ -497,7 +496,6 @@ class ConservativeAgent(SmartHeuristicAgent):
     available on stage right now (untapped members). Never gambles on future draws.
     """
     def choose_action(self, state: GameState, player_id: int) -> int:
-        from game.game_state import Phase
         
         # Override LIVE_SET phase with ultra-conservative logic
         if state.phase == Phase.LIVE_SET:
@@ -570,7 +568,6 @@ class GambleAgent(SmartHeuristicAgent):
     enough blades on stage to likely get the hearts from yell cards.
     """
     def choose_action(self, state: GameState, player_id: int) -> int:
-        from game.game_state import Phase
         
         if state.phase == Phase.LIVE_SET:
             p = state.players[player_id]
@@ -642,9 +639,9 @@ class NNAgent(Agent):
     def __init__(self, device=None):
         try:
             # Lazy import to avoid hard dependency if not used
+            import torch
             from game.network import NetworkConfig
             from game.network_torch import TorchNetworkWrapper
-            import torch
             
             self.config = NetworkConfig()
             self.net = TorchNetworkWrapper(self.config, device=device)

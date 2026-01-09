@@ -1,6 +1,7 @@
 import json
 import re
 
+
 def hunt():
     with open("c:/Users/trios/.gemini/antigravity/scratch/loveca-copy/data/cards.json", "r", encoding="utf-8") as f:
         data = json.load(f)

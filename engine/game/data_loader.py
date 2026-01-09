@@ -4,19 +4,20 @@ Parses the cards.json file and converts it into GameState objects.
 """
 
 import json
-import numpy as np
 from typing import Dict, Tuple
 
+import numpy as np
+
 try:
-    from .game_state import MemberCard, LiveCard
     from .ability import AbilityParser
+    from .game_state import LiveCard, MemberCard
 except ImportError:
     try:
-        from game.game_state import MemberCard, LiveCard
         from game.ability import AbilityParser
+        from game.game_state import LiveCard, MemberCard
     except ImportError:
-        from game_state import MemberCard, LiveCard
         from ability import AbilityParser
+        from game_state import LiveCard, MemberCard
 
 class CardDataLoader:
     def __init__(self, json_path: str):

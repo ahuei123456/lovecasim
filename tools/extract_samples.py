@@ -3,8 +3,8 @@ Extract diverse card ability samples to file for manual review.
 Handles Unicode properly and samples across different characteristics.
 """
 import json
-import sys
 from collections import defaultdict
+
 
 def main():
     # Read cards
@@ -61,7 +61,7 @@ def main():
     
     # Write to file with UTF-8 encoding
     with open('ability_samples_manual.txt', 'w', encoding='utf-8') as out:
-        out.write(f"ABILITY SAMPLES FOR MANUAL REVIEW\n")
+        out.write("ABILITY SAMPLES FOR MANUAL REVIEW\n")
         out.write(f"Total samples: {len(unique_samples)}\n")
         out.write(f"{'='*80}\n\n")
         

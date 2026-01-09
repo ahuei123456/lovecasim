@@ -1,12 +1,13 @@
 
-import sys
 import os
+import sys
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from game.ability import AbilityCostType, TriggerType
 from game.data_loader import CardDataLoader
-from game.ability import TriggerType, AbilityCostType
+
 
 def check_cards():
     loader = CardDataLoader("data/cards.json")

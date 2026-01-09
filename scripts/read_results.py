@@ -1,4 +1,3 @@
-import sys
 with open('final_output.txt', 'rb') as f:
     data = f.read().decode('utf-16', errors='ignore')
     # Remove lines that contain '\r' without '\n' (progress bar lines)

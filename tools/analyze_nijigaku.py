@@ -1,5 +1,6 @@
 import json
 
+
 def analyze_nijigaku_distribution():
     with open("c:/Users/trios/.gemini/antigravity/scratch/loveca-copy/data/cards.json", "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -43,7 +44,7 @@ def analyze_nijigaku_distribution():
             
             nijigaku_cards.append(card)
 
-    print(f"=== Nijigaku Card Distribution Analysis ===\n")
+    print("=== Nijigaku Card Distribution Analysis ===\n")
     print(f"Total Nijigaku Cards: {distribution['Total']}")
     print(f"  - Members: {distribution['Member']}")
     print(f"  - Songs/Lives: {distribution['Live']}")

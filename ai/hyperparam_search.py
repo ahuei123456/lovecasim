@@ -3,16 +3,14 @@ Hyperparameter Search for AlphaZero Network.
 Finds optimal Depth/Width by training candidates and evaluating performance.
 """
 
-import argparse
 import time
+
 import numpy as np
 import torch
-from typing import List, Dict
-
-from game_state import initialize_game, GameState, create_sample_cards
+from game_state import GameState, create_sample_cards, initialize_game
 from mcts import MCTS, MCTSConfig
+from network import NetworkConfig  # Reuse config structure
 from network_torch import TorchNetworkWrapper
-from network import NetworkConfig # Reuse config structure
 
 # Candidates to evaluate
 CANDIDATES = {
@@ -59,7 +57,7 @@ def run_search(games_per_candidate=20, eval_games=10):
         training_data = [] # (state, policy, value)
         
         # Use simple Neural MCTS (simulations reduced for speed in search)
-        from network import NeuralMCTS # We can reuse the MCTS class logic but pass torch wrapper
+        from network import NeuralMCTS  # We can reuse the MCTS class logic but pass torch wrapper
         
         # We need to monkey-patch or adapter because NeuralMCTS expects `network.predict()`
         # My TorchNetworkWrapper has `predict()` matching the signature.

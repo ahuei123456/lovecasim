@@ -3,10 +3,12 @@ Unit test for filtered recovery mechanics (GROUP, COST).
 """
 
 
-import pytest
 import numpy as np
-from engine.game.game_state import GameState, MemberCard
+import pytest
+
 from engine.game.ability import AbilityParser, EffectType
+from engine.game.game_state import GameState, MemberCard
+
 
 @pytest.fixture
 def game_state():

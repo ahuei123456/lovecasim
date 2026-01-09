@@ -2,7 +2,7 @@
 Read through cards systematically and build precise ability catalog.
 """
 import json
-from collections import defaultdict
+
 
 def main():
     with open('data/cards.json', 'r', encoding='utf-8') as f:
@@ -20,7 +20,7 @@ def main():
     for i, card in enumerate(cards_with_abilities[:50], 1):
         print(f"\n### Card #{i}: {card.get('card_no', 'N/A')} ({card.get('name', 'Unknown')})")
         print(f"Type: {card.get('type', 'N/A')}")
-        print(f"\n**Ability**:")
+        print("\n**Ability**:")
         print(card.get('ability', 'None'))
         print("\n" + "-"*80)
         

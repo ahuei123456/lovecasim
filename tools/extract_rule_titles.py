@@ -1,6 +1,7 @@
 
-import re
 import json
+import re
+
 
 def extract_rules(filename):
     with open(filename, 'r', encoding='utf-8') as f:

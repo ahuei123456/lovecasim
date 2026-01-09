@@ -1,19 +1,21 @@
 
-import sys
+import argparse
+import contextlib
+import io
 import os
 import random
+import sys
 import time
+
 import numpy as np
-import io
-import contextlib
-import argparse
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
-from headless_runner import TrueRandomAgent, RandomAgent, SmartHeuristicAgent
+from game.game_state import GameState, Phase
+from headless_runner import RandomAgent, SmartHeuristicAgent, TrueRandomAgent
+
 
 class EloRating:
     def __init__(self, k_factor=32):
@@ -191,7 +193,7 @@ def run_match(agent_a_name, agent_b_name, agents_map, num_games=10):
             
             score_a_total += game_score_a
             
-        except Exception as e:
+        except Exception:
             # Crash = Loss for engine? or Draw?
             # Treat as Draw
             score_a_total += 0.5

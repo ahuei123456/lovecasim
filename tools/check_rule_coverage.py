@@ -1,6 +1,7 @@
 
-import re
 import os
+import re
+
 
 def check_coverage(rules_file, target_file):
     with open(rules_file, 'r', encoding='utf-8') as f:

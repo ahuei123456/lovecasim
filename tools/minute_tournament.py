@@ -3,27 +3,27 @@
 Runs as many games as possible in 60 seconds with random agent pairings and random decks.
 Uses high-performance GameState optimizations (pooling, JIT).
 """
-import sys
+import argparse
 import os
 import random
+import sys
 import time
-import numpy as np
-import argparse
-from typing import Dict, List, Tuple
 from multiprocessing import Pool, cpu_count
+
+import numpy as np
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, Phase
 from headless_runner import (
-    TrueRandomAgent, 
-    RandomAgent, 
-    SmartHeuristicAgent, 
-    AbilityFocusAgent, 
-    ConservativeAgent, 
-    GambleAgent
+    AbilityFocusAgent,
+    ConservativeAgent,
+    GambleAgent,
+    RandomAgent,
+    SmartHeuristicAgent,
+    TrueRandomAgent,
 )
 
 # Global storage for worker processes
@@ -153,7 +153,7 @@ def main():
             
     end_time = time.time()
     total_elapsed = end_time - start_time
-    print(f"\n\nTournament Complete!")
+    print("\n\nTournament Complete!")
     print(f"Total Games Played: {total_games}")
     print(f"Total Duration:     {total_elapsed:.2f}s")
     print(f"Overall Throughput: {total_games/total_elapsed:.1f} games/sec")

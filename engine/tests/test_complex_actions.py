@@ -1,8 +1,9 @@
 
-import pytest
 import numpy as np
-from engine.game.game_state import GameState, Phase, MemberCard, PlayerState
-from engine.game.ability import Ability, TriggerType, Effect, EffectType, AbilityCostType, Cost, TargetType
+
+from engine.game.ability import Ability, AbilityCostType, Cost, TriggerType
+from engine.game.game_state import GameState, MemberCard, Phase
+
 
 def test_activated_ability():
     print("Testing Activated Ability and Targeting...")

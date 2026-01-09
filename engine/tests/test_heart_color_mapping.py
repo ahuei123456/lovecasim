@@ -1,6 +1,6 @@
 
-import pytest
 from engine.game.game_state import HeartColor
+
 
 def test_color_order():
     """Test that HeartColor enum has the expected order."""

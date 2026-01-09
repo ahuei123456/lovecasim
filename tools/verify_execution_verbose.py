@@ -1,9 +1,11 @@
-import sys
 import os
+import sys
+
 sys.path.append(os.getcwd())
 
-from game.game_state import GameState, Phase
-from game.ability import Ability, Effect, EffectType, TriggerType
+from game.ability import Effect, EffectType
+from game.game_state import GameState
+
 
 def run_execution_demo():
     print("=== Execution Logic Demo ===\n")

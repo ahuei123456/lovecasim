@@ -2,8 +2,8 @@
 Analyze which parsed abilities are missing implementation in game_state.py
 """
 import json
-from collections import Counter
 import re
+from collections import Counter
 
 # Load parsed abilities
 with open('docs/full_ability_coverage.json', 'r', encoding='utf-8') as f:

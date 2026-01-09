@@ -1,6 +1,7 @@
 
 import json
 
+
 def find_card():
     with open('data/cards.json', 'r', encoding='utf-8') as f:
         db = json.load(f)

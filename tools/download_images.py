@@ -1,8 +1,9 @@
 import json
 import os
-import requests
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import requests
+
 
 def download_single_image(args):
     """Download a single image. Returns (success, card_id, message)"""
@@ -78,7 +79,7 @@ def download_images():
             if (i + 1) % 100 == 0:
                 print(f"Progress: {i+1}/{len(to_download)} ({success_count} new, {skip_count} skipped, {fail_count} failed)")
     
-    print(f"\n=== Download Complete ===")
+    print("\n=== Download Complete ===")
     print(f"New downloads: {success_count}")
     print(f"Already existed: {skip_count}")
     print(f"Failed: {fail_count}")

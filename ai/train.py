@@ -10,10 +10,9 @@ import time
 from pathlib import Path
 
 import numpy as np
-
-from game_state import GameState, initialize_game, create_sample_cards
-from mcts import MCTS, MCTSConfig, self_play
-from network import SimpleNetwork, NetworkConfig, train_network, NeuralMCTS
+from game_state import GameState, create_sample_cards, initialize_game
+from mcts import MCTS, MCTSConfig
+from network import NetworkConfig, NeuralMCTS, SimpleNetwork, train_network
 
 
 def run_training(args):
@@ -87,7 +86,7 @@ def run_training(args):
         print(f"Results: P0 wins: {wins[0]}, P1 wins: {wins[1]}, Draws: {wins[2]}")
         
         # Training phase
-        print(f"\nPhase 2: Training...")
+        print("\nPhase 2: Training...")
         start_time = time.time()
         train_network(network, training_data, epochs=args.epochs)
         elapsed = time.time() - start_time

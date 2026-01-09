@@ -1,8 +1,7 @@
 
-import json
-import numpy as np
-from game.game_state import GameState, Phase
 from game.ability import TriggerType
+from game.game_state import Phase
+
 
 def serialize_card(cid, member_db, live_db, energy_db, is_viewable=True, peek=False):
     if not is_viewable and not peek:

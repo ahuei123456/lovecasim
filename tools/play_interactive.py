@@ -1,15 +1,17 @@
 
-import sys
 import os
 import random
-import numpy as np
+import sys
 import traceback
+
+import numpy as np
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from game.game_state import GameState, Phase, initialize_game
 from game.data_loader import CardDataLoader
+from game.game_state import GameState
+
 
 def generate_random_decks(member_ids, live_ids):
     """Generate two random decks: 48 members, 12 lives each"""
@@ -103,7 +105,7 @@ def get_legal_actions_desc(state: GameState):
              desc = f"Auto-Play/Effect Target Hand[{idx}]"
         elif 201 <= a <= 260:
              idx = a - 201
-             desc = f"Activated Ability of Member at Area ?" # TODO decoding
+             desc = "Activated Ability of Member at Area ?" # TODO decoding
         elif 270 <= a <= 279:
              desc = f"Modal Choice Option {a - 270}"
         elif 280 <= a <= 285:

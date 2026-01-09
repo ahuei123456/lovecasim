@@ -13,7 +13,7 @@ members = [k for k in keys if d[k].get('type') == 'メンバー']
 if len(members) > 547:
     target_key = members[547]
     card_data = d[target_key]
-    print(f"Index 547 Details:")
+    print("Index 547 Details:")
     print(f"  Key:  {target_key}")
     print(f"  Name: {card_data.get('name')}")
     print(f"  Prod: {card_data.get('product')}")

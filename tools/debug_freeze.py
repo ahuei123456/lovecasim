@@ -1,17 +1,18 @@
-import sys
 import os
+import sys
+
 import numpy as np
 
 # Add path to import game modules
 sys.path.append(os.getcwd())
 
 from game.game_state import GameState, Phase
-from game.data_loader import CardDataLoader
+
 
 # Mock loader
 def mock_loader():
     # Helper to create mock cards
-    from game.game_state import MemberCard, LiveCard, HeartColor, Ability
+    from game.game_state import LiveCard, MemberCard
     m_db = {}
     l_db = {}
     e_db = {}

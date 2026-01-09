@@ -6,9 +6,10 @@ prediction. For a production system, you would use a more sophisticated
 architecture (e.g., ResNet with attention) and train on GPU with PyTorch/TensorFlow.
 """
 
-import numpy as np
-from typing import Tuple, Optional
 from dataclasses import dataclass
+from typing import Tuple
+
+import numpy as np
 
 
 @dataclass
@@ -277,7 +278,6 @@ class NeuralMCTS:
     
     def _simulate(self, root_state) -> None:
         """Run one MCTS simulation"""
-        from mcts import MCTSNode
         
         node = self.root
         state = root_state.copy()

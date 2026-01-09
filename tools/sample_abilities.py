@@ -10,7 +10,8 @@ from pathlib import Path
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from game.ability import AbilityParser, EffectType, TriggerType
+from game.ability import AbilityParser
+
 
 def load_cards():
     with open('data/cards.json', 'r', encoding='utf-8') as f:

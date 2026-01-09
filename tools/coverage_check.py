@@ -1,11 +1,11 @@
-import sys
 import os
+import sys
 
 # Context setup
 sys.path.append(os.path.join(os.getcwd(), 'game'))
 
 from game.data_loader import CardDataLoader
-from game.ability import AbilityParser, Ability
+
 
 def analyze_coverage():
     loader = CardDataLoader("game/../data/cards.json")
@@ -40,7 +40,7 @@ def analyze_coverage():
                 complex_unparsed += 1
                 sample_unparsed.append(ability.raw_text)
                     
-    print(f"\n--- Coverage Report ---")
+    print("\n--- Coverage Report ---")
     print(f"Total Ability Clauses: {total_abilities}")
     print(f"Successfully Parsed (Simple): {parsed_effects}")
     print(f"Unparsed (Complex): {complex_unparsed}")

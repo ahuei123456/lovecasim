@@ -3,29 +3,30 @@ CPU-Only Agent Tournament
 Runs only heuristic agents (no neural network).
 Optimized for maximum CPU parallelism.
 """
-import sys
+import argparse
 import os
 import random
-import time
-import numpy as np
 import subprocess
-import argparse
-from typing import Dict, List, Tuple
+import sys
+import time
 from multiprocessing import Pool, cpu_count
+
+import numpy as np
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, Phase
 from headless_runner import (
-    TrueRandomAgent, 
-    RandomAgent, 
-    SmartHeuristicAgent, 
-    AbilityFocusAgent, 
-    ConservativeAgent, 
-    GambleAgent
+    AbilityFocusAgent,
+    ConservativeAgent,
+    GambleAgent,
+    RandomAgent,
+    SmartHeuristicAgent,
+    TrueRandomAgent,
 )
+
 
 class EloRating:
     def __init__(self, k_factor=32):

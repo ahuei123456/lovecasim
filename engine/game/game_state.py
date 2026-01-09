@@ -24,29 +24,60 @@ Key Design Decisions:
 # Rule 1.3.4: Active player chooses first when multiple choices occur.
 # Rule 1.3.5: Numerical selections must be non-negative integers.
 
-import numpy as np
+import random
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import List, Tuple, Optional, Dict, Any
-import copy
-import random
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
 try:
-    from .ability import Ability, TriggerType, Effect, EffectType, TargetType, AbilityCostType, Condition, ConditionType, Cost
+    from .ability import (
+        Ability,
+        AbilityCostType,
+        Condition,
+        ConditionType,
+        Cost,
+        Effect,
+        EffectType,
+        TargetType,
+        TriggerType,
+    )
 except ImportError:
     try:
-        from game.ability import Ability, TriggerType, Effect, EffectType, TargetType, AbilityCostType, Condition, ConditionType, Cost
+        from game.ability import (
+            Ability,
+            AbilityCostType,
+            Condition,
+            ConditionType,
+            Cost,
+            Effect,
+            EffectType,
+            TargetType,
+            TriggerType,
+        )
     except ImportError:
-        from ability import Ability, TriggerType, Effect, EffectType, TargetType, AbilityCostType, Condition, ConditionType, Cost
+        from ability import (
+            Ability,
+            AbilityCostType,
+            Condition,
+            ConditionType,
+            Cost,
+            Effect,
+            EffectType,
+            TargetType,
+            TriggerType,
+        )
     
 # Import Numba utils
 try:
-    from .numba_utils import calc_main_phase_masks, JIT_AVAILABLE
+    from .numba_utils import JIT_AVAILABLE, calc_main_phase_masks
 except ImportError:
     try:
-        from game.numba_utils import calc_main_phase_masks, JIT_AVAILABLE
+        from game.numba_utils import JIT_AVAILABLE, calc_main_phase_masks
     except ImportError:
         try:
-            from numba_utils import calc_main_phase_masks, JIT_AVAILABLE
+            from numba_utils import JIT_AVAILABLE, calc_main_phase_masks
         except ImportError:
             JIT_AVAILABLE = False
             def calc_main_phase_masks(*args): pass
@@ -937,7 +968,7 @@ class GameState:
                      new_state.game_over = True
                      new_state.winner = 2 # Draw
                      new_state.loop_draw = True
-            except Exception as e:
+            except Exception:
                 # If hashing fails, just ignore for now to prevent crash
                 pass
 
@@ -1010,7 +1041,7 @@ class GameState:
                             rules_applied = True
                     
                     # Rule 10.6.1: Illegal Resolution Card
-                    if self.yell_cards and not (self.phase in [Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2]):
+                    if self.yell_cards and self.phase not in [Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2]:
                         self.log_rule("Rule 10.6.1", "Cleaning up illegal cards in Resolution Zone.")
                         for cid in self.yell_cards:
                             # Use active player for cleanup as default
@@ -1477,7 +1508,7 @@ class GameState:
         
         elif effect.effect_type == EffectType.IMMUNITY:
              p.restrictions.add("immunity") # Simple implementation
-             if self.verbose: print(f"Effect: Immunity granted.")
+             if self.verbose: print("Effect: Immunity granted.")
 
         elif effect.effect_type == EffectType.ADD_TO_HAND:
              # Basic implementation
@@ -1497,7 +1528,7 @@ class GameState:
                          'filter': 'member_with_ability',
                          'destination': 'trigger_ability'
                      }))
-                     if self.verbose: print(f"TRIGGER_REMOTE: Select member from discard to trigger ability.")
+                     if self.verbose: print("TRIGGER_REMOTE: Select member from discard to trigger ability.")
 
 
         elif effect.effect_type == EffectType.ENERGY_CHARGE:
@@ -1534,7 +1565,7 @@ class GameState:
                  for i in range(3):
                      if opp.stage[i] >= 0:
                          opp.tapped_members[i] = True
-                 if self.verbose: print(f"Effect: All opponent members tapped.")
+                 if self.verbose: print("Effect: All opponent members tapped.")
              else:
                  count = effect.value
                  # Create choice for active player to choose opponent member
@@ -2741,7 +2772,7 @@ class GameState:
         
         # Add blade hearts from yell cards
         if self.yell_cards:
-            self.log_rule("Rule 8.3.14", f"--- Yell Heart Contributions ---")
+            self.log_rule("Rule 8.3.14", "--- Yell Heart Contributions ---")
         for card_id in self.yell_cards:
             # Blade hearts only come from members
             if card_id in self.member_db:
@@ -2890,7 +2921,7 @@ class GameState:
         for card_id in self.yell_cards:
             p.discard.append(card_id)
         self.yell_cards = []
-        self.log_rule("Rule 8.3.18", f"Yell cards moved to discard pile.")
+        self.log_rule("Rule 8.3.18", "Yell cards moved to discard pile.")
         
         # Rule 8.3.19: Members that performed now enter "Wait" state (Tapped)
         p.tapped_members[:] = True
@@ -2905,7 +2936,7 @@ class GameState:
         self.log_rule("PERF_SUMMARY", f"  Yell Cards: {len(self.yell_cards)} cards revealed, +{draw_bonus} cards drawn")
         self.log_rule("PERF_SUMMARY", f"  Hearts: {total_h_sum} total ({stage_hearts_total} from stage, ~{yell_hearts_total} from yells)")
         self.log_rule("PERF_SUMMARY", f"  Result: {success_str} - {len(temp_passed) if temp_passed else 0}/{len(p.live_zone)} lives cleared")
-        self.log_rule("PERF_SUMMARY", f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        self.log_rule("PERF_SUMMARY", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         
         self._advance_performance()
     

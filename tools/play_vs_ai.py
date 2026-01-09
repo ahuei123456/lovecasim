@@ -1,17 +1,18 @@
 
-import sys
+import argparse
 import os
 import random
+import sys
+
 import numpy as np
-import argparse
-import traceback
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from game.game_state import GameState, Phase, initialize_game, MemberCard, LiveCard, TriggerType, EffectType, AbilityCostType
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, initialize_game
 from headless_runner import RandomAgent, create_easy_cards
+
 
 def print_separator():
     print("\n" + "="*60)
@@ -168,8 +169,8 @@ def run_battle():
     ai_agent = RandomAgent()
     
     print_header("WELCOME TO LOVE LIVE! OCG - BATTLE MODE")
-    print(f"You are P0. AI is P1.")
-    print(f"Wait for your turn to make moves!")
+    print("You are P0. AI is P1.")
+    print("Wait for your turn to make moves!")
 
     while not state.is_terminal():
         curr_pid = state.current_player

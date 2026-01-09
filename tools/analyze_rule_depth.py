@@ -1,6 +1,6 @@
 
 import re
-import json
+
 
 def analyze_rule_depth(rules_file, target_file, output_file):
     # 1. Load Rules

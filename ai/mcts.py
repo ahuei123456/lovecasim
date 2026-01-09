@@ -6,10 +6,11 @@ a neural network. When using a neural network, it uses the network's value
 and policy predictions to guide the search.
 """
 
-import numpy as np
-from typing import Optional, Dict, List, Tuple
 import math
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 from game_state import GameState
 
 

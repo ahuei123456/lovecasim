@@ -1,7 +1,7 @@
 import os
-import urllib.request
-import time
 import re
+import time
+import urllib.request
 
 BASE_URL = "https://llofficial-cardgame.com"
 TARGET_DIR = os.path.join("img", "texticon")

@@ -1,7 +1,6 @@
 
 import json
-import re
-import os
+
 
 def update_markdown_with_ids(json_path, md_path):
     with open(json_path, 'r', encoding='utf-8') as f:

@@ -1,11 +1,12 @@
-import sys
-import os
 import json
+import os
+import sys
+
 sys.path.append(os.getcwd())
 
 from game.ability import AbilityParser
-
 from game.data_loader import CardDataLoader
+
 
 def find_and_parse(card_id):
     loader = CardDataLoader("c:/Users/trios/.gemini/antigravity/scratch/loveca-copy/data/cards.json")

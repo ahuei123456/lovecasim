@@ -1,6 +1,7 @@
 
-import sys
 import os
+import sys
+
 import numpy as np
 
 # Add game directory to path
@@ -8,13 +9,13 @@ sys.path.append(os.path.join(os.getcwd(), 'game'))
 
 # Attempting strict imports
 try:
-    from game_state import GameState, Phase, MemberCard
-    from ability import Condition, Ability, TriggerType, AbilityCostType
+    from ability import Ability, AbilityCostType, Condition, TriggerType
+    from game_state import GameState, MemberCard, Phase
 except ImportError:
     # Fallback if running from within game dir
     sys.path.append(os.getcwd())
-    from game_state import GameState, Phase, MemberCard
-    from ability import Condition, Ability, TriggerType, AbilityCostType
+    from ability import Ability, TriggerType
+    from game_state import GameState, MemberCard, Phase
 
 # Mock Color class to avoid import headaches if it's not behaving
 class Color:

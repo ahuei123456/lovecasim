@@ -1,7 +1,9 @@
 
 import pytest
-from engine.game.game_state import GameState, PlayerState
+
 from engine.game.ability import AbilityParser, EffectType
+from engine.game.game_state import GameState
+
 
 @pytest.fixture
 def game_state():

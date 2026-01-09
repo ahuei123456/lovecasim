@@ -1,6 +1,6 @@
 
-import pytest
 from engine.game.ability import AbilityParser
+
 
 def test_debug_parser():
     parser = AbilityParser()

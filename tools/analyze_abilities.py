@@ -1,13 +1,13 @@
 
 import json
-import sys
 import os
-from typing import Dict, List, Set
+import sys
+from typing import Dict
 
 # Add parent dir to path to import game modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.ability import AbilityParser, Ability, TriggerType, EffectType, ConditionType
+from game.ability import AbilityParser, ConditionType, EffectType, TriggerType
 
 # Define what is currently implemented in game_state.py
 SUPPORTED_TRIGGERS = {
@@ -101,7 +101,7 @@ def analyze_coverage():
             else:
                 partially_supported += 1
 
-        except Exception as e:
+        except Exception:
             parse_failures += 1
             # print(f"Parse error for {cid}: {e}")
 

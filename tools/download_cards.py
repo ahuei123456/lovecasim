@@ -1,9 +1,9 @@
 
-import os
 import json
-import requests
+import os
 import time
-from urllib.parse import quote
+
+import requests
 
 # Ensure directory exists
 BASE_URL = "https://loveca-solo.pages.dev"
@@ -105,7 +105,7 @@ def main():
                 return True
             else:
                 return False
-        except Exception as e:
+        except Exception:
             return False
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:

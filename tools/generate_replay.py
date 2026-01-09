@@ -1,13 +1,14 @@
-import sys
-import os
 import json
+import os
+import sys
 import time
 
 # Add parent path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import server
-from headless_runner import SmartHeuristicAgent, RandomAgent, AbilityFocusAgent
+from headless_runner import AbilityFocusAgent, RandomAgent
+
 
 def generate():
     print("Initializing Game for Replay...")

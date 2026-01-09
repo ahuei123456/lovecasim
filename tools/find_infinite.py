@@ -1,8 +1,7 @@
 
-import json
-import numpy as np
 from game.data_loader import CardDataLoader
-from game.game_state import GameState, Phase, TriggerType
+from game.game_state import TriggerType
+
 
 def find_infinite_abilities():
     loader = CardDataLoader("data/cards.json")
@@ -17,7 +16,7 @@ def find_infinite_abilities():
                 is_limited = ab.is_once_per_turn
                 
                 if not has_cost and not is_limited:
-                    print(f"INFINITE ABILITY FOUND!")
+                    print("INFINITE ABILITY FOUND!")
                     print(f"  Card: {m.name} (ID: {mid}, NO: {m.card_id})")
                     print(f"  Ability Text: {m.ability_text}")
                     print(f"  Parsed Costs: {ab.costs}")

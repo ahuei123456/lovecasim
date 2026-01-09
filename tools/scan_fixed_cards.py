@@ -5,6 +5,7 @@ Groups cards by the type of fix that applies to them.
 import json
 import re
 import sys
+
 sys.stdout.reconfigure(encoding='utf-8')
 
 def scan():

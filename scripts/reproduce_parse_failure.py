@@ -1,4 +1,4 @@
-from game.ability import AbilityParser, TriggerType, EffectType
+from game.ability import AbilityParser
 
 text = "必要ハートを確認する時、エールで出た{{icon_b_all.png|ALLブレード}}は任意の色のハートとして扱う。"
 abilities = AbilityParser.parse_ability_text(text)

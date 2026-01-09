@@ -1,13 +1,13 @@
 
 import json
-import re
 import os
 import sys
 
 # Add project root to path to import game modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from game.ability import AbilityParser, EffectType, TargetType, TriggerType, ConditionType
+from game.ability import AbilityParser, EffectType
+
 
 def find_gaps(json_path):
     with open(json_path, 'r', encoding='utf-8') as f:
@@ -110,8 +110,8 @@ if __name__ == "__main__":
 
     # Output to file for permanent record
     with open('ability_gap_report.txt', 'w', encoding='utf-8') as f:
-        f.write(f"UNCATEGORIZED LOGIC GAPS REPORT\n")
-        f.write(f"=============================\n")
+        f.write("UNCATEGORIZED LOGIC GAPS REPORT\n")
+        f.write("=============================\n")
         for reason, items in report.items():
             f.write(f"\n{reason}:\n")
             for item in items:

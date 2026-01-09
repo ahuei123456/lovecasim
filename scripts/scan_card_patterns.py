@@ -2,6 +2,7 @@
 import json
 import re
 
+
 def scan_cards():
     with open('data/cards.json', 'r', encoding='utf-8') as f:
         cards = json.load(f)

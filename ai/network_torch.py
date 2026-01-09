@@ -3,12 +3,14 @@ PyTorch implementation of AlphaZero network.
 Supports GPU acceleration and batch processing.
 """
 
+from typing import Tuple
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from typing import Tuple, List
+
 
 class ResBlock(nn.Module):
     """

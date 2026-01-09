@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from game.ability import AbilityParser, EffectType
 
+
 def analyze_gaps(json_path, output_path):
     with open(json_path, 'r', encoding='utf-8') as f:
         cards = json.load(f)

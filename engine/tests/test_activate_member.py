@@ -3,10 +3,12 @@ Unit test for interactive ACTIVATE_MEMBER mechanic.
 """
 
 
-import pytest
 import numpy as np
+import pytest
+
+from engine.game.ability import AbilityParser, Effect, EffectType
 from engine.game.game_state import GameState, MemberCard
-from engine.game.ability import AbilityParser, EffectType, Effect
+
 
 @pytest.fixture
 def game_state():

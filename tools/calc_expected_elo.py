@@ -1,5 +1,6 @@
 import math
 
+
 def calculate_expected_elo_for_winrate(win_rate, opponent_avg_elo=1000):
     """
     Given a win rate, calculate what ELO difference would predict that rate
@@ -33,7 +34,7 @@ expected_smart_elo = calculate_expected_elo_for_winrate(smart_winrate, opponent_
 print(f"Smart's Win Rate: {smart_winrate*100:.1f}%")
 print(f"Opponent Average ELO: {opponent_avg:.0f}")
 print(f"Expected Smart ELO for {smart_winrate*100:.1f}% win rate: {expected_smart_elo:.0f}")
-print(f"Actual Smart ELO: 1064")
+print("Actual Smart ELO: 1064")
 print(f"Difference: {expected_smart_elo - 1064:.0f} points SHORT")
 print()
 print("Zero-Sum Constraint:")

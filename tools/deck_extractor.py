@@ -1,8 +1,8 @@
 
-import re
 import os
-import sys
+import re
 from collections import Counter
+
 
 def extract_deck_data(content, card_db):
     """
@@ -113,14 +113,14 @@ def parse_and_validate_deck(file_path):
             for e in errors:
                 f.write(f"- {e}\n")
     
-    print(f"Report written to deck_report.txt")
+    print("Report written to deck_report.txt")
     print(f"Total: {len(main_deck)} Main + {len(energy_deck)} Energy")
     print(f"Types: Member {type_counts['Member']}, Live {type_counts['Live']}, Energy {type_counts['Energy']}")
     
     # Auto-upload to server if running
     try:
-        import urllib.request
         import urllib.error
+        import urllib.request
         
         server_url = "http://localhost:8000"
         

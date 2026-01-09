@@ -1,6 +1,7 @@
 import json
-import re
+
 from game.ability import AbilityParser
+
 
 def check_longest():
     print("Loading cards...")
@@ -39,7 +40,7 @@ def check_longest():
                     out.write(f"  Ability {j}:\n")
                     out.write(f"    Trigger: {ability.trigger}\n")
                     if ability.is_once_per_turn:
-                        out.write(f"    [ONCE PER TURN]\n")
+                        out.write("    [ONCE PER TURN]\n")
                         
                     if ability.conditions:
                         out.write(f"    Conditions ({len(ability.conditions)}):\n")
@@ -68,9 +69,9 @@ def check_longest():
                             if params:
                                 out.write(f"         {' '.join(params)}\n")
                             if effect.is_optional:
-                                out.write(f"         [OPTIONAL]\n")
+                                out.write("         [OPTIONAL]\n")
                     else:
-                        out.write(f"    Effects: (None)\n")
+                        out.write("    Effects: (None)\n")
                         
             except Exception as e:
                 out.write(f"  ERROR PARSING: {e}\n")

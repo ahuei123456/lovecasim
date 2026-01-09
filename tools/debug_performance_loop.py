@@ -1,16 +1,15 @@
 
-import sys
 import os
-import io
-import time
+import sys
+
 import numpy as np
 
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.game_state import GameState, Phase
-from game.ability import Ability, TriggerType, Effect, EffectType, TargetType
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, Phase
+
 
 def detailed_debug():
     print("--- Debugging Performance Loop ---")

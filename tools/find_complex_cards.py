@@ -1,6 +1,7 @@
 
 import json
 
+
 def find_complex_logic_cards():
     input_file = "c:/Users/trios/.gemini/antigravity/scratch/loveca-copy/data/cards.json"
     keywords = ["聞く", "回答", "質問", "選ぶ", "答え"]

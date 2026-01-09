@@ -13,6 +13,7 @@ except ImportError:
 
 import numpy as np
 
+
 @njit
 def calc_main_phase_masks(
     hand: np.ndarray,

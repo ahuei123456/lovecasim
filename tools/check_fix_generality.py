@@ -2,6 +2,7 @@
 import json
 import re
 
+
 def check_general_application():
     with open('data/cards.json', 'r', encoding='utf-8') as f:
         data = json.load(f)

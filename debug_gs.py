@@ -1,6 +1,6 @@
-import sys
-import os
 import inspect
+import os
+import sys
 
 sys.path.append(os.getcwd())
 try:

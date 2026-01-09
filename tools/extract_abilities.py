@@ -1,6 +1,7 @@
 """Extract diverse ability examples for manual review."""
 import json
 
+
 def main():
     with open('data/cards.json', 'r', encoding='utf-8') as f:
         data = json.load(f)

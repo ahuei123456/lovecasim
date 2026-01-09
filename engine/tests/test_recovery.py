@@ -2,11 +2,12 @@
 Unit test recovery mechanics (RECOVER_LIVE, RECOVER_MEMBER).
 Tests based on real card examples from the 100-card analysis.
 """
-import pytest
-from pathlib import Path
 
+import pytest
+
+from engine.game.ability import AbilityParser, Effect, EffectType  # Added Effect explicitly
 from engine.game.game_state import GameState
-from engine.game.ability import AbilityParser, EffectType, Effect # Added Effect explicitly
+
 
 @pytest.fixture
 def game_state():

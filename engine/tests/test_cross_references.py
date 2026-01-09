@@ -1,7 +1,6 @@
 
-import pytest
 from engine.game.game_state import GameState
-from engine.game.ability import TriggerType, ConditionType
+
 
 def test_group_alias():
     print("\n=== Testing Group Alias (μ's -> ラブライブ！) ===")

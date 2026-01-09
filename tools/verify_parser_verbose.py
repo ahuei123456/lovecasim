@@ -1,8 +1,10 @@
-import sys
 import os
+import sys
+
 sys.path.append(os.getcwd())
 
-from game.ability import AbilityParser, Ability, TriggerType, EffectType
+from game.ability import Ability, AbilityParser
+
 
 def print_ability(a: Ability):
     print(f"  Trigger: {a.trigger.name}")

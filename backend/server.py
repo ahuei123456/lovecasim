@@ -1,10 +1,11 @@
 """
 Flask Backend for Love Live Card Game Web UI
 """
-import os
-import sys
-import random
 import json
+import os
+import random
+import sys
+
 import numpy as np
 
 # --- PATH SETUP ---
@@ -15,10 +16,11 @@ AI_DIR = os.path.join(CURRENT_DIR, '..', 'ai')
 sys.path.append(ENGINE_DIR)
 sys.path.append(AI_DIR)
 
-from flask import Flask, jsonify, request, send_from_directory
 from datetime import datetime
-from game.game_state import GameState, Phase
+
+from flask import Flask, jsonify, request, send_from_directory
 from game.data_loader import CardDataLoader
+from game.game_state import GameState, Phase
 from headless_runner import SmartHeuristicAgent, create_easy_cards
 
 # Add tools directory (now in scripts/ or tools/?)
@@ -833,7 +835,7 @@ def get_action_desc(a, gs):
             cid = p.hand[idx]
             name = get_card_name(cid)
             return f"【選択】手札から: {name}"
-        return f"【選択】手札から選択"
+        return "【選択】手札から選択"
 
     elif 560 <= a <= 562:
         idx = a - 560
@@ -863,7 +865,7 @@ def get_action_desc(a, gs):
                 if source_cid is not None:
                     ability_info = f": {get_card_name(source_cid)}"
             return f"【自動能力】解決 ({idx+1}/{len(gs.triggered_abilities)}){ability_info}"
-        return f"【自動能力】解決"
+        return "【自動能力】解決"
         
     elif 600 <= a <= 659:
         idx = a - 600
@@ -892,7 +894,7 @@ def get_action_desc(a, gs):
                     cid = cards[idx]
                     name = get_card_name(cid)
                     return f"【成功ライブ選択】{name}を成功置き場へ"
-        return f"【選択】対象を選んでください"
+        return "【選択】対象を選んでください"
 
     elif 660 <= a <= 719:
         idx = a - 660
@@ -907,9 +909,9 @@ def get_action_desc(a, gs):
                     cid = cards[idx]
                     name = get_card_name(cid)
                     return f"{source_prefix}{name}を回収"
-        return f"【控え室】カードを選択"
+        return "【控え室】カードを選択"
 
-    return f"アクション"
+    return "アクション"
 
 @app.route('/')
 def index():
@@ -1166,8 +1168,9 @@ def reset():
     global game_state
     try:
         # Re-import Phase for safety
-        from game.game_state import Phase
         import time
+
+        from game.game_state import Phase
         random.seed(time.time()) # Ensure fresh seed
         print("DEBUG: Reset called")
 

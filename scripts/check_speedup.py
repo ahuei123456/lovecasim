@@ -1,4 +1,3 @@
-import sys
 
 # Read parallel tournament output
 try:

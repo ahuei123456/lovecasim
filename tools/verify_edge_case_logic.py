@@ -1,8 +1,10 @@
-import sys
 import os
+import sys
+
 sys.path.append(os.getcwd())
 
-from game.ability import AbilityParser, TriggerType, EffectType, ConditionType, TargetType
+from game.ability import AbilityParser, ConditionType, EffectType, TargetType
+
 
 def verify():
     test_cases = [

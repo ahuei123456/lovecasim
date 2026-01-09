@@ -1,6 +1,7 @@
 import json
 import os
 
+
 def list_card_ids():
     json_path = 'data/cards.json'
     if not os.path.exists(json_path):

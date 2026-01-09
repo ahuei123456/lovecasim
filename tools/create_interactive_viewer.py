@@ -2,6 +2,7 @@
 import json
 import os
 
+
 def create_interactive_viewer():
     # 1. Load the HTML template
     template_path = 'interactive_deck_viewer.html'

@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from game.ability import AbilityParser, EffectType, TriggerType, ConditionType
+from game.ability import AbilityParser
 
 # Track what we find
 effect_usage = {}
@@ -103,7 +103,7 @@ def main():
             'cards': analysis_results
         }, out, ensure_ascii=False, indent=2)
     
-    print(f"\nDetailed analysis written to: analysis_detailed_100cards.json")
+    print("\nDetailed analysis written to: analysis_detailed_100cards.json")
 
 if __name__ == "__main__":
     main()

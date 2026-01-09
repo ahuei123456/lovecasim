@@ -1,8 +1,10 @@
 
-import pytest
 import numpy as np
-from engine.game.game_state import HeartColor, GameState, Phase
+import pytest
+
 from engine.game.data_loader import CardDataLoader
+from engine.game.game_state import GameState, HeartColor, Phase
+
 
 @pytest.fixture(scope="module")
 def loader():

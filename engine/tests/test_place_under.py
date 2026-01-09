@@ -1,8 +1,10 @@
 
-import pytest
 import numpy as np
-from engine.game.game_state import GameState, Phase, MemberCard
+import pytest
+
 from engine.game.ability import Effect, EffectType, TargetType
+from engine.game.game_state import GameState, MemberCard, Phase
+
 
 @pytest.fixture
 def game_state():

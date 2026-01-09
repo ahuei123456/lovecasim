@@ -1,20 +1,21 @@
 """
 Single-process profiling script for game loop.
 """
-import sys
-import os
-import random
-import time
-import numpy as np
 import cProfile
+import os
 import pstats
+import random
+import sys
 from io import StringIO
+
+import numpy as np
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.game_state import GameState, Phase
 from game.data_loader import CardDataLoader
-from headless_runner import SmartHeuristicAgent, RandomAgent
+from game.game_state import GameState, Phase
+from headless_runner import RandomAgent, SmartHeuristicAgent
+
 
 def run_game_optimized(member_db, live_db, seed):
     """Run one game with optimized copy"""

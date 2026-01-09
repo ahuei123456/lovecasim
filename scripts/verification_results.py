@@ -1,6 +1,5 @@
 
 import json
-import os
 
 # Results data to be formatted into the walkthrough
 results = {

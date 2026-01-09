@@ -3,10 +3,11 @@ Ability and Effect System for Love Live Card Game.
 Handles triggers, effect stack, and ability resolution.
 """
 
-from enum import IntEnum, auto
-from typing import List, Optional, Callable, Dict, Any, Union
-from dataclasses import dataclass, field
 import re
+from dataclasses import dataclass, field
+from enum import IntEnum
+from typing import Any, Dict, List
+
 
 class TriggerType(IntEnum):
     NONE = 0

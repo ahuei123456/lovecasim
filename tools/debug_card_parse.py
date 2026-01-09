@@ -1,6 +1,7 @@
 import sys
+
 sys.path.insert(0, 'game')
-from ability import AbilityParser, EffectType
+from ability import AbilityParser
 
 text = "{{toujyou.png|登場}}ライブ終了時まで、{{icon_blade.png|ブレード}}を得る。"
 abilities = AbilityParser.parse_ability_text(text)

@@ -2,6 +2,7 @@
 import json
 import re
 
+
 def generate_report(rule_map_path, target_file_path):
     with open(rule_map_path, 'r', encoding='utf-8') as f:
         rule_map = json.load(f)

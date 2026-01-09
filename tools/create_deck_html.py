@@ -1,6 +1,6 @@
 
 import json
-import os
+
 
 def create_embedded_html():
     # 1. Load deck data

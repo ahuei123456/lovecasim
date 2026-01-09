@@ -3,13 +3,14 @@ Comprehensive Card Ability Analysis
 Generates a report of ALL cards with abilities/FAQs and their implementation status.
 """
 import json
-import sys
 import os
+import sys
 
 # Add parent to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from game.ability import AbilityParser
+
 
 def analyze_all_cards():
     with open('data/cards.json', 'r', encoding='utf-8') as f:

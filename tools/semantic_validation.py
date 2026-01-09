@@ -6,8 +6,10 @@ Uses heuristics to flag potentially incomplete or incorrect parses.
 import json
 import re
 import sys
+
 sys.path.insert(0, 'game')
-from ability import AbilityParser, EffectType, ConditionType, TriggerType
+from ability import AbilityParser, ConditionType, EffectType, TriggerType
+
 
 def load_cards():
     with open('data/cards.json', 'r', encoding='utf-8') as f:
@@ -79,7 +81,7 @@ def validate_card(card):
     if names and '場合' in text:
         has_member_condition = any(c.type == ConditionType.HAS_MEMBER for c in all_conditions)
         if not has_member_condition:
-            issues.append(f"MISSING_MEMBER_COND: Text mentions named members but no HAS_MEMBER condition")
+            issues.append("MISSING_MEMBER_COND: Text mentions named members but no HAS_MEMBER condition")
     
     # 7. Opponent Targeting Check
     if '相手' in text and ('手札' in text or 'メンバー' in text or 'デッキ' in text):
@@ -292,7 +294,7 @@ def main():
                 out.write(f"  - {issue}\n")
             out.write("\n")
     
-    print(f"Validation complete.")
+    print("Validation complete.")
     print(f"  - {len(all_issues)} cards with heuristic issues")
     print(f"  - {len(unhandled)} potential unhandled keywords discovered")
     print("Report written to: semantic_validation_report.txt")

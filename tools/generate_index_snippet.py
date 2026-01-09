@@ -1,6 +1,7 @@
 
 import json
 
+
 def format_index(rule_map_path):
     with open(rule_map_path, 'r', encoding='utf-8') as f:
         rule_map = json.load(f)
