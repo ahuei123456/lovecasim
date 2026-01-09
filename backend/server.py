@@ -20,9 +20,9 @@ AI_DIR = os.path.join(CURRENT_DIR, "..", "ai")
 sys.path.append(ENGINE_DIR)
 sys.path.append(AI_DIR)
 
-from game.data_loader import CardDataLoader # noqa: E402
-from game.game_state import GameState, Phase # noqa: E402
-from headless_runner import SmartHeuristicAgent, create_easy_cards # noqa: E402
+from game.data_loader import CardDataLoader  # noqa: E402
+from game.game_state import GameState, Phase  # noqa: E402
+from headless_runner import SmartHeuristicAgent, create_easy_cards  # noqa: E402
 
 # Add tools directory (now in scripts/ or tools/?)
 # Adjust if tools were moved? Tools are still in root/tools in the plan?
@@ -150,30 +150,9 @@ def save_replay():
 game_history = []  # For replay recording
 
 
-def save_replay():
-    """Save the current game history to a file."""
-    if not game_history:
-        return
 
-    try:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        os.makedirs("replays", exist_ok=True)
-        filename = f"replays/replay_{timestamp}.json"
 
-        # Structure matches what web_ui expects (based on 'ai_match.json' structure if known, otherwise typical)
-        # The UI code seen earlier uses `replayData.states` and `replayData.winner`
-        data = {
-            "game_id": 0,
-            "timestamp": timestamp,
-            "winner": game_state.winner if game_state else -1,
-            "states": game_history,
-        }
 
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False)
-        print(f"Replay saved to {filename}")
-    except Exception as e:
-        print(f"Failed to save replay: {e}")
 
 
 def init_game(deck_type="normal"):

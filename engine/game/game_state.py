@@ -304,7 +304,7 @@ class PlayerState:
 
         # New: Effect control
         self.negate_next_effect: bool = False
-        self.restrictions: Set[str] = set()  # "live", "placement", etc.
+        self.restrictions: set[str] = set()  # "live", "placement", etc.
 
         # Live Phase Tracking
         self.live_score_bonus: int = 0
@@ -314,13 +314,13 @@ class PlayerState:
         self.cannot_live: bool = False
 
         # Rule 11.2: Once per Turn tracking
-        self.used_abilities: Set[str] = set()  # "cid-ability_idx"
+        self.used_abilities: set[str] = set()  # "cid-ability_idx"
 
         # Rule 9.9: Continuous Effects tracking
         self.continuous_effects: List[Dict[str, Any]] = []
 
         # Meta-Rules (e.g., ALL Blade as Any)
-        self.meta_rules: Set[str] = set()
+        self.meta_rules: set[str] = set()
 
         # Pre-allocated buffer for JIT
         self.hand_buffer: np.ndarray = np.zeros(100, dtype=np.int32)
@@ -1044,7 +1044,7 @@ class GameState:
                     # Update Meta Rules (Continuous Effects from Stage and Live Zone)
                     p.meta_rules.clear()
                     # 1. Members on stage
-                    for i, cid in enumerate(p.stage):
+                    for cid in p.stage:
                         if cid >= 0 and cid in self.member_db:
                             m = self.member_db[cid]
                             for ab in m.abilities:
@@ -1126,7 +1126,7 @@ class GameState:
             # AUTO-RESOLVE: Process ALL triggers automatically in FIFO order
             if self.triggered_abilities and not self.pending_choices:
                 p_triggers = [[] for _ in range(2)]
-                for i, (pid, ab, ctx) in enumerate(self.triggered_abilities):
+                for i, (pid, _ab, _ctx) in enumerate(self.triggered_abilities):
                     p_triggers[pid].append(i)
 
                 # Active player first (Rule 9.5.3.2)

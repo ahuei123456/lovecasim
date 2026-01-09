@@ -43,8 +43,8 @@ class CardDataLoader:
                     filename = parts[1]
                     # Server route is /img/<path>, so return cards/PRODUCT/FILENAME
                     return f"cards/{product}/{filename}"
-            except:
-                pass
+            except Exception as e:
+                print(f"Error parsing image URL: {e}")
         return raw_url
 
     def load(self) -> Tuple[Dict[int, MemberCard], Dict[int, LiveCard], Dict[int, MemberCard]]:

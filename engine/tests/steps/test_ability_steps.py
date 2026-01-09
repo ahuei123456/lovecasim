@@ -10,9 +10,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 # Use try-except import based on how pytest runs it
 try:
-    from engine.game.ability import AbilityParser, Effect, EffectType, TriggerType
+    from engine.game.ability import AbilityParser, TriggerType
     from engine.game.data_loader import CardDataLoader
-    from engine.game.game_state import GameState, LiveCard, MemberCard, Phase, PlayerState
+    from engine.game.game_state import GameState, Phase
 except ImportError:
     # Fallback if path appending isn't enough or different context
     from game.ability import AbilityParser, TriggerType
