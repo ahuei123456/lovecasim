@@ -539,6 +539,59 @@ class GameState:
         self.state_history: List[int] = []
         self.loop_draw = False
     
+    def inject_card(self, player_id: int, card_id: int, zone: str, position: int = -1) -> None:
+        """
+        Inject a card into a specific zone for testing/debugging purposes.
+        
+        Args:
+            player_id: 0 or 1
+            card_id: The ID of the card to inject
+            zone: 'hand', 'deck', 'discard', 'stage', 'energy', 'live', 'success_lives'
+            position: Index to insert at (default -1 for append). For 'stage', position is the area index (0-2).
+        """
+        if not (0 <= player_id < 2):
+            raise ValueError(f"Invalid player_id: {player_id}")
+            
+        p = self.players[player_id]
+        
+        # Helper to insert into list
+        def _insert_list(lst, item, pos):
+            if pos == -1 or pos >= len(lst):
+                lst.append(item)
+            else:
+                lst.insert(pos, item)
+
+        if zone == 'hand':
+            _insert_list(p.hand, card_id, position)
+        elif zone == 'deck' or zone == 'main_deck':
+            _insert_list(p.main_deck, card_id, position)
+        elif zone == 'discard':
+            _insert_list(p.discard, card_id, position)
+        elif zone == 'energy' or zone == 'energy_zone':
+            _insert_list(p.energy_zone, card_id, position)
+        elif zone == 'live' or zone == 'live_zone':
+            p.live_zone.append(card_id) # Live zone is simple append usually, unless we track positions strictly
+            p.live_zone_revealed.append(0) # Default hidden
+        elif zone == 'success_lives':
+            p.success_lives.append(card_id)
+        elif zone == 'stage':
+            if not (0 <= position < 3):
+                raise ValueError(f"Invalid stage position: {position}. Must be 0, 1, or 2.")
+            p.stage[position] = card_id
+        else:
+            raise ValueError(f"Unknown zone: {zone}")
+            
+        # Re-calculate caches if necessary
+        if zone in ('hand', 'stage', 'energy'):
+            self._update_jit_state(player_id)
+
+    def _update_jit_state(self, player_id: int):
+        """Helper to update JIT-compatible arrays after manual state modification."""
+        # Current implementation of JIT arrays might not need manual update if we are just modifying lists
+        # that get re-converted to arrays in _get_observation or similar.
+        # But if we maintain shadow JIT arrays, update them here.
+        pass
+    
     def log_rule(self, rule_id: str, description: str):
         """Append a rule application entry to the log."""
         # Add Turn and Phase context
