@@ -76,5 +76,26 @@ class TestGroupFilter(unittest.TestCase):
         # Should fail because logic requires ALL to match (match_count == len)
         self.assertFalse(self.game._check_condition(self.p0, cond))
 
+    def test_icon_filter(self):
+        """Test checking for heart icons via GROUP_FILTER."""
+        # Member with Pink heart (0)
+        h0 = np.zeros(6, dtype=np.int32)
+        h0[0] = 1
+        self.game.member_db[3] = MemberCard(
+            card_id=3, card_no="P-001", name="Pinky", cost=1,
+            hearts=h0, blade_hearts=np.zeros(7, dtype=np.int32), blades=1,
+            group="μ's"
+        )
+        
+        # Condition from parser: match 'heart01' (Pink)
+        cond = Condition(ConditionType.GROUP_FILTER, {'group': '{{heart_01.png|heart01}}'})
+        
+        context = {'card_id': 3}
+        self.assertTrue(self.game._check_condition(self.p0, cond, context))
+        
+        # Fail case
+        context = {'card_id': 1} # Kanon has 0 hearts
+        self.assertFalse(self.game._check_condition(self.p0, cond, context))
+
 if __name__ == '__main__':
     unittest.main()

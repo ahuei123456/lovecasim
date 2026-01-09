@@ -1,0 +1,36 @@
+﻿py : F
+発生場所 行:1 文字:1
++ py tests/test_select_mode.py 2>&1 | 
+Out-File -FilePath test_log_selec ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpec 
+   ified: (F:String) [], RemoteExcep  
+  tion
+    + FullyQualifiedErrorId : NativeC 
+   ommandError
+ 
+======================================
+================================
+FAIL: test_select_mode_ability (__main
+__.TestSelectMode.test_select_mode_abi
+lity)
+Test ability with multiple modal optio
+ns.
+--------------------------------------
+--------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigra
+vity\scratch\loveca-copy\tests\test_se
+lect_mode.py", line 45, in test_select
+_mode_ability
+    self.assertEqual(len(self.game.pen
+ding_effects), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+--------------------------------------
+--------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=1)

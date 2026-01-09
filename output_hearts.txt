@@ -1,0 +1,55 @@
+EEEEE
+======================================================================
+ERROR: test_add_hearts (__main__.TestHeartModifiers.test_add_hearts)
+Test adding hearts via EffectType.ADD_HEARTS
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigravity\scratch\loveca-copy\tests\test_heart_modifiers.py", line 44, in test_add_hearts
+    hearts = self.game.get_effective_hearts(0, GameState.member_db)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'GameState' object has no attribute 'get_effective_hearts'
+
+======================================================================
+ERROR: test_set_hearts (__main__.TestHeartModifiers.test_set_hearts)
+Test setting hearts via EffectType.SET_HEARTS
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigravity\scratch\loveca-copy\tests\test_heart_modifiers.py", line 66, in test_set_hearts
+    hearts = self.game.get_effective_hearts(0, GameState.member_db)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'GameState' object has no attribute 'get_effective_hearts'
+
+======================================================================
+ERROR: test_set_then_add (__main__.TestHeartModifiers.test_set_then_add)
+Test SET_HEARTS followed by ADD_HEARTS (Layers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigravity\scratch\loveca-copy\tests\test_heart_modifiers.py", line 108, in test_set_then_add
+    hearts = self.game.get_effective_hearts(0, GameState.member_db)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'GameState' object has no attribute 'get_effective_hearts'
+
+======================================================================
+ERROR: test_transform_color (__main__.TestHeartModifiers.test_transform_color)
+Test transforming hearts to a specific color
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigravity\scratch\loveca-copy\tests\test_heart_modifiers.py", line 87, in test_transform_color
+    hearts = self.game.get_effective_hearts(0, GameState.member_db)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'GameState' object has no attribute 'get_effective_hearts'
+
+======================================================================
+ERROR: test_transform_then_add (__main__.TestHeartModifiers.test_transform_then_add)
+Test TRANSFORM_COLOR followed by ADD_HEARTS
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigravity\scratch\loveca-copy\tests\test_heart_modifiers.py", line 130, in test_transform_then_add
+    hearts = self.game.get_effective_hearts(0, GameState.member_db)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'GameState' object has no attribute 'get_effective_hearts'
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.005s
+
+FAILED (errors=5)

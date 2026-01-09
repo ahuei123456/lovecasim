@@ -18,6 +18,7 @@ class TriggerType(IntEnum):
     CONSTANT = 6          # 常時
     ACTIVATED = 7         # 起動
     ON_LEAVES = 8         # 自動 - when member leaves stage/is discarded
+    ON_REVEAL = 9         # エールにより公開、公開されたとき
 
 class TargetType(IntEnum):
     SELF = 0
@@ -69,7 +70,7 @@ class EffectType(IntEnum):
     CHEER_REVEAL = 28    # エールにより公開 - cards revealed via cheer mechanic
     ACTIVATE_MEMBER = 29 # アクティブにする - untap/make active a member
     ADD_TO_HAND = 30     # 手札に加える - add card to hand (from any zone)
-    COLOR_SELECT = 31    # Specify a heart color
+    COLOR_SELECT = 37    # Specify a heart color
     REPLACE_EFFECT = 34  # Replacement effect (代わりに)
     TRIGGER_REMOTE = 35  # Trigger ability from another zone (Cluster 5)
     REDUCE_HEART_REQ = 36 # Need hearts reduced
@@ -175,6 +176,7 @@ class AbilityParser:
                 
                 # --- Trigger Parsing ---
                 if 'toujyou' in line or '登場' in line: trigger = TriggerType.ON_PLAY
+                elif 'エールにより公開' in line or 'エールで公開' in line: trigger = TriggerType.ON_REVEAL
                 elif 'jidou' in line or '自動' in line: trigger = TriggerType.ON_LEAVES
                 elif 'jyouji' in line or '常時' in line: trigger = TriggerType.CONSTANT
                 elif 'live_success' in line or 'ライブ成功' in line: trigger = TriggerType.ON_LIVE_SUCCESS
@@ -188,6 +190,7 @@ class AbilityParser:
                 # Double trigger check (e.g. {{toujyou.png|登場}}/{{live_start.png|ライブ開始時}})
                 triggers = []
                 if 'toujyou' in line or '登場' in line: triggers.append(TriggerType.ON_PLAY)
+                if 'エールにより公開' in line or 'エールで公開' in line: triggers.append(TriggerType.ON_REVEAL)
                 if 'live_start' in line or 'ライブ開始' in line or 'ライブの開始' in line: triggers.append(TriggerType.ON_LIVE_START)
                 if 'live_success' in line or 'ライブ成功' in line: triggers.append(TriggerType.ON_LIVE_SUCCESS)
                 if 'kidou' in line or '起動' in line: triggers.append(TriggerType.ACTIVATED)

@@ -1,0 +1,44 @@
+﻿py : ..E..
+発生場所 行:1 文字:1
++ py -m unittest tests/test_group_filt
+er.py 2>&1 | Out-File -FilePath t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo          : NotSpec 
+   ified: (..E..:String) [], RemoteE  
+  xception
+    + FullyQualifiedErrorId : NativeC 
+   ommandError
+ 
+======================================
+================================
+ERROR: test_icon_filter (tests.test_gr
+oup_filter.TestGroupFilter.test_icon_f
+ilter)
+Test checking for heart icons via GROU
+P_FILTER.
+--------------------------------------
+--------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigra
+vity\scratch\loveca-copy\tests\test_gr
+oup_filter.py", line 94, in test_icon_
+filter
+    self.assertTrue(self.game._check_c
+ondition(self.p0, cond, context))
+                    ~~~~~~~~~~~~~~~~~~
+~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\trios\.gemini\antigra
+vity\scratch\loveca-copy\game\game_sta
+te.py", line 1944, in _check_condition
+    icon_match = re.search(r'heart(\d+
+)', group)
+                 ^^
+NameError: name 're' is not defined. D
+id you forget to import 're'?
+
+--------------------------------------
+--------------------------------
+Ran 5 tests in 0.006s
+
+FAILED (errors=1)

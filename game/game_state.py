@@ -30,6 +30,7 @@ from enum import IntEnum
 from typing import List, Tuple, Optional, Dict, Any
 import copy
 import random
+import re
 try:
     from game.ability import Ability, TriggerType, Effect, EffectType, TargetType, AbilityCostType, Condition, ConditionType, Cost
 except ImportError:
@@ -412,7 +413,7 @@ class PlayerState:
                 if all(self._check_condition_for_constant(ab_cond, slot_idx) for ab_cond in ab.conditions):
                     slot_effects.extend(ab.effects)
                     
-        # Layer 4 (Rule 9.9.1.4): Set to specific values
+        # Layer 4 (Rule 9.9.1.4): Set to specific values / Transform
         for eff in slot_effects:
             if eff.effect_type == EffectType.SET_HEARTS:
                 # Ensure effect value is padded to (7,)
@@ -421,6 +422,22 @@ class PlayerState:
                         hearts[:6] = eff.value
                     else:
                         hearts = eff.value
+            elif eff.effect_type == EffectType.TRANSFORM_COLOR:
+                target_color = eff.params.get('target_color', '')
+                import re
+                color_map = {'ピンク': 0, '赤': 1, '黄': 2, '緑': 3, '青': 4, '紫': 5}
+                col_idx = None
+                if target_color in color_map:
+                    col_idx = color_map[target_color]
+                else:
+                    col_match = re.search(r'heart0?(\d+)', target_color)
+                    if col_match:
+                        col_idx = int(col_match.group(1)) - 1
+                
+                if col_idx is not None and 0 <= col_idx < 6:
+                    total_h = np.sum(hearts[:6])
+                    hearts[:6] = 0
+                    hearts[col_idx] = total_h
                 
         # Layer 5 (Rule 9.9.1.5): Additive/Subtractive modifications
         for eff in slot_effects:
@@ -1229,13 +1246,18 @@ class GameState:
              return
         
         if effect.effect_type == EffectType.SELECT_MODE:
-             # This requires the Ability to have modal_options populated
-             # For now, we assume the effect is resolved in context of an ability
-             # In a full engine, we might pass the ability object or options directly in the Effect params
              options = effect.params.get('options', [])
+             if not options and self.current_resolving_ability:
+                 # Use modal_options from the current ability
+                 # Each option is a List[Effect]
+                 for opt_effects in self.current_resolving_ability.modal_options:
+                     desc = " & ".join([e.effect_type.name for e in opt_effects]) or "Unknown"
+                     options.append({"effects": opt_effects, "description": desc})
+             
              self.pending_choices.append(("SELECT_MODE", {
                  "options": options,
-                 "effect_description": "Choose one of the following",
+                 "count": effect.value,
+                 "effect_description": f"Choose {effect.value} of the following",
                  "source_ability": self.current_resolving_ability.raw_text if self.current_resolving_ability else "",
                  "source_member": self.current_resolving_member or "Unknown",
                  "is_optional": False
@@ -1456,13 +1478,43 @@ class GameState:
         elif effect.effect_type == EffectType.SWAP_CARDS:
             # Rule 5.8: カードを入れ替える
             # Typically "Draw X, Discard Y" or just "Discard Y"
-            # Parser seems to separate Draw and Discard(Swap)
-            if effect.params.get('target') == 'discard' and effect.params.get('from') in ('hand', None):
+            if effect.params.get('target') == 'discard':
                 count = effect.value
-                # If hand has fewer cards than count? Rule usually implies discard as much as possible or cannot activate?
-                # Assuming simple "discard N" choice
-                self.pending_choices.append(("DISCARD_SELECT", {"count": count}))
+                src = effect.params.get('from')
+                if src == 'deck':
+                    # Rule 10.3: Discard from top of deck
+                    self.looked_cards = []
+                    for _ in range(count):
+                        if p.main_deck:
+                            card = p.main_deck.pop(0)
+                            p.discard.append(card)
+                            self.looked_cards.append(card)
+                    if self.verbose: print(f"Effect: Player {p.player_id} discarded {len(self.looked_cards)} cards from deck top.")
+                elif src in ('hand', None):
+                    # Choice for hand discard
+                    self.pending_choices.append(("DISCARD_SELECT", {"count": count}))
             
+        elif effect.effect_type == EffectType.TRANSFORM_COLOR:
+            p.continuous_effects.append({
+                "effect": effect,
+                "expiry": effect.params.get('until', 'live_end').upper()
+            })
+
+        elif effect.effect_type == EffectType.PLACE_UNDER:
+            # Rule 11.5: Place card under member
+            source = effect.params.get('from', 'deck')
+            if source == 'deck':
+                if p.main_deck:
+                    card = p.main_deck.pop(0)
+                    # For now, put under Center (Slot 1) if not specified, or create choice
+                    target_slot = ctx.get('area', 1)
+                    p.stage_energy[target_slot].append(card)
+                    if self.verbose: print(f"Effect: Placed card under member in slot {target_slot}")
+            
+        elif effect.effect_type == EffectType.FORMATION_CHANGE:
+            # Rule 11.10: Re-arrange members
+            self.pending_choices.append(("FORMATION_CHANGE", {}))
+
         elif effect.effect_type == EffectType.ADD_HEARTS:
             # Rule 9.9: 継続効果の登録
             val = effect.value
@@ -1893,6 +1945,17 @@ class GameState:
                             m = self.member_db[cid]
                             if any(tg in m.group for tg in target_groups) or any(tg == m.unit for tg in target_groups):
                                 is_match = True
+                            elif 'heart' in group:
+                                # Special icon check: heart04 in group string
+                                icon_match = re.search(r'heart(\d+)', group)
+                                if icon_match:
+                                    target_idx = int(icon_match.group(1)) - 1
+                                    if 0 <= target_idx < 6 and m.hearts[target_idx] > 0:
+                                        is_match = True
+                                elif 'メンバーカード' in group:
+                                    is_match = True # It is a member card
+                            elif 'メンバーカード' in group:
+                                is_match = True
                         elif cid in self.live_db:
                             l = self.live_db[cid]
                             if any(tg in l.group for tg in target_groups):
@@ -1901,7 +1964,10 @@ class GameState:
                         if is_match:
                             match_count += 1
                     
-                    met = (match_count == len(context_cards))
+                    if cond.params.get('context') == 'revealed':
+                        met = (match_count == len(context_cards) and match_count > 0)
+                    else:
+                        met = (match_count > 0)
         elif cond.type == ConditionType.COST_CHECK:
             cid = context.get('card_id')
             if cid is not None and cid in self.member_db:
@@ -2319,13 +2385,24 @@ class GameState:
 
         elif choice_type == "SELECT_MODE":
             option_idx = action - 570
-            options = params.get('options', []) # List of List[Effect]
+            options = params.get('options', [])
+            count = params.get('count', 1)
+            
             if 0 <= option_idx < len(options):
-                chosen_effects = options[option_idx]
+                choice = options.pop(option_idx)
+                # Choice can be a list of effects or a dict with 'effects' key
+                chosen_effects = choice.get('effects') if isinstance(choice, dict) else choice
+                
                 # Push chosen effects to the front of the stack
                 for effect in reversed(chosen_effects):
                     self.pending_effects.insert(0, effect)
+                
                 if self.verbose: print(f"Selected Mode {option_idx} with {len(chosen_effects)} effects.")
+                
+                if count > 1 and options:
+                    params['options'] = options
+                    params['count'] = count - 1
+                    self.pending_choices.insert(0, ("SELECT_MODE", params))
 
         elif choice_type == "COLOR_SELECT":
             color_idx = action - 580
@@ -2530,20 +2607,6 @@ class GameState:
                      
                  if self.verbose: print(f"Swapped {card_to_hand} (from Live) with {card_to_live} (from Hand)")
             
-        elif choice_type == "SELECT_SUCCESS_LIVE":
-            # Player selects which passed live card to move to success zone
-            cards = params.get('cards', [])
-            player_id = params.get('player_id', 0)
-            idx = action - 600
-            
-            if 0 <= idx < len(cards):
-                selected_cid = cards[idx]
-                target_player = self.players[player_id]
-                if selected_cid in target_player.passed_lives:
-                    target_player.success_lives.append(selected_cid)
-                    target_player.passed_lives.remove(selected_cid)
-                    self.log_rule("Rule 8.4.7", f"Player {player_id} chose to move {self.live_db[selected_cid].name} to Success Zone.")
-                    if self.verbose: print(f"SELECT_SUCCESS_LIVE: Player {player_id} selected {selected_cid}")
 
         elif choice_type == "CHOOSE_TRIGGER":
             trigger_choice_idx = action - 590
@@ -2836,6 +2899,18 @@ class GameState:
             if p.main_deck:
                 card = p.main_deck.pop(0)
                 self.yell_cards.append(card)
+                
+                # Rule 11.4: Check for ON_REVEAL abilities on the revealed card
+                if card in self.member_db:
+                    member = self.member_db[card]
+                    for ab in member.abilities:
+                        if ab.trigger == TriggerType.ON_REVEAL:
+                            self.triggered_abilities.append((player_idx, ab, {"card_id": card}))
+                elif card in self.live_db:
+                    live = self.live_db[card]
+                    for ab in live.abilities:
+                        if ab.trigger == TriggerType.ON_REVEAL:
+                            self.triggered_abilities.append((player_idx, ab, {"card_id": card}))
         
         # List the yelled card names for clarity
         yell_names = []

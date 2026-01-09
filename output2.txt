@@ -1,0 +1,20 @@
+F
+======================================================================
+FAIL: test_select_mode_ability (__main__.TestSelectMode.test_select_mode_ability)
+Test ability with multiple modal options.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\trios\.gemini\antigravity\scratch\loveca-copy\tests\test_select_mode.py", line 46, in test_select_mode_ability
+    self.assertEqual(len(self.game.pending_effects), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (failures=1)
+RULE_LOG: [Turn 1] [ACTIVE] [Rule 9.7] Player 0 resolving automatic ability.
+RULE_LOG: [Turn 1] [ACTIVE] [Rule 9.7] Resolving effect: SELECT_MODE (Value: 1)
+DEBUG: SELECT_MODE: action=570, option_idx=0, num_options=2
+Selected Mode 0 with 1 effects. Pending effects: 1
+RULE_LOG: [Turn 1] [ACTIVE] [Rule 9.7] Resolving effect: DRAW (Value: 1)
