@@ -31,58 +31,27 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-try:
-    from .ability import (
-        Ability,
-        AbilityCostType,
-        Condition,
-        ConditionType,
-        Cost,
-        Effect,
-        EffectType,
-        TargetType,
-        TriggerType,
-    )
-except ImportError:
-    try:
-        from game.ability import (
-            Ability,
-            AbilityCostType,
-            Condition,
-            ConditionType,
-            Cost,
-            Effect,
-            EffectType,
-            TargetType,
-            TriggerType,
-        )
-    except ImportError:
-        from ability import (
-            Ability,
-            AbilityCostType,
-            Condition,
-            ConditionType,
-            Cost,
-            Effect,
-            EffectType,
-            TargetType,
-            TriggerType,
-        )
+from engine.game.ability import (
+    Ability,
+    AbilityCostType,
+    Condition,
+    ConditionType,
+    Cost,
+    Effect,
+    EffectType,
+    TargetType,
+    TriggerType,
+)
 
 # Import Numba utils
+# Import Numba utils
 try:
-    from .numba_utils import JIT_AVAILABLE, calc_main_phase_masks
+    from engine.game.numba_utils import JIT_AVAILABLE, calc_main_phase_masks
 except ImportError:
-    try:
-        from game.numba_utils import JIT_AVAILABLE, calc_main_phase_masks
-    except ImportError:
-        try:
-            from numba_utils import JIT_AVAILABLE, calc_main_phase_masks
-        except ImportError:
-            JIT_AVAILABLE = False
+    JIT_AVAILABLE = False
 
-            def calc_main_phase_masks(*args):
-                pass
+    def calc_main_phase_masks(*args):
+        pass
 
 
 # =============================================================================
@@ -1051,7 +1020,7 @@ class GameState:
                                 if ab.trigger == TriggerType.CONSTANT:
                                     for eff in ab.effects:
                                         if eff.effect_type == EffectType.META_RULE:
-                                            p.meta_rules.add(eff.params.get("type"))
+                                            p.meta_rules.add(str(eff.params.get("type", "")))
 
                     # 2. Cards in Live Zone and Success Lives (Some rules are on Live cards)
                     for zone in [p.live_zone, p.success_lives]:
@@ -1062,7 +1031,7 @@ class GameState:
                                     if ab.trigger == TriggerType.CONSTANT:
                                         for eff in ab.effects:
                                             if eff.effect_type == EffectType.META_RULE:
-                                                p.meta_rules.add(eff.params.get("type"))
+                                                p.meta_rules.add(str(eff.params.get("type", "")))
 
                     # Rule 10.2: Refresh
                     if not p.main_deck and p.discard:
@@ -1125,7 +1094,7 @@ class GameState:
             # Only pick if not currently waiting for a choice
             # AUTO-RESOLVE: Process ALL triggers automatically in FIFO order
             if self.triggered_abilities and not self.pending_choices:
-                p_triggers = [[] for _ in range(2)]
+                p_triggers: List[List[int]] = [[] for _ in range(2)]
                 for i, (pid, _ab, _ctx) in enumerate(self.triggered_abilities):
                     p_triggers[pid].append(i)
 
@@ -1438,7 +1407,7 @@ class GameState:
                 elif effect.params.get("per_energy"):
                     val *= len(p.energy_zone)
                 elif effect.params.get("per_member"):
-                    val *= np.sum(p.stage >= 0)
+                    val *= int(np.sum(p.stage >= 0))
             p.continuous_effects.append(
                 {
                     "effect": Effect(EffectType.ADD_BLADES, val, effect.target, effect.params),
@@ -1540,7 +1509,7 @@ class GameState:
                 elif effect.params.get("per_energy"):
                     val *= len(p.energy_zone)
                 elif effect.params.get("per_member"):
-                    val *= np.sum(p.stage >= 0)
+                    val *= int(np.sum(p.stage >= 0))
             p.continuous_effects.append(
                 {
                     "effect": Effect(EffectType.ADD_HEARTS, val, effect.target, effect.params),
@@ -1558,7 +1527,7 @@ class GameState:
                 elif effect.params.get("per_energy"):
                     val *= len(p.energy_zone)
                 elif effect.params.get("per_member"):
-                    val *= np.sum(p.stage >= 0)
+                    val *= int(np.sum(p.stage >= 0))
 
             p.continuous_effects.append(
                 {
@@ -1583,7 +1552,7 @@ class GameState:
                     if self.verbose:
                         print(f"REPLACE: Score boost replaced to {final_val}")
                     break
-            p.live_score_bonus += final_val
+            p.live_score_bonus += int(final_val)
 
         elif effect.effect_type == EffectType.REPLACE_EFFECT:
             # Cluster 4: Store replacement effect for later use
@@ -1803,7 +1772,7 @@ class GameState:
         # After resolution, check triggers again?
         pass
 
-    def _check_condition(self, player: PlayerState, cond: Condition, context: Dict[str, Any] = None) -> bool:
+    def _check_condition(self, player: PlayerState, cond: Condition, context: Optional[Dict[str, Any]] = None) -> bool:
         """
         Check if a specific condition (Rule 9.6.2.2/Rule 11) is met.
         """
@@ -1826,7 +1795,7 @@ class GameState:
             for i, cid in enumerate(player.stage):
                 if cid >= 0 and cid in self.member_db:
                     m = self.member_db[cid]
-                    if name in m.name:  # Logic: substring match or exact?
+                    if name and name in m.name:  # Logic: substring match or exact?
                         # Area check
                         if area == "CENTER_STAGE" and i != 1:
                             continue
@@ -1897,6 +1866,7 @@ class GameState:
             # Simplified: check the combined untap hearts
             active_hearts = player.get_total_hearts(self.member_db)
             color_map = {"赤": 1, "青": 4, "緑": 3, "黄": 2, "紫": 5, "ピンク": 0}
+            color = str(cond.params.get("color", ""))
             idx = color_map.get(color)
             if idx is not None:
                 met = active_hearts[idx] > 0
@@ -2910,9 +2880,9 @@ class GameState:
         # List the yelled card names for clarity
         yell_names = []
         for cid in self.yell_cards:
-            card = self.member_db.get(cid) or self.live_db.get(cid)
-            if card:
-                yell_names.append(f"{card.name} (ID:{cid})")
+            card_obj = self.member_db.get(cid) or self.live_db.get(cid)
+            if card_obj:
+                yell_names.append(f"{card_obj.name} (ID:{cid})")
 
         self.log_rule(
             "Rule 8.3.11",
@@ -2927,26 +2897,30 @@ class GameState:
 
         for card_id in self.yell_cards:
             # Check both Member and Live DBs
-            card = self.member_db.get(card_id) or self.live_db.get(card_id)
-            if card:
-                if hasattr(card, "total_blade_hearts"):
+            card_obj = self.member_db.get(card_id) or self.live_db.get(card_id)
+            if card_obj:
+                if hasattr(card_obj, "total_blade_hearts"):
                     # Standard: Add all blade hearts to draw
-                    draw_bonus += card.total_blade_hearts()
+                    draw_bonus += card_obj.total_blade_hearts()
 
                     # META RULE: If heart_rule active, Convert ALL Blade (Index 6) to Any Heart
                     # b_all is mapped to index 6 by data_loader
-                    if "heart_rule" in p.meta_rules and hasattr(card, "blade_hearts") and card.blade_hearts.size > 6:
-                        all_blade_count = card.blade_hearts[6]
+                    if (
+                        "heart_rule" in p.meta_rules
+                        and hasattr(card_obj, "blade_hearts")
+                        and card_obj.blade_hearts.size > 6
+                    ):
+                        all_blade_count = card_obj.blade_hearts[6]
                         if all_blade_count > 0:
                             draw_bonus -= all_blade_count  # Remove from draw
                             blade_hearts_padded[6] += all_blade_count  # Add to Any Heart
                             total_hearts[
                                 6
                             ] += all_blade_count  # CRITICAL: Also add to total hearts for requirement check
-                            self.log_rule("Meta Rule", f"ALL Blade on {card.name} treated as Any Heart.")
+                            self.log_rule("Meta Rule", f"ALL Blade on {card_obj.name} treated as Any Heart.")
 
-                draw_bonus += card.draw_icons
-                yell_score_bonus += card.volume_icons
+                draw_bonus += card_obj.draw_icons
+                yell_score_bonus += card_obj.volume_icons
 
         self.log_rule("Rule 8.3.12.1", f"Yell Draw Bonus: +{draw_bonus} cards.")
         self._draw_cards(p, draw_bonus)
@@ -3434,7 +3408,13 @@ def create_sample_cards() -> Tuple[Dict[int, MemberCard], Dict[int, LiveCard]]:
             blade_hearts[i % 6] = 1
 
         members[i] = MemberCard(
-            card_id=i, name=f"Member_{i}", cost=cost, hearts=hearts, blade_hearts=blade_hearts, blades=blades
+            card_id=i,
+            card_no=f"SAMPLE-M-{i}",
+            name=f"Member_{i}",
+            cost=cost,
+            hearts=hearts,
+            blade_hearts=blade_hearts,
+            blades=blades,
         )
 
     # Create 12 sample live cards
@@ -3444,7 +3424,9 @@ def create_sample_cards() -> Tuple[Dict[int, MemberCard], Dict[int, LiveCard]]:
         required[i % 6] = 2 + (i // 6)  # 2-3 of one color required
         required[6] = 1 + (i % 4)  # 1-4 "any" hearts required
 
-        lives[100 + i] = LiveCard(card_id=100 + i, name=f"Live_{i}", score=score, required_hearts=required)
+        lives[100 + i] = LiveCard(
+            card_id=100 + i, card_no=f"SAMPLE-L-{i}", name=f"Live_{i}", score=score, required_hearts=required
+        )
 
     return members, lives
 

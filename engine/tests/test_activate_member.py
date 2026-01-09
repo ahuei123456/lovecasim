@@ -25,7 +25,7 @@ def game_state():
     p0.stage[0] = 100
     p0.stage[1] = 101
     # slot 0 is tapped, slot 1 is active
-    p0.tapped_members = [True, False, False]
+    p0.tapped_members = np.array([True, False, False], dtype=bool)
     return state
 
 

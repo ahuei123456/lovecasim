@@ -530,16 +530,19 @@ class AbilityParser:
                     effects.append(Effect(EffectType.SEARCH_DECK, 1))
 
                 # Buffs
-                target = (
-                    TargetType.MEMBER_NAMED
-                    if (match := re.search(r"「(.*?)」.*?は", content))
-                    else TargetType.OPPONENT
-                    if "相手" in content
-                    else TargetType.ALL_PLAYERS
-                    if "全員" in content
-                    else TargetType.MEMBER_SELF
-                )
-                target_params = {"target_name": match.group(1)} if target == TargetType.MEMBER_NAMED else {}
+                match = re.search(r"「(.*?)」.*?は", content)
+                if match:
+                    target = TargetType.MEMBER_NAMED
+                    target_params = {"target_name": match.group(1)}
+                elif "相手" in content:
+                    target = TargetType.OPPONENT
+                    target_params = {}
+                elif "全員" in content:
+                    target = TargetType.ALL_PLAYERS
+                    target_params = {}
+                else:
+                    target = TargetType.MEMBER_SELF
+                    target_params = {}
 
                 if "ブレード" in content and "得る" in content:
                     count = int(match.group(1)) if (match := re.search(r"ブレード.*?(\d+)", content)) else 1
@@ -653,7 +656,7 @@ class AbilityParser:
                             if (match := re.search(r"(\d+)枚", content))
                             else 1
                         )
-                        src = "deck" if "デッキ" in content else "hand" if "手札" in content else None
+                        src = "deck" if "デッキ" in content else "hand" if "手札" in content else ""
                         effects.append(
                             Effect(
                                 EffectType.SWAP_CARDS,

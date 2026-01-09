@@ -47,3 +47,7 @@ ignore_missing_imports = true
 check_untyped_defs = true
 disallow_untyped_defs = false
 explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["tools.*", "ai.*", "scripts.*"]
+ignore_errors = true

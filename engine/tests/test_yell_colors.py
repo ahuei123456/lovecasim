@@ -31,9 +31,10 @@ def test_yell_wrong_color():
     # Member (Yell Source): Provides 1 BLUE blade heart. ID 101
     # Blade hearts: [Red, Blue, Green, Yellow, Purple, Pink] -> Actually [Pn, Rd, Yl, Gr, Bl, Pp]
     # Mapping: 0:PINK, 1:RED, 2:YELLOW, 3:GREEN, 4:BLUE, 5:PURPLE
-    bh = np.zeros(6, dtype=np.int32)
+    # Mapping: 0:PINK, 1:RED, 2:YELLOW, 3:GREEN, 4:BLUE, 5:PURPLE
+    bh = np.zeros(6, dtype=int)
     bh[4] = 1  # Blue (Index 4)
-    member = MemberCard(101, "Blue Yeller", "Group", 1, np.zeros(6), blade_hearts=bh, blades=1)
+    member = MemberCard(101, "Blue Yeller", "Group", 1, np.zeros(6, dtype=int), blade_hearts=bh, blades=1)
     GameState.member_db[101] = member
 
     # 2. Setup Scenario

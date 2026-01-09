@@ -1,10 +1,6 @@
-import os
-import sys
-
+import numpy as np
 import pytest
 from pytest_bdd import given, scenario, then, when
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 from engine.game.game_state import Condition, ConditionType, GameState, MemberCard
 
@@ -36,7 +32,7 @@ def cond_group():
 
 @given('a member card of group "Aqours"', target_fixture="context")
 def member_aqours(game_state):
-    m = MemberCard(1, "A1", "Aq", 1, [], [], 1, group="Aqours")
+    m = MemberCard(1, "A1", "Aq", 1, np.zeros(7, dtype=int), np.zeros(7, dtype=int), 1, group="Aqours")
     game_state.member_db[1] = m
     return {"card_id": 1}
 
@@ -59,7 +55,7 @@ def cond_cost_le():
 
 @given("a member card with cost 3", target_fixture="context")
 def member_cost_3(game_state):
-    m = MemberCard(2, "C3", "Cost3", 3, [], [], 1)
+    m = MemberCard(2, "C3", "Cost3", 3, np.zeros(7, dtype=int), np.zeros(7, dtype=int), 1)
     game_state.member_db[2] = m
     return {"card_id": 2}
 
@@ -72,7 +68,7 @@ def cond_opponent_has():
 @given("the opponent has a member on stage")
 def opponent_has_stage(game_state):
     p1 = game_state.players[1]
-    m = MemberCard(100, "O1", "Opp", 1, [], [], 1)
+    m = MemberCard(100, "O1", "Opp", 1, np.zeros(7, dtype=int), np.zeros(7, dtype=int), 1)
     game_state.member_db[100] = m
     p1.stage[0] = 100
 

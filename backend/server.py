@@ -7,6 +7,7 @@ import os
 import random
 import sys
 from datetime import datetime
+from typing import Any
 
 import numpy as np
 from flask import Flask, jsonify, request, send_from_directory
@@ -42,20 +43,21 @@ app = Flask(__name__, static_folder=WEB_UI_DIR)
 ai_agent = SmartHeuristicAgent()
 
 # Global game state
-game_state = None
-member_db = {}
-live_db = {}
-energy_db = {}
-game_history = []  # For replay recording
+game_state: GameState | None = None
+# Use Any to avoid circular imports or strict union issues for now
+member_db: dict[int, Any] = {}
+live_db: dict[int, Any] = {}
+energy_db: dict[int, Any] = {}
+game_history: list[dict] = []  # For replay recording
 
 # Custom deck storage (list of card_no strings like "PL!-sd1-001-SD")
-custom_deck_p0 = None  # Player 0 (Human)
-custom_deck_p1 = None  # Player 1 (AI)
-custom_energy_deck_p0 = None
-custom_energy_deck_p1 = None
+custom_deck_p0: list[str] | None = None  # Player 0 (Human)
+custom_deck_p1: list[str] | None = None  # Player 1 (AI)
+custom_energy_deck_p0: list[str] | None = None
+custom_energy_deck_p1: list[str] | None = None
 
 # Reverse mapping: card_no string -> internal integer ID
-card_no_to_id = {}
+card_no_to_id: dict[str, int] = {}
 
 
 def build_card_no_mapping():
@@ -473,7 +475,7 @@ def serialize_player(p, player_idx, viewer_idx=0, is_viewable=True):
                 member = game_state.member_db[card_id]
                 expected_yells += member.blades
 
-    legal_mask = game_state.get_legal_actions()  # This needs to be here for valid_actions calculation
+    legal_mask = game_state.get_legal_actions() if game_state else [False] * 1024
 
     hand = []
     if is_viewable:
@@ -570,6 +572,20 @@ def serialize_player(p, player_idx, viewer_idx=0, is_viewable=True):
 
 def serialize_state():
     global game_state
+    if game_state is None:
+        return {
+            "turn": 0,
+            "phase": 0,
+            "active_player": 0,
+            "game_over": False,
+            "winner": -1,
+            "players": [],
+            "legal_actions": [],
+            "pending_choice": None,
+            "performance_results": {},
+            "rule_log": [],
+        }
+
     active_idx = game_state.current_player
 
     legal_mask = game_state.get_legal_actions()
@@ -963,15 +979,19 @@ def get_state():
     global game_state
     from game.game_state import Phase
 
-    if game_state is None:
+    gs = game_state
+    if gs is None:
         init_game()
+        gs = game_state  # Update local from global after init
+        if gs is None:  # Should technically be impossible if init_game works
+            return jsonify(serialize_state())  # Or error
 
         # Auto-advance if AI goes first or phase is automatic
         max_safety = 100
-        while not game_state.is_terminal() and max_safety > 0:
+        while not gs.is_terminal() and max_safety > 0:
             max_safety -= 1
 
-            if game_state.phase in (
+            if gs.phase in (
                 Phase.ACTIVE,
                 Phase.ENERGY,
                 Phase.DRAW,
@@ -979,15 +999,17 @@ def get_state():
                 Phase.PERFORMANCE_P2,
                 Phase.LIVE_RESULT,
             ):
-                game_state = game_state.step(0)
+                gs = gs.step(0)
+                game_state = gs
                 continue
 
-            if game_state.current_player == 1:
-                if game_state.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
+            if gs.current_player == 1:
+                if gs.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
                     aid = 0
                 else:
-                    aid = ai_agent.choose_action(game_state, 1)
-                game_state = game_state.step(aid)
+                    aid = ai_agent.choose_action(gs, 1)
+                gs = gs.step(aid)
+                game_state = gs
                 continue
 
             break
@@ -1117,29 +1139,36 @@ def validate_cards():
 def clear_performance():
     global game_state
     if game_state:
-        game_state.last_performance_result = None
+        # Check attribute existence for safety (mypy complaint)
+        if hasattr(game_state, "last_performance_result"):
+            game_state.last_performance_result = None
     return jsonify({"status": "ok"})
 
 
 @app.route("/api/action", methods=["POST"])
 def do_action():
     global game_state
+    gs = game_state
+    if gs is None:
+        return jsonify({"success": False, "error": "Game not initialized"}), 400
+
     # Re-import Phase locally to prevent NameError if module scope is borked
-    from game.game_state import Phase
+    from engine.game.game_state import Phase
 
     data = request.json
     action_id = data.get("action_id", 0)
     force = data.get("force", False)
 
-    legal_mask = game_state.get_legal_actions()
+    legal_mask = gs.get_legal_actions()
     is_legal = legal_mask[action_id]
     print(
-        f"DEBUG do_action: action={action_id}, force={force}, is_legal={is_legal}, phase={game_state.phase}, player={game_state.current_player}"
+        f"DEBUG do_action: action={action_id}, force={force}, is_legal={is_legal}, phase={gs.phase}, player={gs.current_player}"
     )
 
     if force or is_legal:
         try:
-            game_state = game_state.step(action_id)
+            gs = gs.step(action_id)
+            game_state = gs
 
             # AUTO-ADVANCE LOOP
             # Advance through automatic phases AND AI turns
@@ -1148,11 +1177,11 @@ def do_action():
             # Record state after the user's initial action
             game_history.append(serialize_state())
 
-            while not game_state.is_terminal() and max_safety > 0:
+            while not gs.is_terminal() and max_safety > 0:
                 max_safety -= 1
 
                 # 1. Automatic phases (phases that don't need real human interaction beyond a 'confirm' or 'auto')
-                if game_state.phase in (
+                if gs.phase in (
                     Phase.ACTIVE,
                     Phase.ENERGY,
                     Phase.DRAW,
@@ -1160,26 +1189,28 @@ def do_action():
                     Phase.PERFORMANCE_P2,
                     Phase.LIVE_RESULT,
                 ):
-                    game_state = game_state.step(0)
+                    gs = gs.step(0)
+                    game_state = gs
                     game_history.append(serialize_state())
                     continue
 
                 # 2. AI Turn (P1 is always the AI)
-                if game_state.current_player == 1:
-                    if game_state.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
+                if gs.current_player == 1:
+                    if gs.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
                         # Force-confirm AI mulligan to speed up and prevent info leak
                         aid = 0
                     else:
-                        aid = ai_agent.choose_action(game_state, 1)
-                    print(f"DEBUG AI Move: action={aid}, phase={game_state.phase}")
-                    game_state = game_state.step(aid)
+                        aid = ai_agent.choose_action(gs, 1)
+                    print(f"DEBUG AI Move: action={aid}, phase={gs.phase}")
+                    gs = gs.step(aid)
+                    game_state = gs
                     game_history.append(serialize_state())
                     continue
 
                 # If it's P0's turn and not an automatic phase, wait for user
                 break
 
-            if game_state.is_terminal():
+            if gs.is_terminal():
                 save_replay()
 
             return jsonify({"success": True, "state": serialize_state()})
@@ -1189,12 +1220,15 @@ def do_action():
             traceback.print_exc()
             return jsonify({"success": False, "error": str(e), "trace": traceback.format_exc()}), 500
     else:
-        return jsonify({"success": False, "error": f"Illegal action {action_id} in {game_state.phase}"})
+        return jsonify({"success": False, "error": f"Illegal action {action_id} in {gs.phase}"})
 
 
 @app.route("/api/exec", methods=["POST"])
+@app.route("/api/exec", methods=["POST"])
 def god_mode():
     global game_state
+    if game_state is None:
+        return jsonify({"success": False, "error": "Game not initialized"})
     code = request.json.get("code", "")
     try:
         p = game_state.active_player
@@ -1211,7 +1245,7 @@ def reset():
         # Re-import Phase for safety
         import time
 
-        from game.game_state import Phase
+        from engine.game.game_state import Phase
 
         random.seed(time.time())  # Ensure fresh seed
         print("DEBUG: Reset called")
@@ -1220,17 +1254,27 @@ def reset():
         deck_type = data.get("deck_type", "normal")
         print(f"DEBUG: Initializing game with {deck_type}")
         init_game(deck_type)
-        print(f"DEBUG: Game initialized. Phase is {game_state.phase}")
-        print(f"DEBUG: P0 Energy: {len(game_state.players[0].energy_zone)}")
+        gs = game_state
+        if gs:
+            print(f"DEBUG: Game initialized. Phase is {gs.phase}")
+            print(f"DEBUG: P0 Energy: {len(gs.players[0].energy_zone)}")
+        else:
+            print("DEBUG: Game init failed (gs is None)")
+            return jsonify({"success": False, "error": "Init failed"}), 500
 
         # Check if AI goes first or automatic phase
         # Run the same auto-advance loop as do_action to get to P0's turn or terminal
         max_safety = 100
-        while not game_state.is_terminal() and max_safety > 0:
+        # Use local variable for type narrowing
+        gs = game_state
+        if gs is None:  # Should be initialized by init_game above, but for safety
+            return jsonify({"success": False, "error": "Game init failed"}), 500
+
+        while not gs.is_terminal() and max_safety > 0:
             max_safety -= 1
 
             # 1. Automatic phases (NOT including Mulligan)
-            if game_state.phase in (
+            if gs.phase in (
                 Phase.ACTIVE,
                 Phase.ENERGY,
                 Phase.DRAW,
@@ -1238,18 +1282,20 @@ def reset():
                 Phase.PERFORMANCE_P2,
                 Phase.LIVE_RESULT,
             ):
-                print(f"DEBUG: Auto-advancing Phase {game_state.phase}")
-                game_state = game_state.step(0)
+                print(f"DEBUG: Auto-advancing Phase {gs.phase}")
+                gs = gs.step(0)
+                game_state = gs
                 continue
 
             # 2. AI Turn (P1)
-            if game_state.current_player == 1:
-                if game_state.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
+            if gs.current_player == 1:
+                if gs.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
                     aid = 0
                 else:
-                    aid = ai_agent.choose_action(game_state, 1)
-                print(f"DEBUG AI Move (Reset): action={aid}, phase={game_state.phase}")
-                game_state = game_state.step(aid)
+                    aid = ai_agent.choose_action(gs, 1)
+                print(f"DEBUG AI Move (Reset): action={aid}, phase={gs.phase}")
+                gs = gs.step(aid)
+                game_state = gs
                 continue
 
             # P0 turn
@@ -1277,14 +1323,17 @@ def get_replay(filename):
 @app.route("/api/advance", methods=["POST"])
 def advance():
     global game_state
-    from game.game_state import Phase
+    gs = game_state
+    if gs is None:
+        return jsonify({"success": False, "error": "Game not initialized"})
+    from engine.game.game_state import Phase
 
     # Run auto-advance loop
     max_safety = 50
-    while not game_state.is_terminal() and max_safety > 0:
+    while not gs.is_terminal() and max_safety > 0:
         max_safety -= 1
         # Advance if in an automatic phase OR if it's the AI's turn
-        if game_state.phase in (
+        if gs.phase in (
             Phase.ACTIVE,
             Phase.ENERGY,
             Phase.DRAW,
@@ -1292,13 +1341,15 @@ def advance():
             Phase.PERFORMANCE_P2,
             Phase.LIVE_RESULT,
         ):
-            game_state = game_state.step(0)
+            gs = gs.step(0)
+            game_state = gs
             continue
 
         # If it's the AI's turn (P1), let it act immediately
-        if game_state.current_player == 1 and not game_state.is_terminal():
-            aid = ai_agent.choose_action(game_state, 1)
-            game_state = game_state.step(aid)
+        if gs.current_player == 1 and not gs.is_terminal():
+            aid = ai_agent.choose_action(gs, 1)
+            gs = gs.step(aid)
+            game_state = gs
             continue
 
         break
@@ -1309,7 +1360,10 @@ def advance():
 @app.route("/api/full_log", methods=["GET"])
 def get_full_log():
     """Return the complete rule log without truncation."""
-    return jsonify({"log": game_state.rule_log, "total_entries": len(game_state.rule_log)})
+    gs = game_state
+    if gs is None:
+        return jsonify({"log": [], "total_entries": 0})
+    return jsonify({"log": gs.rule_log, "total_entries": len(gs.rule_log)})
 
 
 @app.route("/api/report_issue", methods=["POST"])
@@ -1359,7 +1413,7 @@ if __name__ == "__main__":
         # However, we added paths with --add-data, so they should be in sys._MEIPASS.
         # Flask's root_path defaults to __main__ directory, which in onefile mode is temporary.
         # We need to explicitly point static_folder to the MEIPASS location.
-        bundle_dir = sys._MEIPASS
+        bundle_dir = getattr(sys, "_MEIPASS", ".")  # type: ignore
         app.static_folder = os.path.join(bundle_dir, "web_ui")
         # app.template_folder = os.path.join(bundle_dir, 'templates') # if we used templates
 
@@ -1380,7 +1434,7 @@ if __name__ == "__main__":
 
     def frozen_init_game(deck_type="normal"):
         if getattr(sys, "frozen", False):
-            bundle_dir = sys._MEIPASS
+            bundle_dir = getattr(sys, "_MEIPASS", ".")  # type: ignore
             os.path.join(bundle_dir, "data", "cards.json")
 
             # We need to temporarily force the loader to use this path
@@ -1402,7 +1456,7 @@ if __name__ == "__main__":
             def new_init(self, filepath):
                 if not os.path.exists(filepath) and getattr(sys, "frozen", False):
                     # Try bundle path
-                    bundle_path = os.path.join(sys._MEIPASS, filepath)
+                    bundle_path = os.path.join(sys._MEIPASS, filepath)  # type: ignore
                     if os.path.exists(bundle_path):
                         filepath = bundle_path
                 ops_init(self, filepath)

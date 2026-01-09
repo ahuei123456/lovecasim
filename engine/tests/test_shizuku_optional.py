@@ -61,12 +61,12 @@ def test_shizuku_optional_skip(game_state):
 
     # Setup: Shizuku is played, has cards in hand
     p0.hand = [10, 11]  # Cards that could be discarded
-    GameState.member_db[10] = MemberCard(10, "SZ-01", "Card1", 1, np.zeros(6), np.zeros(7), 1)
-    GameState.member_db[11] = MemberCard(11, "SZ-02", "Card2", 1, np.zeros(6), np.zeros(7), 1)
+    GameState.member_db[10] = MemberCard(10, "SZ-01", "Card1", 1, np.zeros(6, dtype=int), np.zeros(7, dtype=int), 1)
+    GameState.member_db[11] = MemberCard(11, "SZ-02", "Card2", 1, np.zeros(6, dtype=int), np.zeros(7, dtype=int), 1)
 
     # Setup: Live card in discard
     p0.discard = [200]
-    GameState.live_db[200] = LiveCard(200, "L-200", "NijiLive", 1, np.zeros(7))
+    GameState.live_db[200] = LiveCard(200, "L-200", "NijiLive", 1, np.zeros(7, dtype=int))
 
     # Simulate: Push the pending choice for optional discard
     # When ability triggers, game should offer SKIP option (action 0)
@@ -94,7 +94,7 @@ def test_shizuku_execution_with_skip(game_state):
     p0.hand = [10]
     p0.discard = [200]
     p0.main_deck = [300, 301]  # Prevent auto-refresh
-    GameState.live_db[200] = LiveCard(200, "L-200", "NijiLive", 1, np.zeros(7))
+    GameState.live_db[200] = LiveCard(200, "L-200", "NijiLive", 1, np.zeros(7, dtype=int))
     initial_hand = len(p0.hand)
     initial_discard = len(p0.discard)
 

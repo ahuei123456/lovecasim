@@ -1,10 +1,5 @@
-import os
-import sys
-
 import pytest
 from pytest_bdd import given, scenario, then, when
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 from engine.game.ability import AbilityParser
 from engine.game.game_state import GameState

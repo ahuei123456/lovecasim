@@ -8,16 +8,8 @@ from typing import Dict, Tuple
 
 import numpy as np
 
-try:
-    from .ability import AbilityParser
-    from .game_state import LiveCard, MemberCard
-except ImportError:
-    try:
-        from game.ability import AbilityParser
-        from game.game_state import LiveCard, MemberCard
-    except ImportError:
-        from ability import AbilityParser
-        from game_state import LiveCard, MemberCard
+from engine.game.ability import AbilityParser
+from engine.game.game_state import LiveCard, MemberCard
 
 
 class CardDataLoader:
@@ -26,14 +18,14 @@ class CardDataLoader:
 
     def _resolve_img_path(self, data: dict) -> str:
         """Resolve local image path, falling back to URL or deriving from URL."""
-        img_path = data.get("_img", "")
+        img_path = str(data.get("_img", ""))
         if img_path:
             # Strip 'img/' prefix since Flask route /img/ adds it
             if img_path.startswith("img/"):
                 return img_path[4:]  # Remove 'img/' prefix
             return img_path
 
-        raw_url = data.get("img", "")
+        raw_url = str(data.get("img", ""))
         if raw_url and "cardlist/" in raw_url:
             # Example: .../cardlist/PLSD01/LL-E-001-SD.png
             try:
