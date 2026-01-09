@@ -27,9 +27,11 @@ Key Design Decisions:
 import random
 from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Annotated, Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import pydantic
+from pydantic import BeforeValidator, ConfigDict
 
 from engine.game.ability import (
     Ability,
@@ -137,6 +139,130 @@ class HeartColor(IntEnum):
     RAINBOW = 7  # Can be any color
 
 
+class Group(IntEnum):
+    """Card Groups (Series/Schools)"""
+
+    MUSE = 0
+    AQOURS = 1
+    NIJIGASAKI = 2
+    LIELLA = 3
+    HASUNOSORA = 4
+    OTHER = 99
+
+    @classmethod
+    def from_japanese_name(cls, name: str) -> "Group":
+        name = name.strip()
+        if "ラブライブ！" == name or "μ's" in name:
+            return cls.MUSE
+        if "サンシャイン" in name or "Aqours" in name:
+            return cls.AQOURS
+        if "虹ヶ咲" in name:
+            return cls.NIJIGASAKI
+        if "スーパースター" in name or "Liella" in name:
+            return cls.LIELLA
+        if "蓮ノ空" in name:
+            return cls.HASUNOSORA
+        return cls.OTHER
+
+
+def ensure_group_list(v: Any) -> List[Group]:
+    """Validator to convert string/single Group to List[Group]"""
+    if isinstance(v, list):
+        return [g if isinstance(g, Group) else Group.from_japanese_name(str(g)) for g in v]
+    if isinstance(v, Group):
+        return [v]
+    if isinstance(v, str):
+        if not v:
+            return []
+        # Support multiple groups separated by newlines
+        parts = [p.strip() for p in v.split("\n") if p.strip()]
+        return [Group.from_japanese_name(p) for p in parts]
+    return []
+
+
+class Unit(IntEnum):
+    """Card Units"""
+
+    PRINTEMPS = 0
+    LILY_WHITE = 1
+    BIBI = 2
+    CYARON = 3
+    AZALEA = 4
+    GUILTY_KISS = 5
+    DIVER_DIVA = 6
+    A_ZU_NA = 7
+    QU4RTZ = 8
+    R3BIRTH = 9
+    CATCHU = 10
+    KALEIDOSCORE = 11
+    SYNCRISE = 12
+    CERISE_BOUQUET = 13
+    DOLLCHESTRA = 14
+    MIRA_CRA_PARK = 15
+    EDEL_NOTE = 16
+    OTHER = 99
+
+    @classmethod
+    def from_japanese_name(cls, name: str) -> "Unit":
+        name = name.strip()
+        name_lower = name.lower()
+        if "printemps" in name_lower:
+            return cls.PRINTEMPS
+        if "lily white" in name_lower or "lilywhite" in name_lower:
+            return cls.LILY_WHITE
+        if "bibi" in name_lower:
+            return cls.BIBI
+        if "cyaron" in name_lower or "cyaron！" in name_lower:
+            return cls.CYARON
+        if "azalea" in name_lower:
+            return cls.AZALEA
+        if "guilty kiss" in name_lower or "guiltykiss" in name_lower:
+            return cls.GUILTY_KISS
+        if "diverdiva" in name_lower:
+            return cls.DIVER_DIVA
+        if "azuna" in name_lower or "a・zu・na" in name_lower:
+            return cls.A_ZU_NA
+        if "qu4rtz" in name_lower:
+            return cls.QU4RTZ
+        if "r3birth" in name_lower:
+            return cls.R3BIRTH
+        if "catchu" in name_lower:
+            return cls.CATCHU
+        if "kaleidoscore" in name_lower:
+            return cls.KALEIDOSCORE
+        if "5yncri5e" in name_lower:
+            return cls.SYNCRISE
+        if "スリーズブーケ" in name:
+            return cls.CERISE_BOUQUET
+        if "dollchestra" in name_lower:
+            return cls.DOLLCHESTRA
+        if "みらくらぱーく" in name:
+            return cls.MIRA_CRA_PARK
+        if "edelnote" in name_lower:
+            return cls.EDEL_NOTE
+        if not name:
+            return cls.OTHER  # Or handle empty string differently if needed, but OTHER is safe
+        return cls.OTHER
+
+
+def ensure_unit_list(v: Any) -> List[Unit]:
+    """Validator to convert string/single Unit to List[Unit]"""
+    if isinstance(v, list):
+        return [u if isinstance(u, Unit) else Unit.from_japanese_name(str(u)) for u in v]
+    if isinstance(v, Unit):
+        return [v]
+    if isinstance(v, str):
+        if not v:
+            return []
+        parts = [p.strip() for p in v.split("\n") if p.strip()]
+        # Filter out OTHER if it came from empty/unknown? Maybe not, keep explicit
+        units = [Unit.from_japanese_name(p) for p in parts]
+        # Optional: remove OTHER if it represents 'unknown'?
+        # For now, keep it to be safe.
+        return units
+    return []
+
+
 class Area(IntEnum):
     """Member areas on stage"""
 
@@ -145,7 +271,7 @@ class Area(IntEnum):
     RIGHT = 2
 
 
-@dataclass
+@pydantic.dataclasses.dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class MemberCard:
     """Represents a member card with all attributes"""
 
@@ -156,8 +282,8 @@ class MemberCard:
     hearts: np.ndarray  # Shape (6,) for each color count
     blade_hearts: np.ndarray  # Shape (7,) blade hearts by color (Index 6 = ALL)
     blades: int
-    group: str = ""
-    unit: str = ""
+    groups: Annotated[List[Group], BeforeValidator(ensure_group_list)] = field(default_factory=list)
+    units: Annotated[List[Unit], BeforeValidator(ensure_unit_list)] = field(default_factory=list)
     abilities: List[Ability] = field(default_factory=list)
     img_path: str = ""
     # Rule 2.12: カードテキスト (Card Text)
@@ -173,7 +299,7 @@ class MemberCard:
         return int(np.sum(self.blade_hearts))
 
 
-@dataclass
+@pydantic.dataclasses.dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class LiveCard:
     """Represents a live/song card"""
 
@@ -183,7 +309,8 @@ class LiveCard:
     score: int
     required_hearts: np.ndarray  # Shape (7,) required hearts by color (6 colors + any)
     abilities: List[Ability] = field(default_factory=list)
-    group: str = ""
+    groups: Annotated[List[Group], BeforeValidator(ensure_group_list)] = field(default_factory=list)
+    units: Annotated[List[Unit], BeforeValidator(ensure_unit_list)] = field(default_factory=list)
     img_path: str = ""
     ability_text: str = ""
     volume_icons: int = 0
@@ -1466,8 +1593,9 @@ class GameState:
             # Apply filters
             group_filter = effect.params.get("group")
             if group_filter:
+                target_group = Group.from_japanese_name(group_filter)
                 member_cards_in_discard = [
-                    cid for cid in member_cards_in_discard if group_filter in self.member_db[cid].group
+                    cid for cid in member_cards_in_discard if target_group in self.member_db[cid].groups
                 ]
 
             cost_max = effect.params.get("cost_max")
@@ -1722,15 +1850,19 @@ class GameState:
             for cid in p.main_deck:
                 if cid in self.member_db:
                     m = self.member_db[cid]
-                    if group and group not in m.group:
-                        continue
+                    if group:
+                        target_group = Group.from_japanese_name(group)
+                        if target_group not in m.groups:
+                            continue
                     if cost_max is not None and m.cost > cost_max:
                         continue
                     targets.append(cid)
                 elif cid in self.live_db:
                     l = self.live_db[cid]
-                    if group and group not in l.group:
-                        continue
+                    if group:
+                        target_group = Group.from_japanese_name(group)
+                        if target_group not in l.groups:
+                            continue
                     targets.append(cid)
 
             if targets:
@@ -1818,23 +1950,17 @@ class GameState:
             met = my_life > opp_life
         elif cond.type == ConditionType.COUNT_GROUP:
             # Count members of group in zone
-            group = cond.params.get("group", "").strip("『』")
+            group_str = cond.params.get("group", "").strip("『』")
             zone = cond.params.get("zone", "STAGE")
             min_count = cond.params.get(
                 "count", cond.params.get("min", 1 if cond.type == ConditionType.GROUP_FILTER else 0)
             )
 
-            # Alias mapping for groups (since cards.json series field is long)
-            aliases = {
-                "μ's": "ラブライブ！",
-                "Aqours": "ラブライブ！サンシャイン!!",
-                "虹ヶ咲": "ラブライブ！虹ヶ咲学園スクールアイドル同好会",
-                "Liella!": "ラブライブ！スーパースター!!",
-                "蓮ノ空": "ラブライブ！蓮ノ空女学院スクールアイドルクラブ",
-            }
-            target_groups = {group}
-            if group in aliases:
-                target_groups.add(aliases[group])
+            if not group_str:
+                return False
+
+            target_group = Group.from_japanese_name(group_str)
+            target_unit = Unit.from_japanese_name(group_str)
 
             count = 0
             cards_to_check = []
@@ -1851,12 +1977,16 @@ class GameState:
                 if cid in self.member_db:
                     m = self.member_db[cid]
                     # Check both group (series) and unit
-                    match = any(tg in m.group for tg in target_groups) or any(tg == m.unit for tg in target_groups)
-                    if match:
+                    match_group = target_group != Group.OTHER and target_group in m.groups
+                    match_unit = target_unit != Unit.OTHER and target_unit in m.units
+
+                    if match_group or match_unit:
                         count += 1
                 elif cid in self.live_db:
                     l = self.live_db[cid]
-                    if any(tg in l.group for tg in target_groups):
+                    match_group = target_group != Group.OTHER and target_group in l.groups
+                    match_unit = target_unit != Unit.OTHER and target_unit in l.units
+                    if match_group or match_unit:
                         count += 1
 
             met = count >= min_count
@@ -1879,14 +2009,25 @@ class GameState:
         elif cond.type == ConditionType.COUNT_DISCARD:
             met = len(player.discard) >= cond.params.get("min", 0)
         elif cond.type == ConditionType.SELF_IS_GROUP:
-            group = cond.params.get("group", "")
-            # Get card id of 'self' from context
-            self_id = context.get("card_id")
-            if self_id is not None:
-                if self_id in self.member_db:
-                    met = group in self.member_db[self_id].group
-                elif self_id in self.live_db:
-                    met = group in self.live_db[self_id].group
+            # Check if self (triggering card) is from group
+            # Usually self is looked up from context["card_id"] or context["member_id"]
+            cid = context.get("card_id")
+            req_group_str = cond.params.get("group", "")
+            if not req_group_str:
+                met = False
+            else:
+                target_group_enum = Group.from_japanese_name(req_group_str)
+                if cid is not None:
+                    if cid in self.member_db:
+                        m_card = self.member_db[cid]
+                        met = target_group_enum in m_card.groups
+                    elif cid in self.live_db:
+                        l_card = self.live_db[cid]
+                        met = target_group_enum in l_card.groups
+                    else:
+                        met = False
+                else:
+                    met = False
         elif cond.type == ConditionType.MODAL_ANSWER:
             met = context.get("answer") == cond.params.get("answer")
         elif cond.type == ConditionType.HAND_HAS_NO_LIVE:
@@ -1896,29 +2037,40 @@ class GameState:
             count = len(player.success_lives)
             met = count >= cond.params.get("min", 0)
         elif cond.type == ConditionType.GROUP_FILTER:
-            group = cond.params.get("group", "")
-            context_cards = []
-            if cond.params.get("context") == "revealed":
-                context_cards = self.looked_cards
-            else:
-                cid = context.get("card_id")
-                if cid is not None:
-                    context_cards = [cid]
-
-            if not context_cards:
+            group_str = cond.params.get("group", "")
+            if not group_str:
                 met = False
             else:
-                # Logic: Is any (or all?) of the cards in the group?
-                # Usually it's "if revealed card is X" or "if this card is X"
-                # For "all", we check if all context cards match
-                match_count = 0
-                for cid in context_cards:
-                    if cid in self.member_db and group in self.member_db[cid].group:
-                        match_count += 1
-                    elif cid in self.live_db and group in self.live_db[cid].group:
-                        match_count += 1
+                target_group = Group.from_japanese_name(group_str)
+                target_unit = Unit.from_japanese_name(group_str)
 
-                met = (match_count == len(context_cards)) if context_cards else False
+                context_cards = []
+                if cond.params.get("context") == "revealed":
+                    context_cards = self.looked_cards
+                else:
+                    cid = context.get("card_id")
+                    if cid is not None:
+                        context_cards = [cid]
+
+                if not context_cards:
+                    met = False
+                else:
+                    match_count = 0
+                    for cid in context_cards:
+                        if cid in self.member_db:
+                            m = self.member_db[cid]
+                            match_group = target_group != Group.OTHER and target_group in m.groups
+                            match_unit = target_unit != Unit.OTHER and target_unit in m.units
+                            if match_group or match_unit:
+                                match_count += 1
+                        elif cid in self.live_db:
+                            l = self.live_db[cid]
+                            match_group = target_group != Group.OTHER and target_group in l.groups
+                            match_unit = target_unit != Unit.OTHER and target_unit in l.units
+                            if match_group or match_unit:
+                                match_count += 1
+
+                    met = (match_count == len(context_cards)) if context_cards else False
         elif cond.type == ConditionType.COST_CHECK:
             cid = context.get("card_id")
             if cid is not None and cid in self.member_db:

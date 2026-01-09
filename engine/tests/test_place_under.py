@@ -21,7 +21,7 @@ def game_state():
         card_no="TEST-10",
         name="Test Member",
         cost=1,
-        group="Test",
+        groups="Test",
         blades=1,
         hearts=np.zeros(7),
         blade_hearts=np.zeros(7),

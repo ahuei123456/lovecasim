@@ -9,6 +9,7 @@ dependencies = [
     "gunicorn==21.2.0",
     "numba>=0.58.0",
     "numpy>=1.26.0",
+    "pydantic>=2.12.5",
 ]
 
 [tool.setuptools]

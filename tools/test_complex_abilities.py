@@ -1,13 +1,7 @@
-import os
-import sys
-
 import numpy as np
 
-# Add parent dir to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from game.ability import Ability, Effect, EffectType, TriggerType
-from game.game_state import GameState, MemberCard, Phase
+from engine.game.ability import Ability, Effect, EffectType, TriggerType
+from engine.game.game_state import GameState, MemberCard, Phase
 
 
 def test_combined_effects():
@@ -43,6 +37,7 @@ def test_combined_effects():
 
     mock_member = MemberCard(
         card_id=777,
+        card_no="TEST-777",
         name="Complex Test Card",
         group="Test",
         cost=1,

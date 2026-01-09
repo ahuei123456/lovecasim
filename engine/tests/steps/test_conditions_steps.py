@@ -32,7 +32,7 @@ def cond_group():
 
 @given('a member card of group "Aqours"', target_fixture="context")
 def member_aqours(game_state):
-    m = MemberCard(1, "A1", "Aq", 1, np.zeros(7, dtype=int), np.zeros(7, dtype=int), 1, group="Aqours")
+    m = MemberCard(1, "A1", "Aq", 1, np.zeros(7, dtype=int), np.zeros(7, dtype=int), 1, groups="Aqours")
     game_state.member_db[1] = m
     return {"card_id": 1}
 

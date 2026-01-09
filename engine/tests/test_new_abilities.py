@@ -11,9 +11,9 @@ def test_deck_search():
     p0 = state.players[0]
     # Setup deck with targets
     p0.main_deck = [1, 2, 3]
-    state.member_db[1] = MemberCard(1, "AQ-01", "AqoursMember", 1, np.zeros(6), np.zeros(7), 1, group="Aqours")
-    state.member_db[2] = MemberCard(2, "MS-01", "MuseMember", 1, np.zeros(6), np.zeros(7), 1, group="μ's")
-    state.member_db[3] = MemberCard(3, "AQ-02", "AqoursMember", 2, np.zeros(6), np.zeros(7), 2, group="Aqours")
+    state.member_db[1] = MemberCard(1, "AQ-01", "AqoursMember", 1, np.zeros(6), np.zeros(7), 1, groups="Aqours")
+    state.member_db[2] = MemberCard(2, "MS-01", "MuseMember", 1, np.zeros(6), np.zeros(7), 1, groups="μ's")
+    state.member_db[3] = MemberCard(3, "AQ-02", "AqoursMember", 2, np.zeros(6), np.zeros(7), 2, groups="Aqours")
 
     # Effect: Search "μ's" member
     effect = Effect(EffectType.SEARCH_DECK, 1, params={"group": "μ's"})

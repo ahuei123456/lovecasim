@@ -144,71 +144,42 @@ class CardDataLoader:
         return hearts
 
     def _parse_member(self, card_id: int, card_no: str, data: dict) -> MemberCard:
-        # Cost
-        cost = int(data.get("cost", 0))
-
-        # Blades (AP)
-        # JSON key 'blade': 3
-        blades = int(data.get("blade", 0))
-
-        # Hearts
-        hearts = self._parse_hearts(data.get("base_heart", {}))
-
-        # Abilities
-        raw_ability = data.get("ability", "")
-        abilities = AbilityParser.parse_ability_text(raw_ability)
-
-        # Blade hearts (Hearts given during Yell)
-        blade_hearts = self._parse_blade_hearts(data.get("blade_heart", {}))
-
-        # Volume/Draw icons (from special_heart)
         spec = data.get("special_heart", {})
-        volume = int(spec.get("score", 0))
-        draw = int(spec.get("draw", 0))
+        raw_ability = str(data.get("ability", ""))
 
         return MemberCard(
             card_id=card_id,
             card_no=card_no,
-            name=data.get("name", "Unknown"),
-            cost=cost,
-            hearts=hearts,
-            blade_hearts=blade_hearts,
-            blades=blades,
-            group=data.get("series", ""),
-            unit=data.get("unit", ""),
-            abilities=abilities,  # Store ability objects
+            name=str(data.get("name", "Unknown")),
+            cost=data.get("cost", 0),
+            hearts=self._parse_hearts(data.get("base_heart", {})),
+            blade_hearts=self._parse_blade_hearts(data.get("blade_heart", {})),
+            blades=data.get("blade", 0),
+            groups=str(data.get("series", "")),
+            units=str(data.get("unit", "")),
+            abilities=AbilityParser.parse_ability_text(raw_ability),
             img_path=self._resolve_img_path(data),
             ability_text=raw_ability,
-            volume_icons=volume,
-            draw_icons=draw,
+            volume_icons=spec.get("score", 0),
+            draw_icons=spec.get("draw", 0),
         )
 
     def _parse_live(self, card_id: int, card_no: str, data: dict) -> LiveCard:
-        score = int(data.get("score", 0))
-        reqs = self._parse_live_reqs(data.get("need_heart", {}))
-
-        raw_ability = data.get("ability", "")
-        abilities = AbilityParser.parse_ability_text(raw_ability)
-
-        # Blade hearts (Hearts given during Yell - e.g. for b_all)
-        blade_hearts = self._parse_blade_hearts(data.get("blade_heart", {}))
-
-        # Volume/Draw icons (from special_heart)
         spec = data.get("special_heart", {})
-        volume = int(spec.get("score", 0))
-        draw = int(spec.get("draw", 0))
+        raw_ability = str(data.get("ability", ""))
 
         return LiveCard(
             card_id=card_id,
             card_no=card_no,
-            name=data.get("name", "Unknown"),
-            score=score,
-            required_hearts=reqs,
-            abilities=abilities,
-            group=data.get("series", ""),
+            name=str(data.get("name", "Unknown")),
+            score=data.get("score", 0),
+            required_hearts=self._parse_live_reqs(data.get("need_heart", {})),
+            abilities=AbilityParser.parse_ability_text(raw_ability),
+            groups=str(data.get("series", "")),
+            units=str(data.get("unit", "")),
             img_path=self._resolve_img_path(data),
             ability_text=raw_ability,
-            volume_icons=volume,
-            draw_icons=draw,
-            blade_hearts=blade_hearts,
+            volume_icons=spec.get("score", 0),
+            draw_icons=spec.get("draw", 0),
+            blade_hearts=self._parse_blade_hearts(data.get("blade_heart", {})),
         )

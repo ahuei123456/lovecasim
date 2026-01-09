@@ -3,9 +3,12 @@ import random
 import pytest
 from pytest_bdd import given, parsers, scenario, then, when
 
-from engine.game.ability import AbilityParser, TriggerType
+from engine.game.ability import (
+    AbilityParser,
+    TriggerType,
+)
 from engine.game.data_loader import CardDataLoader
-from engine.game.game_state import GameState, Phase
+from engine.game.game_state import GameState, Group, Phase
 
 
 @pytest.fixture
@@ -102,7 +105,6 @@ def member_with_blades(data):
     for m in member_db.values():
         if m.blades > 0:
             return m
-    pytest.skip("No member with blades found in DB")
 
 
 @then("the member should have greater than 0 blades")
@@ -116,12 +118,13 @@ def player_with_search_target(game_state, data, group):
     member_db, _ = data
 
     # Ensure deck has target
-    targets = [mid for mid, m in member_db.items() if m.group == group]
+    target_group = Group.from_japanese_name(group)
+    targets = [mid for mid, m in member_db.items() if target_group in m.groups]
     if not targets:
         pytest.skip(f"No members in group {group} found")
 
-    p.main_deck = targets[:5]  # Put them in deck
-    game_state.member_db = member_db
+    # Put targets at the top of the deck for easy searching, followed by other members
+    p.main_deck = targets + [mid for mid in member_db if mid not in targets]
     return p
 
 
@@ -134,8 +137,11 @@ def search_deck(game_state, player_with_search_target, group):
 @then(parsers.parse('the player should find "{group}" members'))
 def check_search_result(player_with_search_target, data, group):
     member_db, _ = data
+    target_group = Group.from_japanese_name(group)
     # Verify deck has them
-    found = [mid for mid in player_with_search_target.main_deck if member_db[mid].group == group]
+    found = [
+        mid for mid in player_with_search_target.main_deck if mid in member_db and target_group in member_db[mid].groups
+    ]
     assert len(found) > 0
 
 
