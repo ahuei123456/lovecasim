@@ -35,6 +35,22 @@ This project is a web-based implementation of the "Love Live! School Idol Collec
     - Phase 1: Cleanup root directory.
     - Phase 2: Separate into `frontend/`, `backend/`, and `engine/`.
 
-## Current Status
-- The codebase mimics "vibe coding" style: monolithic files, loose scripts in root, mixed responsibilities.
-- **Immediate Goal:** Clean up root directory, organize scripts, and document architecture.
+## Test Architecture (New)
+- **Framework:** `pytest` + `pytest-bdd`
+- **Location:** `engine/tests/`
+- **Features:** `engine/tests/features/*.feature` (Gherkin syntax)
+- **Step Definitions:** `engine/tests/steps/test_*_steps.py`
+- **Status:** 
+    - Core properties (Mechanics, Conditions, Deck Ops, Energy) migrated to BDD.
+    - Legacy logic tests (`test_score4*`, `test_rules`) still exist but need migration or fixing.
+- **Running Tests:** `uv run pytest engine/tests`
+
+## Engine Quirks & Learnings
+- **GameState.member_db/live_db:** These are **Class Variables**, not instance variables. Tests must handle them carefully (resetting them or mocking at class level).
+- **Action IDs:**
+    - **Color Select:** 580-585 (Pink, Red, Yellow, Green, Blue, Purple)
+    - **Target Opponent:** 600-602 (Stage Slots)
+- **Conditions:** `GROUP_FILTER` logic was fixed to correctly handle context-based filtering (e.g., "revealed card is Aqours").
+- **Arrays:** `tapped_energy` is a fixed-size NumPy array (typically 100), not a list.
+
+## Development Guidelines
