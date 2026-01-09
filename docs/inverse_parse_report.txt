@@ -223,4 +223,3 @@ DETAILED GAPS (First 30):
   Parsed:   [On Play] → Send 1 card(s) to discard from deck → Move 1 card(s) to deck (bottom) | [On Play] if Aqours count >= 1 → Process cheer-revealed cards for ...
   Gaps:
     - Missing 'member' (pattern: メンバー)
-

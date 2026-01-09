@@ -128,36 +128,36 @@ def create_embedded_html():
     <h1>Deck Viewer</h1>
     <div class="stats" id="stats">Loading...</div>
     <div class="deck-grid" id="deck-grid"></div>
-    
+
     <script>
         const deckData = {json.dumps(deck_data)};
         const cardsDb = {json.dumps(subset_cards, ensure_ascii=False)};
-        
+
         const grid = document.getElementById('deck-grid');
         let totalCards = 0;
         let memberCount = 0;
         let liveCount = 0;
         let energyCount = 0;
-        
+
         for (const [cardId, count] of Object.entries(deckData)) {{
             totalCards += count;
             const card = cardsDb[cardId];
-            
+
             const item = document.createElement('div');
             item.className = 'card-item';
-            
+
             const type = card.type || 'Unknown';
-            const typeClass = type.includes('メンバー') ? 'member' : 
-                             type.includes('ライブ') ? 'live' : 
+            const typeClass = type.includes('メンバー') ? 'member' :
+                             type.includes('ライブ') ? 'live' :
                              type.includes('エネルギー') ? 'energy' : '';
-            
+
             if (typeClass === 'member') memberCount += count;
             else if (typeClass === 'live') liveCount += count;
             else if (typeClass === 'energy') energyCount += count;
-            
+
             // Use local image path (_img) if available, otherwise remote (img)
-            const imgSrc = card._img || card.img || ''; 
-            
+            const imgSrc = card._img || card.img || '';
+
             item.innerHTML = `
                 <img src="${{imgSrc}}" alt="${{card.name}}" loading="lazy" onerror="this.src='https://via.placeholder.com/150x210?text=No+Image'">
                 <div class="card-name">${{card.name}}</div>
@@ -167,8 +167,8 @@ def create_embedded_html():
             `;
             grid.appendChild(item);
         }}
-        
-        document.getElementById('stats').textContent = 
+
+        document.getElementById('stats').textContent =
             `Total: ${{totalCards}} cards | Members: ${{memberCount}} | Live: ${{liveCount}} | Energy: ${{energyCount}} | Unique: ${{Object.keys(deckData).length}}`;
     </script>
 </body>

@@ -40,7 +40,7 @@ This project is a web-based implementation of the "Love Live! School Idol Collec
 - **Location:** `engine/tests/`
 - **Features:** `engine/tests/features/*.feature` (Gherkin syntax)
 - **Step Definitions:** `engine/tests/steps/test_*_steps.py`
-- **Status:** 
+- **Status:**
     - Core properties (Mechanics, Conditions, Deck Ops, Energy) migrated to BDD.
     - Legacy logic tests (`test_score4*`, `test_rules`) still exist but need migration or fixing.
 - **Running Tests:** `uv run pytest engine/tests`

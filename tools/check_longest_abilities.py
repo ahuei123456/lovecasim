@@ -78,8 +78,6 @@ def check_longest():
             except Exception as e:
                 out.write(f"  ERROR PARSING: {e}\n")
 
-
-
             out.write("=" * 80 + "\n\n")
 
     print("Check complete. See longest_abilities_check.txt")

@@ -11,37 +11,28 @@ from datetime import datetime
 import numpy as np
 from flask import Flask, jsonify, request, send_from_directory
 
+from ai.headless_runner import SmartHeuristicAgent, create_easy_cards
+from engine.game.data_loader import CardDataLoader
+from engine.game.game_state import GameState, Phase
+
 # --- PATH SETUP ---
-# Add engine and ai directories to sys.path
+# Define directories for locating assets and data
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 ENGINE_DIR = os.path.join(CURRENT_DIR, "..", "engine")
 AI_DIR = os.path.join(CURRENT_DIR, "..", "ai")
-
-sys.path.append(ENGINE_DIR)
-sys.path.append(AI_DIR)
-
-from game.data_loader import CardDataLoader  # noqa: E402
-from game.game_state import GameState, Phase  # noqa: E402
-from headless_runner import SmartHeuristicAgent, create_easy_cards  # noqa: E402
-
-# Add tools directory (now in scripts/ or tools/?)
-# Adjust if tools were moved? Tools are still in root/tools in the plan?
-# Wait, tools were not moved in Phase 2 plan explicitly, likely still in root?
-# Or moved to scripts? Let's assume tools/ is in root for now.
 TOOLS_DIR = os.path.join(CURRENT_DIR, "..", "tools")
-sys.path.append(TOOLS_DIR)
 
+# Tools imports (optional)
 try:
-    from deck_extractor import extract_deck_data
+    from tools.deck_extractor import extract_deck_data
 except ImportError:
-    print("Warning: Could not import deck_extractor. Is it in tools/?")
+    print("Warning: Could not import deck_extractor from tools.")
 
     def extract_deck_data(content, db):
         return [], [], {}, ["Importer not found"]
 
 
 # Static folder is now in frontend/web_ui
-# Static folder setup
 FRONTEND_DIR = os.path.join(CURRENT_DIR, "..", "frontend")
 WEB_UI_DIR = os.path.join(FRONTEND_DIR, "web_ui")
 IMG_DIR = os.path.join(FRONTEND_DIR, "img")  # Images seem to be in frontend/img
@@ -148,11 +139,6 @@ def save_replay():
 
 
 game_history = []  # For replay recording
-
-
-
-
-
 
 
 def init_game(deck_type="normal"):

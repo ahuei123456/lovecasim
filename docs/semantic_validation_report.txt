@@ -288,4 +288,3 @@ DETAILED HEURISTIC ISSUES (First 30):
 [PL!N-PR-003-PR] 上原歩夢
   Text: {{kidou.png|起動}}{{turn1.png|ターン1回}}手札をすべて公開する：自分のステージにほかのメンバーがおり、かつこれにより公開した手札の中にライブカードがない場合、自分のデッキの...
   - MISSING_ZONE: Text mentions zones ['控え室', 'デッキ', '手札', 'ステージ'] but no zone params in conditions
-

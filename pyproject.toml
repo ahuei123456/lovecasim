@@ -11,6 +11,9 @@ dependencies = [
     "numpy>=1.26.0",
 ]
 
+[tool.setuptools]
+packages = ["engine", "ai", "tools"]
+
 [dependency-groups]
 dev = [
     "mypy>=1.19.1",
