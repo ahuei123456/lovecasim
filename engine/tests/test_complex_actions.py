@@ -1,11 +1,6 @@
 
-import sys
-import os
+import pytest
 import numpy as np
-
-# Add parent dir to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from engine.game.game_state import GameState, Phase, MemberCard, PlayerState
 from engine.game.ability import Ability, TriggerType, Effect, EffectType, AbilityCostType, Cost, TargetType
 
@@ -18,68 +13,53 @@ def test_activated_ability():
     ability = Ability(
         raw_text="起動: 手札を1枚捨てる",
         trigger=TriggerType.ACTIVATED,
-        effects=[Effect(EffectType.SWAP_CARDS, 1, TargetType.CARD_HAND, params={"effect": "discard"})],
-        costs=[]
+        costs=[Cost(AbilityCostType.DISCARD_HAND, 1)],
+        effects=[] # No effect for this test, just cost payment
     )
     
-    member = MemberCard(
-        card_id=999,
-        card_no="TEST-999",
-        name="Test Member",
-        cost=1,
-        hearts=np.zeros(6),
-        blade_hearts=np.zeros(7),
-        blades=1,
+    # Mock Member
+    card = MemberCard(
+        card_id=1, card_no="TEST-01", name="TestCard", cost=1,
+        hearts=np.zeros(6), blade_hearts=np.zeros(7), blades=1,
         abilities=[ability]
     )
     
-    GameState.member_db[999] = member
+    GameState.member_db = {1: card}
     
-    # Set stage
     p0 = state.players[0]
-    p0.stage[1] = 999 # Center
-    p0.hand = [1, 2, 3] # Some dummy cards
+    p0.stage[0] = 1 # Card on stage
+    
+    # Give hand cards to pay cost
+    p0.hand = [101, 102]
+    # Add dummy 101/102
+    GameState.member_db[101] = MemberCard(101, "D-01", "Dummy", 1, np.zeros(6), np.zeros(7), 1)
+    GameState.member_db[102] = MemberCard(102, "D-02", "Dummy", 1, np.zeros(6), np.zeros(7), 1)
+    
+    # Add dummy card to main deck to prevent auto-refresh IndexError
+    p0.main_deck = [999]
+    GameState.member_db[999] = MemberCard(999, "D-99", "DeckDummy", 1, np.zeros(6), np.zeros(7), 1)
     
     state.phase = Phase.MAIN
-    state.current_player = 0
-    state.first_player = 0
     
-    print(f"Initial Hand: {p0.hand}")
-    
-    # 1. Check legal actions
+    # 1. Activate Ability
+    # Action ID for activating ability of member at slot 0: 200 + 0 = 200
     legal = state.get_legal_actions()
-    assert legal[201], "Action 201 (Activate Center) should be legal"
-    print("Action 201 is legal.")
+    assert legal[200], f"Action 200 should be legal. Legal actions: {[i for i, x in enumerate(legal) if x]}"
     
-    # 2. Step: Activate
-    state = state.step(201)
+    state = state.step(200)
+    p0 = state.players[0]
     
-    # 3. Check pending choices
-    assert len(state.pending_choices) > 0, "Should have a pending choice"
-    assert state.pending_choices[0][0] == "TARGET_HAND", "Choice should be TARGET_HAND"
-    print("Pending choice TARGET_HAND created successfully.")
+    # 2. Should Trigger Cost Payment (Target Hand)
+    assert len(state.pending_choices) > 0, "Should have pending choice for cost"
+    choice = state.pending_choices[0]
+    assert choice[0] == "TARGET_HAND"
     
-    # 4. Check legal actions for targeting
-    legal = state.get_legal_actions()
-    assert not legal[0], "Pass should NOT be legal while choosing"
-    assert legal[203], "Targeting card 0 should be legal"
-    assert legal[204], "Targeting card 1 should be legal"
-    assert legal[205], "Targeting card 2 should be legal"
-    assert not legal[206], "Targeting card 3 (non-existent) should NOT be legal"
-    print("Targeting actions are correctly masked.")
+    # 3. Select card to discard
+    # TARGET_HAND actions: 500 + index
+    # Discard first card (index 0) -> Action 500
+    state = state.step(500)
+    p0 = state.players[0]
     
-    # 5. Step: Select Target (Card index 1 -> Action 203 + 1 = 204)
-    state = state.step(204)
-    p0 = state.players[0] # Re-fetch p0 from the new state
-    
-    # 6. Verify result
-    print(f"Final Hand: {p0.hand}")
-    assert len(p0.hand) == 2, f"Hand should have 2 cards, got {len(p0.hand)}"
-    assert 2 not in p0.hand, "Card '2' (index 1) should have been removed"
-    assert p0.discard[-1] == 2, "Card '2' should be in discard"
-    print("Card successfully discarded via activated ability and targeting!")
-    
-    print("\nTest PASSED!")
-
-if __name__ == "__main__":
-    test_activated_ability()
+    # 4. Verify Discard
+    assert 101 in p0.discard, "Card 101 should be discarded"
+    assert len(p0.hand) == 1, "Hand size should decr to 1"

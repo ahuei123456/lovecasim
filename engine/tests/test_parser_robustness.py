@@ -1,8 +1,8 @@
 
-from engine.game.ability import AbilityParser, TriggerType, EffectType
-import sys
+import pytest
+from engine.game.ability import AbilityParser
 
-def debug_parser():
+def test_debug_parser():
     parser = AbilityParser()
     
     cases = [
@@ -12,19 +12,13 @@ def debug_parser():
         ("Choose2", "以下から2つを選ぶ。\\n・カードを1枚引く。\\n・スコア+1。\\n・エネチャージ。"),
     ]
     
-    with open('test_output.log', 'w', encoding='utf-8') as f:
-        for name, text in cases:
-            f.write(f"\n=== Testing {name} ===\n")
-            f.write(f"Text: {text}\n")
-            abs_list = parser.parse_ability_text(text)
-            f.write(f"Result count: {len(abs_list)}\n")
-            for idx, a in enumerate(abs_list):
-                f.write(f"  Ability {idx}: Trigger={a.trigger.name}\n")
-                f.write(f"    Effects: {[e.effect_type.name for e in a.effects]}\n")
-                if a.modal_options:
-                    f.write(f"    Modal Options: {len(a.modal_options)}\n")
-                    for midx, opt in enumerate(a.modal_options):
-                        f.write(f"      Opt {midx}: {[e.effect_type.name for e in opt]}\n")
-
-if __name__ == "__main__":
-    debug_parser()
+    # Just verify that parsing these strings produces valid non-empty ability lists
+    # without crashing.
+    for name, text in cases:
+        print(f"Testing case: {name}")
+        abs_list = parser.parse_ability_text(text)
+        assert len(abs_list) > 0, f"Failed to parse {name}"
+        
+        # Additional sanity checks depending on expected logic
+        for a in abs_list:
+            assert a.trigger is not None, f"Trigger is None for {name}"

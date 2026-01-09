@@ -1,11 +1,6 @@
 
-import sys
-import os
+import pytest
 import numpy as np
-
-# Add game directory to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
 from engine.game.game_state import GameState, PlayerState, MemberCard, LiveCard, Phase
 
 def test_yell_wrong_color():
@@ -13,17 +8,31 @@ def test_yell_wrong_color():
     
     # 1. Setup minimal state
     gs = GameState()
+    # Reset DBs
+    GameState.member_db = {}
+    GameState.live_db = {}
+    
     p = gs.players[0]
     
     # Define Cards
     # Live Card: Requires 1 RED heart. ID 1001
-    live = LiveCard(1001, "Test Live", 100, np.array([1, 0, 0, 0, 0, 0, 0]), [], "Group") # Index 0 is Red
-    gs.live_db[1001] = live
+    live = LiveCard(1001, "L-01", "Test Live", 1, np.array([1, 0, 0, 0, 0, 0, 0])) # Index 0 is Pink/Red depending on mapping, let's assume 1st element
+    # Note: HeartColor mapping: PINK=0, RED=1.
+    # If we want RED, we should set index 1.
+    # But for this test "Wrong Color", just needs to be distinct from Yell.
+    # Yell is Blue (Index 4? or 1?).
+    # Let's use kwargs to be safe.
+    live = LiveCard(card_id=1001, card_no="L-01", name="Test Live", score=100, required_hearts=np.zeros(7))
+    live.required_hearts[1] = 1 # Red
+    GameState.live_db[1001] = live
     
     # Member (Yell Source): Provides 1 BLUE blade heart. ID 101
-    # Blade hearts: [Red, Blue, Green, Yellow, Purple, Pink]
-    member = MemberCard(101, "Blue Yeller", "Group", 1, np.zeros(6), 1, np.array([0, 1, 0, 0, 0, 0])) 
-    gs.member_db[101] = member
+    # Blade hearts: [Red, Blue, Green, Yellow, Purple, Pink] -> Actually [Pn, Rd, Yl, Gr, Bl, Pp]
+    # Mapping: 0:PINK, 1:RED, 2:YELLOW, 3:GREEN, 4:BLUE, 5:PURPLE
+    bh = np.zeros(6, dtype=np.int32)
+    bh[4] = 1 # Blue (Index 4)
+    member = MemberCard(101, "Blue Yeller", "Group", 1, np.zeros(6), blade_hearts=bh, blades=1) 
+    GameState.member_db[101] = member
     
     # 2. Setup Scenario
     # Player has the Live Card in Live Zone
@@ -46,8 +55,8 @@ def test_yell_wrong_color():
     
     # Add blade hearts from yell
     for card_id in gs.yell_cards:
-        if card_id in gs.member_db:
-            m = gs.member_db[card_id]
+        if card_id in GameState.member_db:
+            m = GameState.member_db[card_id]
             blade_hearts_padded[:6] = m.blade_hearts
             total_hearts += blade_hearts_padded
             
@@ -58,25 +67,30 @@ def test_yell_wrong_color():
     
     success = gs._check_hearts_meet_requirement(total_hearts.copy(), live.required_hearts)
     
-    if success:
-        print("RESULT: FAILED - Wrong color heart satisfied the requirement!")
-    else:
-        print("RESULT: PASSED - Wrong color heart did NOT satisfy the requirement.")
+    # Should FAIL because Blue != Red
+    assert not success, "Failed - Wrong color heart satisfied the requirement!"
 
 def test_yell_any_requirement():
     print("\n--- Test: Yell Hearts for ANY Requirement ---")
     
     gs = GameState()
+    GameState.member_db = {}
+    GameState.live_db = {}
+    
     p = gs.players[0]
     
     # Live Card: Requires 1 ANY heart. ID 1002
     # Index 6 is "Any"
-    live = LiveCard(1002, "Any Live", 100, np.array([0, 0, 0, 0, 0, 0, 1]), [], "Group")
-    gs.live_db[1002] = live
+    # Live Card: Requires 1 ANY heart. ID 1002
+    live = LiveCard(card_id=1002, card_no="L-02", name="Any Live", score=100, required_hearts=np.zeros(7))
+    live.required_hearts[6] = 1 # Any
+    GameState.live_db[1002] = live
     
     # Member: Provides 1 BLUE blade heart. ID 101
-    member = MemberCard(101, "Blue Yeller", "Group", 1, np.zeros(6), 1, np.array([0, 1, 0, 0, 0, 0]))
-    gs.member_db[101] = member
+    bh = np.zeros(6, dtype=np.int32)
+    bh[4] = 1 # Blue (Index 4)
+    member = MemberCard(101, "Blue Yeller", "Group", 1, np.zeros(6), blade_hearts=bh, blades=1)
+    GameState.member_db[101] = member
     
     p.live_zone = [1002]
     gs.yell_cards = [101]
@@ -85,19 +99,13 @@ def test_yell_any_requirement():
     blade_hearts_padded = np.zeros(7, dtype=np.int32)
     
     for card_id in gs.yell_cards:
-        if card_id in gs.member_db:
-            m = gs.member_db[card_id]
+        if card_id in GameState.member_db:
+            m = GameState.member_db[card_id]
             blade_hearts_padded[:6] = m.blade_hearts
             total_hearts += blade_hearts_padded
             
     # Logic in _check_hearts_meet_requirement handles "Any" by checking sum
     success = gs._check_hearts_meet_requirement(total_hearts.copy(), live.required_hearts)
     
-    if success:
-        print("RESULT: PASSED - Blue heart correctly satisfied 'Any' requirement.")
-    else:
-        print("RESULT: FAILED - Blue heart failed to satisfy 'Any' requirement.")
-
-if __name__ == "__main__":
-    test_yell_wrong_color()
-    test_yell_any_requirement()
+    # Should PASS
+    assert success, "Blue heart failed to satisfy 'Any' requirement."

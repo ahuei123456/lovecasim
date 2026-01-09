@@ -2044,6 +2044,26 @@ class GameState:
                      player.stage[source_area] = -1
                      player.energy_deck.extend(player.stage_energy[source_area])
                      player.stage_energy[source_area] = []
+
+            elif cost.type == AbilityCostType.DISCARD_HAND:
+                # Rule 9.2: Discard card(s) as cost
+                # Create choice to discard
+                # Determine how many? cost.value.
+                # If value > 1, we might need multiple choices or a multi-select.
+                # Current system seems to queue individual choices?
+                # or TARGET_HAND with count?
+                # _handle_choice pops ONE pending choice.
+                # So we should append 'cost.value' choices?
+                # Or TARGET_HAND logic handles 'count'?
+                # View _handle_choice (line 2059):
+                # if choice_type == "TARGET_HAND":
+                #    hand_idx = action - 500
+                #    card_id = p.hand.pop(hand_idx)
+                #    if params.get('effect') == 'discard': ...
+                # It handles ONE card.
+                # So we need to loop cost.value times.
+                for _ in range(cost.value):
+                     self.pending_choices.append(("TARGET_HAND", {"reason": "cost", "effect": "discard"}))
                     
         return True
 

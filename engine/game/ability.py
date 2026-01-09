@@ -264,7 +264,7 @@ class AbilityParser:
                     if context_zone: params['zone'] = context_zone
                     conditions.append(Condition(ConditionType.COUNT_GROUP, params))
                 # Zone count
-                elif context_zone and (match := re.search(r'(\d+)(枚|人)以上', content)):
+                elif context_zone and context_zone != 'SUCCESS_LIVE' and (match := re.search(r'(\d+)(枚|人)以上', content)):
                     params = {'count': int(match.group(1)), 'zone': context_zone}
                     conditions.append(Condition(ConditionType.COUNT_DISCARD if context_zone == 'DISCARD' else ConditionType.COUNT_STAGE, params))
                 
@@ -353,7 +353,11 @@ class AbilityParser:
                 elif '引' in content: effects.append(Effect(EffectType.DRAW, 1, TargetType.PLAYER))
                 
                 if match := re.search(r'(?:デッキ|山札).*?(\d+)枚.*?(?:見る|見て)', content): effects.append(Effect(EffectType.LOOK_DECK, int(match.group(1))))
-                if any(kw in content for kw in ['その中から', 'その中']): effects.append(Effect(EffectType.LOOK_AND_CHOOSE, 1, params={'source': 'looked'}))
+                if any(kw in content for kw in ['その中から', 'その中']): 
+                    params = {'source': 'looked'}
+                    if 'メンバー' in content: params['filter'] = 'member'
+                    if 'ライブ' in content: params['filter'] = 'live'
+                    effects.append(Effect(EffectType.LOOK_AND_CHOOSE, 1, params=params))
                 if match := re.search(r'(\d+)枚.*?公開', content): effects.append(Effect(EffectType.REVEAL_CARDS, int(match.group(1))))
                 elif '公開' in content and 'エール' not in content: effects.append(Effect(EffectType.REVEAL_CARDS, 1))
                 
@@ -437,7 +441,7 @@ class AbilityParser:
                     zone = 'discard' if '控え室' in content else 'stage'
                     effects.append(Effect(EffectType.TRIGGER_REMOTE, 1, params={'from': zone}))
 
-                if '控' in content and any(kw in content for kw in ['置', '送']):
+                if '控' in content and (('置' in content and '置き場' not in content) or '送' in content):
                     # Prevent parsing "Sacrifice Self" as generic discard effect
                     if 'このメンバー' not in content:
                         count = int(match.group(1)) if (match := re.search(r'(?:手札|から).*?(\d+)枚', content)) else int(match.group(1)) if (match := re.search(r'(\d+)枚', content)) else 1
@@ -454,7 +458,7 @@ class AbilityParser:
                 if 'コスト' in content and any(kw in content for kw in ['減', '-']): effects.append(Effect(EffectType.REDUCE_COST, 1))
                 if any(kw in content for kw in ['無効', 'キャンセル']): effects.append(Effect(EffectType.NEGATE_EFFECT, 1))
                 
-                if 'デッキ' in content:
+                if 'デッキ' in content or '山札' in content:
                     if '順番' in content: effects.append(Effect(EffectType.ORDER_DECK, 1))
                     elif ('一番上' in content or '一番下' in content) and 'シャッフル' in content and '合計' in content:
                         count = int(match.group(1)) if (match := re.search(r'合計(\d+)枚', content)) else 0

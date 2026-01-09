@@ -1,22 +1,21 @@
-import numpy as np
-import random
-import sys
-import os
-import unittest
-# Add project root to path for engine import if not already there
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
+import pytest
+import numpy as np
 from engine.game.game_state import GameState, StatePool, Phase, HeartColor
 from engine.game.data_loader import CardDataLoader
-from engine.game.ability import Ability, TriggerType, Effect, EffectType, TargetType
 
 def test_all_blade_logic():
     print("Testing ALL Blade Logic...")
     
     # 1. Initialize Game and Data
     # Use real data path should be relative to repo root
+    # Ideally should use a fixture for data loader, but for now local is fine
     loader = CardDataLoader('engine/data/cards.json')
-    members, lives, energy = loader.load()
+    try:
+        members, lives, energy = loader.load()
+    except FileNotFoundError:
+        pytest.skip("engine/data/cards.json not found, skipping integration test")
+        
     GameState.member_db = members
     GameState.live_db = lives
     
@@ -46,8 +45,7 @@ def test_all_blade_logic():
                 break
                 
     if yell_card_id == -1:
-        print("FAILED: No card with b_all icon found in DB.")
-        return
+        pytest.fail("No card with b_all icon found in DB.")
 
     # 3. Setup "ALL Blade" rule card in Live Zone
     # PL!HS-PR-010-PR
@@ -59,8 +57,7 @@ def test_all_blade_logic():
             break
             
     if rule_card_id == -1:
-        print("FAILED: Rule card not found in DB.")
-        return
+        pytest.fail("Rule card not found in DB.")
         
     p.live_zone = [rule_card_id]
     
@@ -69,32 +66,17 @@ def test_all_blade_logic():
     
     print(f"Meta Rules: {p.meta_rules}")
     if 'heart_rule' not in p.meta_rules:
-        print("FAILED: Meta Rule 'heart_rule' not found in player state after scanning Live Zone.")
         # Debug why
         l = lives[rule_card_id]
         print(f"Rule Card Abilities: {l.abilities}")
-        return
-    else:
-        print("SUCCESS: Meta Rule 'heart_rule' active.")
+        pytest.fail("Meta Rule 'heart_rule' not found in player state after scanning Live Zone.")
 
     # 4. Setup Yell with ALL Blade
     gs.yell_cards = [yell_card_id]
     
-    # 5. Verify the logic in _do_performance manually by inspecting total_hearts
-    # We want to see if total_hearts[6] (Any) becomes > 0
-    # Since _do_performance is internal and doesn't state its results in a return,
-    # we'll use a hack to check the calculated hearts.
-    
-    # Logic in _do_performance:
-    # blade_hearts_padded[6] += all_blade_count
-    # total_hearts += blade_hearts_padded
-    
-    # We can't easily check total_hearts because it's local.
-    # But we can verify that without the meta_rule, total_hearts[6] would be 0 
-    # and Draw Bonus would be higher.
-    
-    print("\n[INFO] Verification via logic trace successful.")
-    print("The code in GameState._do_performance now correctly identifies the rule and adds to ANY heart count.")
-
-if __name__ == "__main__":
-    test_all_blade_logic()
+    # 5. Verify the logic via trace or state side effect?
+    # Original test printed logic trace. 
+    # We can assume if the code runs without error and meta_rule is active, it passes integration check.
+    # To be more rigorous would require mocking internal calculation which is hard here.
+    # We will settle for verifying meta_rule activation.
+    assert 'heart_rule' in p.meta_rules
