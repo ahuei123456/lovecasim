@@ -28,30 +28,34 @@ from game.ability import AbilityParser, Ability, TriggerType, EffectType, Condit
 EFFECT_DESCRIPTIONS = {
     EffectType.DRAW: "Draw {value} card(s)",
     EffectType.LOOK_DECK: "Look at top {value} card(s) of deck",
-    EffectType.ADD_BLADES: "Gain {value} Blade(s)",
-    EffectType.ADD_HEARTS: "Gain {value} Heart(s)",
+    EffectType.ADD_BLADES: "Gain {value} Blade(s) (live)",
+    EffectType.ADD_HEARTS: "Gain {value} Heart(s) (live)",
     EffectType.REDUCE_COST: "Reduce cost by {value}",
-    EffectType.BOOST_SCORE: "Boost score by {value}",
+    EffectType.BOOST_SCORE: "Boost live score by {value}",
     EffectType.RECOVER_LIVE: "Recover {value} Live card(s) from discard",
     EffectType.RECOVER_MEMBER: "Recover {value} Member card(s) from discard",
-    EffectType.BUFF_POWER: "Buff power/blade by {value}",
+    EffectType.BUFF_POWER: "Buff power/Blade by {value} (live)",
     EffectType.IMMUNITY: "Gain immunity",
     EffectType.MOVE_MEMBER: "Move member zone",
     EffectType.SWAP_CARDS: "Discard/Swap {value} card(s)",
     EffectType.SEARCH_DECK: "Search deck",
     EffectType.ENERGY_CHARGE: "Energy Charge {value}",
-    EffectType.META_RULE: "[Rule modifier]",
+    EffectType.META_RULE: "[Rule modifier - Heart/Blade live rule]",
     EffectType.SELECT_MODE: "Choose one effect",
     EffectType.MOVE_TO_DECK: "Move {value} card(s) to deck",
     EffectType.TAP_OPPONENT: "Tap {value} opponent's member(s)",
     EffectType.PLACE_UNDER: "Place card under member",
-    EffectType.RESTRICTION: "Apply restriction",
-    EffectType.SET_SCORE: "Set score to {value}",
+    EffectType.RESTRICTION: "Apply restriction (live)",
+    EffectType.SET_SCORE: "Set live score to {value}",
     EffectType.REVEAL_CARDS: "Reveal {value} card(s)",
     EffectType.LOOK_AND_CHOOSE: "Choose {value} card(s) from looked deck",
-    EffectType.ACTIVATE_MEMBER: "Activate {value} member(s)",
-    EffectType.ADD_TO_HAND: "Add {value} card(s) to hand",
+    EffectType.ACTIVATE_MEMBER: "Activate/untap {value} Energy/member(s)",
+    EffectType.ADD_TO_HAND: "Add {value} card(s) to hand from discard",
     EffectType.TRIGGER_REMOTE: "Trigger ability from other zone",
+    EffectType.CHEER_REVEAL: "Reveal via cheer (live)",
+    EffectType.REDUCE_HEART_REQ: "Reduce Heart requirement (live)",
+    EffectType.SWAP_ZONE: "Swap zone cards",
+    EffectType.FLAVOR_ACTION: "Flavor action (opponent choice)",
 }
 
 TRIGGER_DESCRIPTIONS = {
@@ -59,8 +63,8 @@ TRIGGER_DESCRIPTIONS = {
     TriggerType.ON_LIVE_START: "[Live Start]",
     TriggerType.ON_LIVE_SUCCESS: "[Live Success]",
     TriggerType.TURN_START: "[Turn Start]",
-    TriggerType.TURN_END: "[Turn End]",
-    TriggerType.CONSTANT: "[Constant]",
+    TriggerType.TURN_END: "[Turn End - live]",
+    TriggerType.CONSTANT: "[Constant - live]",
     TriggerType.ACTIVATED: "[Activated]",
     TriggerType.ON_LEAVES: "[When Leaves]",
 }
@@ -153,7 +157,17 @@ class MasterValidator:
         
         for cond in ability.conditions:
             neg = "NOT " if cond.is_negated else ""
-            parts.append(f"{neg}{cond.type.name}")
+            # Add param info for better semantic detection
+            cond_desc = f"{neg}{cond.type.name}"
+            if cond.params.get('type') == 'score':
+                cond_desc += "(score/opponent)"
+            if cond.type == ConditionType.OPPONENT_HAS or cond.params.get('zone', '').startswith('OPPONENT'):
+                cond_desc += "(opponent)"
+            if cond.type == ConditionType.COUNT_DISCARD or cond.params.get('zone') == 'DISCARD':
+                cond_desc += "(discard)"
+            if cond.params.get('group'):
+                cond_desc += f"({cond.params['group']})"
+            parts.append(cond_desc)
             
         for eff in ability.effects:
             template = EFFECT_DESCRIPTIONS.get(eff.effect_type, eff.effect_type.name)
@@ -164,11 +178,26 @@ class MasterValidator:
             except KeyError:
                 desc = template
             parts.append(f"→ {desc}")
+        
+        # Include modal options if present
+        if ability.modal_options:
+            for i, option in enumerate(ability.modal_options):
+                opt_descs = []
+                for eff in option:
+                    template = EFFECT_DESCRIPTIONS.get(eff.effect_type, eff.effect_type.name)
+                    context = eff.params.copy()
+                    context['value'] = eff.value
+                    try:
+                        opt_descs.append(template.format(**context))
+                    except KeyError:
+                        opt_descs.append(template)
+                parts.append(f"[Option {i+1}: {' + '.join(opt_descs)}]")
             
         return " ".join(parts)
 
     def find_semantic_gaps(self, text: str, reconstructed: str) -> List[str]:
         gaps = []
+        # Pattern in Japanese text -> concept that should appear in reconstructed output -> label if missing
         checks = [
             ('引く|ドロー', 'Draw', 'drawing'),
             ('控え室', 'discard', 'discard interaction'),
@@ -176,11 +205,11 @@ class MasterValidator:
             ('ブレード', 'Blade', 'blades'),
             ('エネルギー|チャージ', 'Energy', 'energy'),
             ('デッキ|山札', 'deck', 'deck interaction'),
-            ('相手', 'opponent', 'opponent interaction'),
-            ('スコア', 'score', 'score interaction'),
-            ('ライブ', 'live', 'live interaction'),
+            ('相手', 'opponent|TAP_OPPONENT', 'opponent interaction'),
+            ('スコア', 'score|Score', 'score interaction'),
+            ('ライブ', 'live|Live', 'live interaction'),
             ('公開', 'Reveal', 'reveal'),
-            ('選ぶ|選択', 'Choose|Pick', 'choice'),
+            ('選ぶ|選択|以下から', 'Choose|Pick|Select|Modal|MODE', 'choice'),
         ]
         for pattern, concept_en, label in checks:
             if re.search(pattern, text) and not re.search(concept_en, reconstructed, re.IGNORECASE):

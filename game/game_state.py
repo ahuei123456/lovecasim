@@ -133,6 +133,84 @@ class Area(IntEnum):
     RIGHT = 2
 
 
+# =============================================================================
+# GROUP ALIAS HELPER (Rule 2.3: グループ名/シリーズ名)
+# =============================================================================
+# Maps short group names (used in ability text) to their full series names (used in cards.json)
+GROUP_ALIASES = {
+    "μ's": "ラブライブ！",
+    "Aqours": "ラブライブ！サンシャイン!!",
+    "虹ヶ咲": "ラブライブ！虹ヶ咲学園スクールアイドル同好会",
+    "Liella!": "ラブライブ！スーパースター!!",
+    "蓮ノ空": "ラブライブ！蓮ノ空女学院スクールアイドルクラブ",
+    # Subunits
+    "Printemps": "Printemps",
+    "lily white": "lily white",
+    "BiBi": "BiBi",
+    "CYaRon!": "CYaRon!",
+    "AZALEA": "AZALEA",
+    "Guilty Kiss": "Guilty Kiss",
+    "5yncri5e!": "5yncri5e!",
+    "KALEIDOSCORE": "KALEIDOSCORE",
+    "CatChu!": "CatChu!",
+    "みらくらぱーく！": "みらくらぱーく！",
+    "スリーズブーケ": "スリーズブーケ",
+    "DOLLCHESTRA": "DOLLCHESTRA",
+}
+
+def _get_group_aliases(group: str) -> set:
+    """
+    Returns a set containing the input group and its aliases.
+    Strips Japanese brackets『』if present.
+    """
+    group = group.strip('『』')
+    target_groups = {group}
+    
+    # Add the mapped alias if it exists
+    if group in GROUP_ALIASES:
+        target_groups.add(GROUP_ALIASES[group])
+    
+    # Also check reverse mapping (if someone passes the full series name)
+    for short_name, full_name in GROUP_ALIASES.items():
+        if group == full_name:
+            target_groups.add(short_name)
+            break
+    
+    return target_groups
+
+
+def _card_matches_group(card, group_filter: str) -> bool:
+    """
+    Check if a card (MemberCard or LiveCard) matches a group filter.
+    Uses alias resolution to handle short names vs. full series names.
+    Also checks the 'unit' field for subunit matching.
+    
+    Args:
+        card: A MemberCard or LiveCard object
+        group_filter: The group name to filter by (may include brackets)
+    
+    Returns:
+        True if the card's group or unit matches any alias of the filter
+    """
+    if not group_filter:
+        return True  # No filter means all cards match
+    
+    target_groups = _get_group_aliases(group_filter)
+    
+    # Check the card's group field (series name)
+    for tg in target_groups:
+        if tg in card.group:
+            return True
+    
+    # For MemberCard, also check the unit field (subunit name)
+    if hasattr(card, 'unit') and card.unit:
+        for tg in target_groups:
+            if tg == card.unit:
+                return True
+    
+    return False
+
+
 @dataclass
 class MemberCard:
     """Represents a member card with all attributes"""
@@ -1410,15 +1488,18 @@ class GameState:
                     valid = True
                     if cid in self.member_db:
                         m = self.member_db[cid]
-                        if group_filter and group_filter not in m.group: valid = False
-                        if cost_max is not None and m.cost > cost_max: valid = False
+                        # Use alias-aware group matching
+                        if group_filter and not _card_matches_group(m, group_filter): 
+                            valid = False
+                        if cost_max is not None and m.cost > cost_max: 
+                            valid = False
                     elif cid in self.live_db:
                         l = self.live_db[cid]
-                        if group_filter and group_filter not in l.group: valid = False
-                        # Live cards have no cost usually, or assume 0/ignore? 
-                        # If strict cost check needed for Live, add logic. For now assuming member target mostly.
+                        # Use alias-aware group matching
+                        if group_filter and not _card_matches_group(l, group_filter): 
+                            valid = False
                     else:
-                        # Unknown card type (e.g. back of card?)
+                        # Unknown card type (e.g. energy card)
                         if group_filter or cost_max is not None: valid = False
                     
                     if valid:
@@ -1436,11 +1517,11 @@ class GameState:
             # Retrieve live card from discard to hand
             live_cards_in_discard = [cid for cid in p.discard if cid in self.live_db]
             
-            # Apply filters
+            # Apply group filter using alias-aware helper
             group_filter = effect.params.get('group')
             if group_filter:
                 live_cards_in_discard = [cid for cid in live_cards_in_discard 
-                                         if group_filter in self.live_db[cid].group]
+                                         if _card_matches_group(self.live_db[cid], group_filter)]
             
             if live_cards_in_discard:
                 # Create choice to select which live card to recover
@@ -1455,11 +1536,11 @@ class GameState:
             # Retrieve member card from discard to hand
             member_cards_in_discard = [cid for cid in p.discard if cid in self.member_db]
             
-            # Apply filters
+            # Apply group filter using alias-aware helper
             group_filter = effect.params.get('group')
             if group_filter:
                 member_cards_in_discard = [cid for cid in member_cards_in_discard 
-                                           if group_filter in self.member_db[cid].group]
+                                           if _card_matches_group(self.member_db[cid], group_filter)]
             
             cost_max = effect.params.get('cost_max')
             if cost_max is not None:
@@ -1606,9 +1687,59 @@ class GameState:
              if self.verbose: print(f"Effect: Immunity granted.")
 
         elif effect.effect_type == EffectType.ADD_TO_HAND:
-             # Basic implementation
-             if effect.params.get('from') == 'discard' and p.discard:
-                  p.hand.append(p.discard.pop())
+             # Add card from zone to hand with filtering
+             source = effect.params.get('from', 'discard')
+             group_filter = effect.params.get('group')
+             cost_max = effect.params.get('cost_max')
+             count = effect.value if effect.value > 0 else 1
+             
+             candidates = []
+             
+             if source == 'discard':
+                 for cid in p.discard:
+                     if cid in self.member_db:
+                         m = self.member_db[cid]
+                         if group_filter and not _card_matches_group(m, group_filter): continue
+                         if cost_max is not None and m.cost > cost_max: continue
+                         candidates.append(cid)
+                     elif cid in self.live_db:
+                         l = self.live_db[cid]
+                         if group_filter and not _card_matches_group(l, group_filter): continue
+                         candidates.append(cid)
+             elif source == 'deck':
+                 for cid in p.main_deck:
+                     if cid in self.member_db:
+                         m = self.member_db[cid]
+                         if group_filter and not _card_matches_group(m, group_filter): continue
+                         if cost_max is not None and m.cost > cost_max: continue
+                         candidates.append(cid)
+                     elif cid in self.live_db:
+                         l = self.live_db[cid]
+                         if group_filter and not _card_matches_group(l, group_filter): continue
+                         candidates.append(cid)
+             elif source == 'success_live':
+                 for cid in p.success_lives:
+                     if cid in self.live_db:
+                         l = self.live_db[cid]
+                         if group_filter and not _card_matches_group(l, group_filter): continue
+                         candidates.append(cid)
+             elif source == 'live_zone':
+                 for cid in p.live_zone:
+                     if cid in self.live_db:
+                         l = self.live_db[cid]
+                         if group_filter and not _card_matches_group(l, group_filter): continue
+                         candidates.append(cid)
+             
+             if candidates:
+                 self.pending_choices.append(("SELECT_FROM_LIST", {
+                     'cards': candidates,
+                     'count': count,
+                     'source': source,
+                     'reason': 'add_to_hand'
+                 }))
+                 if self.verbose: print(f"ADD_TO_HAND: Select {count} card(s) from {source} (Group: {group_filter}, Cost≤{cost_max})")
+             else:
+                 if self.verbose: print(f"ADD_TO_HAND: No valid targets in {source} (Group: {group_filter})")
         
         elif effect.effect_type == EffectType.TRIGGER_REMOTE:
              # Cluster 5: Remote Ability Triggering
@@ -1730,12 +1861,14 @@ class GameState:
              for cid in p.main_deck:
                  if cid in self.member_db:
                      m = self.member_db[cid]
-                     if group and group not in m.group: continue
+                     # Use alias-aware group matching
+                     if group and not _card_matches_group(m, group): continue
                      if cost_max is not None and m.cost > cost_max: continue
                      targets.append(cid)
                  elif cid in self.live_db:
                      l = self.live_db[cid]
-                     if group and group not in l.group: continue
+                     # Use alias-aware group matching
+                     if group and not _card_matches_group(l, group): continue
                      targets.append(cid)
              
              if targets:
@@ -1810,21 +1943,12 @@ class GameState:
             met = (my_life > opp_life)
         elif cond.type == ConditionType.COUNT_GROUP:
             # Count members of group in zone
-            group = cond.params.get('group', '').strip('『』')
+            group = cond.params.get('group', '')
             zone = cond.params.get('zone', 'STAGE')
             min_count = cond.params.get('count', cond.params.get('min', 1 if cond.type == ConditionType.GROUP_FILTER else 0))
             
-            # Alias mapping for groups (since cards.json series field is long)
-            aliases = {
-                "μ's": "ラブライブ！",
-                "Aqours": "ラブライブ！サンシャイン!!",
-                "虹ヶ咲": "ラブライブ！虹ヶ咲学園スクールアイドル同好会",
-                "Liella!": "ラブライブ！スーパースター!!",
-                "蓮ノ空": "ラブライブ！蓮ノ空女学院スクールアイドルクラブ"
-            }
-            target_groups = {group}
-            if group in aliases:
-                target_groups.add(aliases[group])
+            # Use centralized alias helper
+            target_groups = _get_group_aliases(group)
 
             count = 0
             cards_to_check = []
@@ -1883,20 +2007,11 @@ class GameState:
             count = len(player.success_lives)
             met = (count >= cond.params.get('min', 0))
         elif cond.type == ConditionType.GROUP_FILTER:
-            group = cond.params.get('group', '').strip('『』')
+            group = cond.params.get('group', '')
             zone = cond.params.get('zone')
 
-            # Alias mapping for groups
-            aliases = {
-                "μ's": "ラブライブ！",
-                "Aqours": "ラブライブ！サンシャイン!!",
-                "虹ヶ咲": "ラブライブ！虹ヶ咲学園スクールアイドル同好会",
-                "Liella!": "ラブライブ！スーパースター!!",
-                "蓮ノ空": "ラブライブ！蓮ノ空女学院スクールアイドルクラブ"
-            }
-            target_groups = {group}
-            if group in aliases:
-                target_groups.add(aliases[group])
+            # Use centralized alias helper
+            target_groups = _get_group_aliases(group)
 
             if zone:
                 # Zone-based existence check (e.g., "If you have a [Group] member")

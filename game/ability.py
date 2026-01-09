@@ -97,6 +97,8 @@ class ConditionType(IntEnum):
     HAND_HAS_NO_LIVE = 18 # Hand contains no live cards (usually paired with reveal cost)
     COUNT_SUCCESS_LIVE = 19 # 成功ライブカード置き場にX枚以上
     OPPONENT_HAND_DIFF = 20 # Opponent hand size comparison (Opponent >= Self + k)
+    SCORE_COMPARE = 21      # Compare scores (e.g. higher than opponent)
+    HAS_CHOICE = 22         # Ability involves a choice
 
 @dataclass
 class Condition:
@@ -150,10 +152,8 @@ class AbilityParser:
     def parse_ability_text(text: str) -> List[Ability]:
         abilities = []
         
-        # Split by newlines (blocks)
-        blocks = text.split('\\n')
-        if len(blocks) == 1:
-            blocks = text.split('\n')
+        # Split by newlines (blocks) - handle both literal and escaped newlines
+        blocks = re.split(r'\\n|\n', text)
         
         last_ability = None
         for block in blocks:
@@ -161,53 +161,16 @@ class AbilityParser:
             if not block:
                 continue
                 
-            # Split block into sentences
-            sentences = [s for s in block.split('。') if s.strip()]
+            # Split block into sentences, but keep bullet points together if they don't have periods
+            sentences = [s.strip() for s in re.split(r'。', block) if s.strip()]
             
             for i, line in enumerate(sentences):
                 line = line.strip()
                 if not line:
                     continue
+                # print(f"DEBUG PARSER: Processing line: {line[:50]}...")
                     
-                trigger = TriggerType.NONE
-                conditions = []
-                effects = []
-                costs = []
-                
-                # --- Trigger Parsing ---
-                if 'toujyou' in line or '登場' in line: trigger = TriggerType.ON_PLAY
-                elif 'エールにより公開' in line or 'エールで公開' in line: trigger = TriggerType.ON_REVEAL
-                elif 'jidou' in line or '自動' in line: trigger = TriggerType.ON_LEAVES
-                elif 'jyouji' in line or '常時' in line: trigger = TriggerType.CONSTANT
-                elif 'live_success' in line or 'ライブ成功' in line: trigger = TriggerType.ON_LIVE_SUCCESS
-                elif 'live_start' in line or 'ライブ開始' in line or 'ライブの開始' in line: trigger = TriggerType.ON_LIVE_START
-                elif 'live_end' in line or 'ライブ終了' in line or 'ライブの終了' in line: trigger = TriggerType.TURN_END # Close enough for now
-                elif 'kidou' in line or '起動' in line: trigger = TriggerType.ACTIVATED
-                elif 'ターン開始' in line: trigger = TriggerType.TURN_START
-                elif 'ターン終了' in line: trigger = TriggerType.TURN_END
-                elif 'エールで出た' in line: trigger = TriggerType.CONSTANT # Meta rule / passive
-                
-                # Double trigger check (e.g. {{toujyou.png|登場}}/{{live_start.png|ライブ開始時}})
-                triggers = []
-                if 'toujyou' in line or '登場' in line: triggers.append(TriggerType.ON_PLAY)
-                if 'エールにより公開' in line or 'エールで公開' in line: triggers.append(TriggerType.ON_REVEAL)
-                if 'live_start' in line or 'ライブ開始' in line or 'ライブの開始' in line: triggers.append(TriggerType.ON_LIVE_START)
-                if 'live_success' in line or 'ライブ成功' in line: triggers.append(TriggerType.ON_LIVE_SUCCESS)
-                if 'kidou' in line or '起動' in line: triggers.append(TriggerType.ACTIVATED)
-                if 'jyouji' in line or '常時' in line: triggers.append(TriggerType.CONSTANT)
-                if 'jidou' in line or '自動' in line: triggers.append(TriggerType.ON_LEAVES)
-                if 'ターン開始' in line: triggers.append(TriggerType.TURN_START)
-                if 'ターン終了' in line: triggers.append(TriggerType.TURN_END)
-                if 'live_end' in line or 'ライブ終了' in line or 'ライブの終了' in line: triggers.append(TriggerType.TURN_END)
-                
-                if triggers:
-                    trigger = triggers[0]
-                elif i == 0 and not any(line.startswith(kw) for kw in ['・', '-', '－', '（', '(']):
-                     # Fallback for first sentence without icon
-                     if any(kw in line for kw in ['引', 'スコア', 'プラス', '＋', 'ブレード', 'ハート', '控', '戻', 'エネ', 'デッキ', '山札', '見る', '公開', '選ぶ']):
-                        trigger = TriggerType.ACTIVATED
-                
-                # Continuation context
+                # Identify if this is a continuation of the previous ability
                 is_continuation = (
                     line.startswith('・') or 
                     line.startswith('-') or 
@@ -215,14 +178,33 @@ class AbilityParser:
                     any(line.startswith(kw) for kw in ['回答が', '選んだ場合', '条件が', 'それ以外', 'その', 'それら', '残り', 'そし', 'その後', 'そこから', 'もよい', 'を自分', '（', '('])
                 )
                 
-                # Explicit trigger check
-                has_explicit_trigger = '{{' in line 
+                trigger = TriggerType.NONE
+                if not is_continuation:
+                    # --- Trigger Parsing ---
+                    triggers = []
+                    # Explicit icons like {{toujyou.png|登場}} take precedence
+                    if 'toujyou' in line or '登場' in line: triggers.append(TriggerType.ON_PLAY)
+                    if 'エールにより公開' in line or 'エールで公開' in line: triggers.append(TriggerType.ON_REVEAL)
+                    if 'live_start' in line or 'ライブ開始' in line or 'ライブの開始' in line: triggers.append(TriggerType.ON_LIVE_START)
+                    if 'live_success' in line or 'ライブ成功' in line: triggers.append(TriggerType.ON_LIVE_SUCCESS)
+                    if 'kidou' in line or '起動' in line: triggers.append(TriggerType.ACTIVATED)
+                    if 'jyouji' in line or '常時' in line: triggers.append(TriggerType.CONSTANT)
+                    if 'jidou' in line or '自動' in line: triggers.append(TriggerType.ON_LEAVES)
+                    if 'ターン開始' in line: triggers.append(TriggerType.TURN_START)
+                    if 'ターン終了' in line: triggers.append(TriggerType.TURN_END)
+                    if 'live_end' in line or 'ライブ終了' in line or 'ライブの終了' in line: triggers.append(TriggerType.TURN_END)
+                    if 'エールで出た' in line: triggers.append(TriggerType.CONSTANT)
+                    
+                    if triggers:
+                        trigger = triggers[0]
+                    elif i == 0 and not is_continuation:
+                        # Fallback for first sentence without icon: only if it contains action keywords
+                        if any(kw in line for kw in ['引', 'スコア', 'プラス', '＋', 'ブレード', 'ハート', '控', '戻', 'エネ', 'デッキ', '山札', '見る', '公開', '選ぶ', '選ぶ。']):
+                            trigger = TriggerType.ACTIVATED
                 
-                # Fallback trigger for first sentence
-                if trigger == TriggerType.NONE and i == 0 and not is_continuation and not has_explicit_trigger:
-                    if any(kw in line for kw in ['引', 'スコア', 'プラス', '＋', 'ブレード', 'ハート', '控', '戻', 'エネ', 'デッキ', '山札', '見る', '公開', '選ぶ', '選ぶ。']):
-                        trigger = TriggerType.ACTIVATED
-                
+                conditions = []
+                effects = []
+                costs = []
                 content = line
                 
                 # --- Once per turn ---
@@ -263,6 +245,9 @@ class AbilityParser:
                     effects.append(Effect(EffectType.META_RULE, target=TargetType.PLAYER, params={'type': 'heart_rule'}))
 
                 # --- Condition Parsing ---
+                # Detect group filters early for propagation
+                sentence_groups = re.findall(r'『(.*?)』', content)
+                
                 # Group count
                 if match := re.search(r'『(.*?)』.*?(\d+)(枚|人)以上', content):
                     params = {'group': match.group(1), 'min': int(match.group(2))}
@@ -284,15 +269,15 @@ class AbilityParser:
                      conditions.append(Condition(ConditionType.GROUP_FILTER, {'group': match.group(1), 'context': 'revealed'}))
                 
                 # Group filter 『...』
-                for g in re.findall(r'『(.*?)』', content):
+                for g in sentence_groups:
                     if not any(c.type == ConditionType.COUNT_GROUP and c.params.get('group') == g for c in conditions):
                         params = {'group': g}
                         if '名前の異なる' in content: params['distinct_names'] = True
                         if context_zone: params['zone'] = context_zone
-                        if match := re.search(r'(\d+)(人|枚)以上', content):
+                        if match := re.search(rf'『{re.escape(g)}』.*?(\d+)(人|枚)以上', content):
                             params['count'] = int(match.group(1))
                             conditions.append(Condition(ConditionType.COUNT_GROUP, params))
-                        elif any(kw in content for kw in ['場合', 'なら', 'に限る', 'ないかぎり']):
+                        elif any(kw in content for kw in ['場合', 'なら', 'に限る', 'ないかぎり', 'のメンバーがいる']):
                             conditions.append(Condition(ConditionType.GROUP_FILTER, params))
                 
                 # Specific Member names 「...」
@@ -328,10 +313,23 @@ class AbilityParser:
                 if 'センターエリア' in content and '場合' in content and not any(c.params.get('area') == 'CENTER_STAGE' for c in conditions):
                     conditions.append(Condition(ConditionType.IS_CENTER))
                 if any(kw in content for kw in ['ライフが相手より多い', 'ライフが相手より少ない']): conditions.append(Condition(ConditionType.LIFE_LEAD))
-                if 'スコア' in content and '相手より高い' in content: conditions.append(Condition(ConditionType.LIFE_LEAD, {'type': 'score'}))
-                if '相手' in content and any(kw in content for kw in ['ある場合', 'いる場合']): conditions.append(Condition(ConditionType.OPPONENT_HAS))
+                
+                # Score Interaction/Comparison
+                if 'スコア' in content:
+                    if any(kw in content for kw in ['相手より高い', '相手より少ない', '相手と同じ', '相手より高く', '相手より低く']):
+                        comp = 'GT' if any(kw in content for kw in ['高い', '高く']) else 'LT' if any(kw in content for kw in ['少ない', '低く']) else 'EQ'
+                        conditions.append(Condition(ConditionType.SCORE_COMPARE, {'comparison': comp, 'target': 'opponent'}))
+                    elif match := re.search(r'スコア(が|の合計が)(\d+)以上', content):
+                        conditions.append(Condition(ConditionType.SCORE_COMPARE, {'comparison': 'GE', 'value': int(match.group(2))}))
+
+                if '相手' in content and any(kw in content for kw in ['ある場合', 'いる場合']): 
+                    conditions.append(Condition(ConditionType.OPPONENT_HAS))
                 if match := re.search(r'回答が(.*?)の場合', content): conditions.append(Condition(ConditionType.MODAL_ANSWER, {'answer': match.group(1)}))
                 
+                # Choice detection
+                if any(kw in content for kw in ['選ぶ', '選び', '1つを選ぶ', 'のうち、']):
+                    conditions.append(Condition(ConditionType.HAS_CHOICE))
+
                 # Cost filter: コスト(\d+)(以下|以上)
                 if match := re.search(r'コスト(\d+)(以下|以上)', content):
                     conditions.append(Condition(ConditionType.COST_CHECK, {
@@ -355,7 +353,7 @@ class AbilityParser:
                 if 'ライブカードがある場合' in content:
                     conditions.append(Condition(ConditionType.HAS_LIVE_CARD))
                 
-                 # Hand check: 公開した手札の中にライブカードがない場合
+                # Hand check: 公開した手札の中にライブカードがない場合
                 if '公開した手札' in content and 'ライブカードがない' in content:
                      conditions.append(Condition(ConditionType.HAND_HAS_NO_LIVE))
                 
@@ -385,9 +383,10 @@ class AbilityParser:
                 # Recovery/Add
                 if '控え室から' in content and '手札に加え' in content:
                     filters = {}
-                    if match := re.search(r'『(.*?)』', content): filters['group'] = match.group(1)
                     if match := re.search(r'コスト(\d+)以下', content): filters['cost_max'] = int(match.group(1))
                     eff_type = EffectType.RECOVER_LIVE if 'ライブカード' in content else EffectType.RECOVER_MEMBER
+                    # Ensure it's not a live card if "member card" is specified
+                    if 'メンバーカード' in content: eff_type = EffectType.RECOVER_MEMBER
                     effects.append(Effect(eff_type, 1, TargetType.CARD_DISCARD, params={'to': 'hand', **filters}))
                     if any(kw in content for kw in ['ハート', 'heart']): effects[-1].params['filter'] = 'heart_req'
                 elif '手札に加え' in content:
@@ -400,7 +399,6 @@ class AbilityParser:
                     if 'ライブカード' in content:
                         effects.append(Effect(EffectType.RECOVER_LIVE, 1, params=params))
                     else:
-                        if match := re.search(r'『(.*?)』', content): params['group'] = match.group(1)
                         if match := re.search(r'コスト(\d+)以下', content): params['cost_max'] = int(match.group(1))
                         effects.append(Effect(EffectType.ADD_TO_HAND, 1, params=params))
                 
@@ -485,11 +483,19 @@ class AbilityParser:
                         effects.append(Effect(EffectType.SWAP_CARDS, count, params={'target': 'discard', 'from': src} if src else {'target': 'discard'}))
                 
                 if '相手' in content and any(kw in content for kw in ['ウェイト', '休み']):
-                    count = int(match.group(1)) if (match := re.search(r'(\d+)人', content)) else 1
+                    count = int(match.group(1)) if (match := re.search(r'(\d+|１|２|３|[一二三])人', content)) else 1
+                    # Full-width mapping if needed
+                    val_map = {'１': 1, '２': 2, '３': 3, '一': 1, '二': 2, '三': 3}
+                    if match and match.group(1) in val_map: count = val_map[match.group(1)]
                     effects.append(Effect(EffectType.TAP_OPPONENT, count, TargetType.OPPONENT, {'all': True} if 'すべて' in content else {}))
                 
-                if match := re.search(r'スコア.*?[+＋](\d+)', content): effects.append(Effect(EffectType.BOOST_SCORE, int(match.group(1))))
-                elif 'スコア' in content and any(kw in content for kw in ['得る', '＋']): effects.append(Effect(EffectType.BOOST_SCORE, 1))
+                if match := re.search(r'スコア.*?[+＋](\d+|１|２|３|[一二三])', content): 
+                    val_str = match.group(1)
+                    val_map = {'１': 1, '２': 2, '３': 3, '一': 1, '二': 2, '三': 3}
+                    val = int(val_map.get(val_str, val_str)) if not val_str.isdigit() else int(val_str)
+                    effects.append(Effect(EffectType.BOOST_SCORE, val))
+                elif 'スコア' in content and any(kw in content for kw in ['得る', '＋', 'プラス']): 
+                    effects.append(Effect(EffectType.BOOST_SCORE, 1))
                 
                 if 'コスト' in content and any(kw in content for kw in ['減', '-']): effects.append(Effect(EffectType.REDUCE_COST, 1))
                 if match := re.search(r'ハートの必要数を([＋\+]?|－|[-ー])(\d+)する', content):
@@ -557,6 +563,13 @@ class AbilityParser:
                     if is_opp_hand: eff.target = TargetType.OPPONENT_HAND
                     if current_multiplier: eff.params['multiplier'] = current_multiplier
                     
+                    # Group Propagation: If sentence has a group in 『』, apply it to effects that might need it
+                    if sentence_groups:
+                         # Apply to effects that don't already have a more specific group
+                         if eff.effect_type in [EffectType.ADD_BLADES, EffectType.ADD_HEARTS, EffectType.BUFF_POWER, EffectType.RECOVER_MEMBER, EffectType.RECOVER_LIVE, EffectType.ADD_TO_HAND, EffectType.SEARCH_DECK, EffectType.LOOK_AND_CHOOSE]:
+                            if 'group' not in eff.params:
+                                eff.params['group'] = sentence_groups[0]
+                    
                     # Zone Propagation
                     if context_zone:
                         if eff.effect_type in [EffectType.DRAW, EffectType.ENERGY_CHARGE, EffectType.RECOVER_LIVE, EffectType.RECOVER_MEMBER, EffectType.SEARCH_DECK, EffectType.ADD_TO_HAND]:
@@ -595,7 +608,7 @@ class AbilityParser:
                          
                 elif effects or conditions or costs:
                     if last_ability:
-                        if (line.startswith('・') or line.startswith('-') or line.startswith('－')) and any(e.effect_type == EffectType.SELECT_MODE for e in last_ability.effects):
+                        if (line.startswith('・') or line.startswith('-') or line.startswith('－') or re.match(r'^[\(\（]\d+[\)\）]', line)) and any(e.effect_type == EffectType.SELECT_MODE for e in last_ability.effects):
                             last_ability.modal_options.append(effects)
                         else:
                             last_ability.effects.extend(effects)
