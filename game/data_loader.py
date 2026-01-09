@@ -116,9 +116,9 @@ class CardDataLoader:
         base_hearts = self._parse_hearts(req_dict)
         reqs[:6] = base_hearts
         
-        # 'star' or 'any' or 'common'
+        # 'star' or 'any' or 'common' or 'heart0' (Any color)
         for k, v in req_dict.items():
-            if k in ['star', 'any', 'common']:
+            if k in ['star', 'any', 'common', 'heart0']:
                 reqs[6] = int(v)
                 
         return reqs

@@ -1,4 +1,7 @@
 # Python
+*.pt
+*.pth
+*.safetensors
 __pycache__/
 *.pyc
 *.pyo

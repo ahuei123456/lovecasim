@@ -64,12 +64,12 @@ class TestShizukuOptionalDiscard(unittest.TestCase):
         
         # Setup: Shizuku is played, has cards in hand
         self.p0.hand = [10, 11]  # Cards that could be discarded
-        GameState.member_db[10] = MemberCard(10, "Card1", 1, np.zeros(6), np.zeros(6), 1)
-        GameState.member_db[11] = MemberCard(11, "Card2", 1, np.zeros(6), np.zeros(6), 1)
+        GameState.member_db[10] = MemberCard(card_id=10, card_no="M10", name="Card1", cost=1, hearts=np.zeros(6, dtype=np.int32), blade_hearts=np.zeros(7, dtype=np.int32), blades=1)
+        GameState.member_db[11] = MemberCard(card_id=11, card_no="M11", name="Card2", cost=1, hearts=np.zeros(6, dtype=np.int32), blade_hearts=np.zeros(7, dtype=np.int32), blades=1)
         
         # Setup: Live card in discard
         self.p0.discard = [200]
-        GameState.live_db[200] = LiveCard(200, "NijiLive", 1, np.zeros(7))
+        GameState.live_db[200] = LiveCard(card_id=200, card_no="L200", name="NijiLive", score=1, required_hearts=np.zeros(7, dtype=np.int32))
         
         # Simulate: Push the pending choice for optional discard
         # When ability triggers, game should offer SKIP option (action 0)

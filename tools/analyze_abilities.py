@@ -1,130 +1,73 @@
-
+"""
+Analyze ability coverage across all cards.
+Counts effect types and condition types to prioritize testing.
+"""
 import json
 import sys
 import os
-from typing import Dict, List, Set
+from collections import Counter
 
-# Add parent dir to path to import game modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.ability import AbilityParser, Ability, TriggerType, EffectType, ConditionType
+from game.ability import AbilityParser, EffectType, TriggerType, ConditionType
+from game.data_loader import CardDataLoader
 
-# Define what is currently implemented in game_state.py
-SUPPORTED_TRIGGERS = {
-    TriggerType.ON_PLAY,
-    TriggerType.ON_LIVE_START,
-    TriggerType.CONSTANT,
-    # ON_LIVE_SUCCESS / TURN_START / TURN_END are stubs or partially there, allow for now
-    TriggerType.ON_LIVE_SUCCESS, 
-}
-
-SUPPORTED_EFFECTS = {
-    EffectType.DRAW,
-    EffectType.ADD_BLADES,
-    EffectType.ADD_HEARTS,
-    EffectType.BOOST_SCORE,
-    EffectType.BUFF_POWER,
-    # FLAVOR_ACTION was essentially a "do nothing" or modal wrapper, consider supported if modal used
-}
-
-SUPPORTED_CONDITIONS = {
-    ConditionType.NONE,
-    ConditionType.COUNT_GROUP,
-    ConditionType.HAS_COLOR,
-    ConditionType.COUNT_ENERGY,
-    ConditionType.HAS_LIVE_CARD,
-}
-
-def analyze_coverage():
-    try:
-        with open('data/cards.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        print("Error: data/cards.json not found")
-        return
-
-    total_cards = 0
-    fully_supported = 0
-    partially_supported = 0
-    parse_failures = 0
+def analyze_abilities():
+    # Load card data
+    with open('data/cards.json', encoding='utf-8') as f:
+        cards = json.load(f)
     
-    unsupported_effects: Dict[str, int] = {}
-    unsupported_conditions: Dict[str, int] = {}
+    effect_counter = Counter()
+    trigger_counter = Counter()
+    condition_counter = Counter()
+    parsed_count = 0
+    failed_count = 0
+    cards_with_abilities = 0
     
-    tier_stats = {"S": [0, 0], "A": [0, 0], "B": [0, 0], "C": [0, 0], "Unranked": [0, 0]} # [Supported, Total]
-
-    print(f"Analyzing {len(data)} cards...")
-
-    for cid, card in data.items():
-        if card.get('type') not in ('メンバー', 'ライブ'):
+    for card_no, card in cards.items():
+        ability_text = card.get('ability', '')
+        if not ability_text:
             continue
             
-        total_cards += 1
-        raw_text = card.get('ability', '')
-        if not raw_text:
-            fully_supported += 1 # No ability = supported
+        cards_with_abilities += 1
+        abilities = AbilityParser.parse_ability_text(ability_text)
+        
+        if not abilities:
+            failed_count += 1
             continue
-
-        try:
-            abilities = AbilityParser.parse_ability_text(raw_text)
-            if not abilities:
-                # If text exists but no abilities parsed, likely flavor text or unparseable
-                # Check directly if it looks like an ability (contains ":")
-                if "：" in raw_text or ":" in raw_text:
-                    parse_failures += 1
-                else:
-                    fully_supported += 1
-                continue
-                
-            is_full = True
-            missing_features = []
-
-            for ab in abilities:
-                if ab.trigger not in SUPPORTED_TRIGGERS:
-                    is_full = False
-                    # missing_features.append(f"Trigger: {ab.trigger.name}")
-
-                for eff in ab.effects:
-                    if eff.effect_type not in SUPPORTED_EFFECTS:
-                        is_full = False
-                        ename = eff.effect_type.name
-                        unsupported_effects[ename] = unsupported_effects.get(ename, 0) + 1
-                
-                for cond in ab.conditions:
-                    if cond.type not in SUPPORTED_CONDITIONS:
-                        is_full = False
-                        cname = cond.type.name
-                        unsupported_conditions[cname] = unsupported_conditions.get(cname, 0) + 1
-
-            if is_full:
-                fully_supported += 1
-            else:
-                partially_supported += 1
-
-        except Exception as e:
-            parse_failures += 1
-            # print(f"Parse error for {cid}: {e}")
-
-    print("\n=== Coverage Report ===")
-    print(f"Total Cards: {total_cards}")
-    print(f"Fully Supported: {fully_supported} ({fully_supported/total_cards*100:.1f}%)")
-    print(f"Partially Supported (Need Handlers): {partially_supported} ({partially_supported/total_cards*100:.1f}%)")
-    print(f"Parse Failures: {parse_failures} ({parse_failures/total_cards*100:.1f}%)")
-
-    print("\n--- Top Missing Effects (Need Implementation) ---")
-    for k, v in sorted(unsupported_effects.items(), key=lambda x: x[1], reverse=True)[:10]:
-        print(f"{k}: {v}")
+            
+        parsed_count += 1
         
-    print("\n--- Top Missing Conditions ---")
-    for k, v in sorted(unsupported_conditions.items(), key=lambda x: x[1], reverse=True)[:10]:
-        print(f"{k}: {v}")
-        
-    # Write detailed log
-    with open('coverage_report.txt', 'w', encoding='utf-8') as f:
-        f.write(f"Coverage Report\nTotal: {total_cards}\nSupported: {fully_supported}\nPartial: {partially_supported}\nFailures: {parse_failures}\n")
-        f.write("\nMissing Effects:\n")
-        for k, v in sorted(unsupported_effects.items(), key=lambda x: x[1], reverse=True):
-            f.write(f"{k}: {v}\n")
+        for ability in abilities:
+            trigger_counter[ability.trigger.name] += 1
+            
+            for cond in ability.conditions:
+                condition_counter[cond.type.name] += 1
+                
+            for effect in ability.effects:
+                effect_counter[effect.effect_type.name] += 1
+    
+    print("=" * 60)
+    print("ABILITY COVERAGE ANALYSIS")
+    print("=" * 60)
+    print(f"\nCards with abilities: {cards_with_abilities}")
+    print(f"Successfully parsed: {parsed_count}")
+    print(f"Failed to parse: {failed_count}")
+    print(f"Parse rate: {parsed_count/cards_with_abilities*100:.1f}%")
+    
+    print("\n--- EFFECT TYPES (by frequency) ---")
+    for effect, count in effect_counter.most_common(20):
+        print(f"  {effect:25} {count:4} cards")
+    
+    print("\n--- TRIGGER TYPES ---")
+    for trigger, count in trigger_counter.most_common():
+        print(f"  {trigger:25} {count:4} abilities")
+    
+    print("\n--- CONDITION TYPES ---")
+    for cond, count in condition_counter.most_common():
+        print(f"  {cond:25} {count:4} conditions")
+    
+    return effect_counter, trigger_counter, condition_counter
 
-if __name__ == "__main__":
-    analyze_coverage()
+if __name__ == '__main__':
+    analyze_abilities()

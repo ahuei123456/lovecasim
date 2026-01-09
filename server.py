@@ -303,6 +303,18 @@ def init_game(deck_type='normal'):
     # Initialize history with starting state
     game_history = [serialize_state()]
 
+def local_img_path(remote_url):
+    """Convert remote official URLs to local /img/ paths."""
+    if not remote_url: return '/img/cards/back.png'
+    if 'llofficial-cardgame.com' in remote_url:
+        # Extract set and filename: .../cardlist/SET/FILE.png
+        parts = remote_url.split('/')
+        if len(parts) >= 2:
+            filename = parts[-1]
+            set_folder = parts[-2]
+            return f'/img/cards/{set_folder}/{filename}'
+    return remote_url
+
 def serialize_card(cid, is_viewable=True, peek=False):
     if not is_viewable and not peek:
         return {
@@ -353,7 +365,7 @@ def serialize_card(cid, is_viewable=True, peek=False):
             'cost': m.cost,
             'hp': 1, # Default HP/Life for members if tracked, or just omit if not in model
             'blade': m.blades, # Corrected from .blade to .blades
-            'img': m.img_path,
+            'img': local_img_path(m.img_path),
             'hearts': m.hearts.tolist(),
             'blade_hearts': m.blade_hearts.tolist(),
             'color': 'Unknown', # Could derive from hearts
@@ -378,7 +390,7 @@ def serialize_card(cid, is_viewable=True, peek=False):
             'name': l.name,
             'type': 'live',
             'score': l.score,
-            'img': l.img_path,
+            'img': local_img_path(l.img_path),
             'required_hearts': l.required_hearts.tolist(),
             'text': ability_text
         }
@@ -428,7 +440,7 @@ def serialize_card(cid, is_viewable=True, peek=False):
             'name': l.name, 
             'cost': int(l.total_required()), 
             'type': 'live', 
-            'img': l.img_path,
+            'img': local_img_path(l.img_path),
             'score': int(l.score),
             'required_hearts': l.required_hearts.tolist(),  # Array of 7 (6 colors + any)
             'text': getattr(l, 'ability_text', '')
@@ -439,7 +451,7 @@ def serialize_card(cid, is_viewable=True, peek=False):
             'id': int(cid),
             'name': e.name,
             'type': 'energy',
-            'img': e.img_path
+            'img': local_img_path(e.img_path)
         }
     else:
         # Fallback for special IDs or unknown cards
@@ -453,12 +465,7 @@ def serialize_player(p, player_idx, viewer_idx=0, is_viewable=True):
     """Serialize one player's state."""
     
     # Calculate expected yell count based on total blades
-    expected_yells = 0
-    if game_state and hasattr(game_state, 'member_db'):
-        for i, card_id in enumerate(p.stage):
-            if card_id >= 0 and not p.tapped_members[i] and card_id in game_state.member_db:
-                member = game_state.member_db[card_id]
-                expected_yells += member.blades
+    expected_yells = p.get_total_blades(game_state.member_db) if game_state and hasattr(game_state, 'member_db') else 0
     
     legal_mask = game_state.get_legal_actions() # This needs to be here for valid_actions calculation
     
@@ -544,7 +551,8 @@ def serialize_player(p, player_idx, viewer_idx=0, is_viewable=True):
         'stage': stage,
         'success_lives': [serialize_card(cid, is_viewable) for cid in p.success_lives],
         'restrictions': list(p.restrictions),
-        'expected_yells': expected_yells  # New field
+        'expected_yells': expected_yells,
+        'performance_guide': game_state.get_performance_guide(player_idx) if is_viewable else None
     }
 
 def serialize_state():
@@ -699,6 +707,7 @@ def serialize_state():
         ],
         'legal_actions': legal_actions,
         'pending_choice': pending_choice_info,
+        'looked_cards': [serialize_card(cid, is_viewable=True) for cid in getattr(game_state, 'looked_cards', [])],
         'performance_results': getattr(game_state, 'performance_results', {}),
         'rule_log': game_state.rule_log # Full history
     }
@@ -899,19 +908,33 @@ def game_board():
 
 @app.route('/img/<path:filename>')
 def serve_image(filename):
-    return send_from_directory('img', filename)
+    res = send_from_directory('img', filename)
+    res.headers.add('Cache-Control', 'public, max-age=31536000')
+    return res
 
 @app.route('/js/<path:filename>')
 def serve_js(filename):
-    return send_from_directory('web_ui/js', filename)
+    res = send_from_directory('web_ui/js', filename)
+    res.headers.add('Cache-Control', 'public, max-age=31536000')
+    return res
 
 @app.route('/css/<path:filename>')
 def serve_css(filename):
-    return send_from_directory('web_ui/css', filename)
+    res = send_from_directory('web_ui/css', filename)
+    res.headers.add('Cache-Control', 'public, max-age=31536000')
+    return res
+
+@app.route('/cards/<path:filename>')
+def serve_cards_alt(filename):
+    res = send_from_directory('img/cards', filename)
+    res.headers.add('Cache-Control', 'public, max-age=31536000')
+    return res
 
 @app.route('/icon_blade.png')
 def serve_icon():
-    return send_from_directory('.', 'icon_blade.png')
+    res = send_from_directory('img', 'icon_blade.png')
+    res.headers.add('Cache-Control', 'public, max-age=31536000')
+    return res
 
 @app.route('/api/state')
 def get_state():
@@ -927,7 +950,7 @@ def get_state():
             max_safety -= 1
             
             if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
-                                   Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
+                                   Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2):
                 game_state = game_state.step(0)
                 continue
             
@@ -1062,7 +1085,7 @@ def validate_cards():
 def clear_performance():
     global game_state
     if game_state:
-        game_state.last_performance_result = None
+        game_state.performance_results = {}
     return jsonify({'status': 'ok'})
 
 @app.route('/api/action', methods=['POST'])
@@ -1095,7 +1118,7 @@ def do_action():
                 
                 # 1. Automatic phases (phases that don't need real human interaction beyond a 'confirm' or 'auto')
                 if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
-                                       Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
+                                       Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2):
                     game_state = game_state.step(0)
                     game_history.append(serialize_state())
                     continue
@@ -1162,7 +1185,7 @@ def reset():
             
             # 1. Automatic phases (NOT including Mulligan)
             if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
-                                   Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
+                                   Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2):
                 print(f"DEBUG: Auto-advancing Phase {game_state.phase}")
                 game_state = game_state.step(0)
                 continue
@@ -1207,7 +1230,7 @@ def advance():
         max_safety -= 1
         # Advance if in an automatic phase OR if it's the AI's turn
         if game_state.phase in (Phase.ACTIVE, Phase.ENERGY, Phase.DRAW, 
-                               Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2, Phase.LIVE_RESULT):
+                               Phase.PERFORMANCE_P1, Phase.PERFORMANCE_P2):
             game_state = game_state.step(0)
             continue
         

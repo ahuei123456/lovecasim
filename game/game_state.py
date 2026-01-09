@@ -602,6 +602,7 @@ class GameState:
         new.triggered_abilities[:] = self.triggered_abilities
         new.state_history[:] = self.state_history
         new.loop_draw = self.loop_draw
+        new.performance_results = self.performance_results.copy()
     
     @property
     def active_player(self) -> PlayerState:
@@ -1326,10 +1327,35 @@ class GameState:
         elif effect.effect_type == EffectType.LOOK_AND_CHOOSE:
             # Create choice from looked cards
             if self.looked_cards:
-                self.pending_choices.append(("SELECT_FROM_LIST", {
-                    'cards': self.looked_cards.copy(),
-                    'reason': 'look_and_choose'
-                }))
+                candidates = []
+                group_filter = effect.params.get('group')
+                cost_max = effect.params.get('cost_max')
+                
+                for cid in self.looked_cards:
+                    valid = True
+                    if cid in self.member_db:
+                        m = self.member_db[cid]
+                        if group_filter and group_filter not in m.group: valid = False
+                        if cost_max is not None and m.cost > cost_max: valid = False
+                    elif cid in self.live_db:
+                        l = self.live_db[cid]
+                        if group_filter and group_filter not in l.group: valid = False
+                        # Live cards have no cost usually, or assume 0/ignore? 
+                        # If strict cost check needed for Live, add logic. For now assuming member target mostly.
+                    else:
+                        # Unknown card type (e.g. back of card?)
+                        if group_filter or cost_max is not None: valid = False
+                    
+                    if valid:
+                        candidates.append(cid)
+                
+                if candidates:
+                    self.pending_choices.append(("SELECT_FROM_LIST", {
+                        'cards': candidates,
+                        'reason': 'look_and_choose'
+                    }))
+                else:
+                    if self.verbose: print(f"No valid targets found in looked cards (Filter: {group_filter}, Cost: {cost_max})")
         
         elif effect.effect_type == EffectType.RECOVER_LIVE:
             # Retrieve live card from discard to hand
@@ -1677,7 +1703,7 @@ class GameState:
             my_life = len(player.success_lives)
             opp_life = len(self.players[1 - player.player_id].success_lives)
             met = (my_life > opp_life)
-        elif cond.type == ConditionType.COUNT_GROUP or cond.type == ConditionType.GROUP_FILTER:
+        elif cond.type == ConditionType.COUNT_GROUP:
             # Count members of group in zone
             group = cond.params.get('group', '').strip('『』')
             zone = cond.params.get('zone', 'STAGE')
@@ -1752,29 +1778,77 @@ class GameState:
             count = len(player.success_lives)
             met = (count >= cond.params.get('min', 0))
         elif cond.type == ConditionType.GROUP_FILTER:
-            group = cond.params.get('group', '')
-            context_cards = []
-            if cond.params.get('context') == 'revealed':
-                context_cards = self.looked_cards
-            else:
-                cid = context.get('card_id')
-                if cid is not None:
-                    context_cards = [cid]
-            
-            if not context_cards:
-                met = False
-            else:
-                # Logic: Is any (or all?) of the cards in the group?
-                # Usually it's "if revealed card is X" or "if this card is X"
-                # For "all", we check if all context cards match
-                match_count = 0
-                for cid in context_cards:
-                    if cid in self.member_db and group in self.member_db[cid].group:
-                        match_count += 1
-                    elif cid in self.live_db and group in self.live_db[cid].group:
-                        match_count += 1
+            group = cond.params.get('group', '').strip('『』')
+            zone = cond.params.get('zone')
+
+            # Alias mapping for groups
+            aliases = {
+                "μ's": "ラブライブ！",
+                "Aqours": "ラブライブ！サンシャイン!!",
+                "虹ヶ咲": "ラブライブ！虹ヶ咲学園スクールアイドル同好会",
+                "Liella!": "ラブライブ！スーパースター!!",
+                "蓮ノ空": "ラブライブ！蓮ノ空女学院スクールアイドルクラブ"
+            }
+            target_groups = {group}
+            if group in aliases:
+                target_groups.add(aliases[group])
+
+            if zone:
+                # Zone-based existence check (e.g., "If you have a [Group] member")
+                count = 0
+                cards_to_check = []
+                if zone == 'STAGE':
+                    for cid in player.stage:
+                         if cid >= 0: cards_to_check.append(cid)
+                elif zone == 'DISCARD':
+                    cards_to_check = player.discard
+                elif zone == 'HAND':
+                    cards_to_check = player.hand
+                elif zone == 'DECK':
+                   cards_to_check = player.main_deck
                 
-                met = (match_count == len(context_cards)) if context_cards else False
+                match_found = False
+                for cid in cards_to_check:
+                    if cid in self.member_db:
+                        m = self.member_db[cid]
+                        if any(tg in m.group for tg in target_groups) or any(tg == m.unit for tg in target_groups):
+                            match_found = True
+                            break
+                    elif cid in self.live_db:
+                         l = self.live_db[cid]
+                         if any(tg in l.group for tg in target_groups):
+                             match_found = True
+                             break
+                met = match_found
+            else:
+                # Context-based validation (e.g., "If this card is [Group]", "If revealed cards are [Group]")
+                context_cards = []
+                if cond.params.get('context') == 'revealed':
+                    context_cards = self.looked_cards
+                else:
+                    cid = context.get('card_id')
+                    if cid is not None:
+                        context_cards = [cid]
+                
+                if not context_cards:
+                    met = False
+                else:
+                    match_count = 0
+                    for cid in context_cards:
+                        is_match = False
+                        if cid in self.member_db:
+                            m = self.member_db[cid]
+                            if any(tg in m.group for tg in target_groups) or any(tg == m.unit for tg in target_groups):
+                                is_match = True
+                        elif cid in self.live_db:
+                            l = self.live_db[cid]
+                            if any(tg in l.group for tg in target_groups):
+                                is_match = True
+                        
+                        if is_match:
+                            match_count += 1
+                    
+                    met = (match_count == len(context_cards))
         elif cond.type == ConditionType.COST_CHECK:
             cid = context.get('card_id')
             if cid is not None and cid in self.member_db:
@@ -1790,6 +1864,10 @@ class GameState:
             # Simple check: does opponent have any member on stage?
             # In a more complex engine, we'd check for specific names/groups in params
             met = any(cid >= 0 for cid in opp.stage)
+        elif cond.type == ConditionType.OPPONENT_HAND_DIFF:
+            opponent = self.players[1 - player.player_id]
+            diff = cond.params.get('diff', 0)
+            met = len(opponent.hand) >= len(player.hand) + diff
         # TODO: Implement other condition types (RARITY_CHECK, etc)
         else:
             met = True # Default lenient for now
@@ -1846,6 +1924,21 @@ class GameState:
         # Actions 500+ are generally reserved for choices
         if self.pending_choices and action >= 500:
             self._handle_choice(action)
+            
+            # RESUME RESOLUTION LOOP (Fix for interrupted abilities, e.g., Cost Payment)
+            # If the choice cleared the block (e.g., cost paid), we must resume pending effects.
+            while self.pending_effects and not self.pending_choices:
+                 # Reconstruct context for 'Self' targeting
+                 ctx = {}
+                 if self.current_resolving_member_id >= 0:
+                      ctx['card_id'] = self.current_resolving_member_id
+                      # Try to find area of this member (if still on stage)
+                      for i, cid in enumerate(self.active_player.stage):
+                          if cid == self.current_resolving_member_id:
+                               ctx['area'] = i
+                               break
+                               
+                 self._resolve_pending_effect(0, context=ctx)
             return
 
         if self.phase == Phase.ACTIVE:
@@ -2025,6 +2118,12 @@ class GameState:
                     player.energy_deck.extend(player.stage_energy[source_area])
                     player.stage_energy[source_area] = []
             
+            elif cost.type == AbilityCostType.DISCARD_HAND:
+                # Trigger choice for user to select cards to discard
+                # This puts a choice in pending_choices, effectively pausing resolution
+                self.pending_choices.insert(0, ("DISCARD_SELECT", {"count": cost.value}))
+                self.log_rule("Rule 9.4", f"Cost Payment: Player {player.player_id} must discard {cost.value} card(s).")
+            
             elif cost.type == AbilityCostType.DISCARD_ENERGY:
                 # Tap 1 energy as cost
                 for i in range(len(player.energy_zone) - 1, -1, -1):
@@ -2194,7 +2293,11 @@ class GameState:
                 # Assume single choice for now.
                 if self.looked_cards:
                      # Move unchosen cards to discard (breakroom) instead of deck bottom
-                     for c in cards: # 'cards' now contains only the unchosen cards
+                     # Robustness: Use self.looked_cards to ensure even filtered cards (not in 'cards' list) are handled.
+                     if selected in self.looked_cards:
+                         self.looked_cards.remove(selected)
+                     
+                     for c in self.looked_cards:
                          p.discard.append(c)
                      self.looked_cards = []
                      if self.verbose: print(f"Moved {len(cards)} cards to discard (breakroom).")
@@ -2311,6 +2414,33 @@ class GameState:
                      np.copyto(p.stage, new_stage)
                      if self.verbose: print(f"Formation Change Complete. New Stage: {p.stage}")
         
+        elif choice_type == "SELECT_SUCCESS_LIVE":
+            cards = params.get('cards', [])
+            idx = action - 600
+            
+            if 0 <= idx < len(cards):
+                selected = cards[idx]
+                # Validate against current state (Rule 1.3.2.1)
+                if selected in p.passed_lives:
+                    p.passed_lives.remove(selected)
+                    p.success_lives.append(selected)
+                    self.log_rule("Rule 8.4.7", f"Player {p.player_id} selected {self.live_db[selected].name} for Success Zone.")
+                    
+                    # Rule 8.4.8: Remaining cards to bottom of deck
+                    # Note: If we wanted strict ordering choice, we'd need another step.
+                    # For now, put remaining in random order or current order to bottom.
+                    remaining = p.passed_lives[:]
+                    random.shuffle(remaining) # Randomize order for fairness if unspecified
+                    p.main_deck.extend(remaining)
+                    p.passed_lives.clear()
+                    
+                    if remaining:
+                        self.log_rule("Rule 8.4.8", f"Moved {len(remaining)} remaining passed lives to bottom of deck.")
+                else:
+                    if self.verbose: print(f"Invalid selection: {selected} not in passed_lives")
+            else:
+                 pass # Invalid index
+
         elif choice_type == "SELECT_SWAP_SOURCE":
              # Select card from Success Live to return to hand
              cards = params.get('cards', [])
@@ -2721,12 +2851,14 @@ class GameState:
             # Blade hearts only come from members
             if card_id in self.member_db:
                 member = self.member_db[card_id]
-                # Update total_hearts with color blade hearts
-                card_blade_hearts = np.zeros(7, dtype=np.int32)
-                card_blade_hearts[:6] = member.blade_hearts[:6] # Only colors here, b_all handled above
-                total_hearts += card_blade_hearts
+                # Update total_hearts with ALL blade hearts (including Index 6: b_all)
+                # Note: b_all was already added at line 2796 if heart_rule active, 
+                # but Rule 8.3.14 says yell hearts are added to total hearts available.
+                # However, our data_loader puts b_all at index 6.
+                total_hearts += member.blade_hearts
+                
                 COLOR_NAMES = ['Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple', 'Any']
-                h_str = ', '.join([f"{COLOR_NAMES[idx]}:{member.blade_hearts[idx]}" for idx in range(6) if member.blade_hearts[idx] > 0])
+                h_str = ', '.join([f"{COLOR_NAMES[idx]}:{member.blade_hearts[idx]}" for idx in range(7) if member.blade_hearts[idx] > 0])
                 if h_str:
                     self.log_rule("Rule 8.3.14", f"Yell [{member.name} (ID:{card_id})]: +[{h_str}] (Blade)")
         
@@ -2771,7 +2903,8 @@ class GameState:
             
             have_need_str = ', '.join(have_need_list)
             
-            if self._check_hearts_meet_requirement(remaining_hearts, req):
+            passed, failure_reason = self._check_hearts_meet_requirement(remaining_hearts, req)
+            if passed:
                 self.log_rule("Rule 8.3.15.1", f"Checking '{live.name}' → [{have_need_str}]")
                 
                 old_remaining = remaining_hearts.copy()
@@ -2780,24 +2913,20 @@ class GameState:
                 
                 cons_str = ', '.join([f"{COLOR_NAMES[i]}:{consumed[i]}" for i in range(6) if consumed[i] > 0])
                 
-                temp_passed.append(live_id)
                 self.log_rule("Rule 8.3.15.1", f"✅ PASSED: Fulfilled with [{cons_str}]")
+                p.passed_lives.append(live_id)
+                temp_passed.append(live_id)
+                
+                # Store consumption for visualization
+                # (Logic handled in simulation pass below)
+                
             else:
                 all_passed = False
                 self.log_rule("Rule 8.3.15.2", f"❌ FAILED: '{live.name}' → [{have_need_str}]")
                 break
+
         
-        # Rule 8.3.16: All or Nothing
-        if all_passed and temp_passed:
-            p.passed_lives = temp_passed
-            self.log_rule("Rule 8.3.16.1", f"🎉 SUCCESS! Player {player_idx} cleared ALL {len(temp_passed)} live card(s)!")
-        else:
-            # All go to discard
-            if p.live_zone:
-                self.log_rule("Rule 8.3.16.2", f"💔 FAILURE! Player {player_idx} failed one or more requirements. All face-down live cards discarded.")
-            for live_id in p.live_zone:
-                p.discard.append(live_id)
-            p.passed_lives = []
+        # ... (Pass/Fail logic) ...
         
         # --- Capture Performance Result for UI (Popup) ---
         member_contribs = []
@@ -2832,16 +2961,61 @@ class GameState:
                     'is_live': True
                 })
 
+        # We need to re-simulate the "Available Hearts vs Requirement" for the UI data
+        # because the loop above destructively modifies 'remaining_hearts' only on pass.
+        # Actually, we can just run a simulation pass here to generate the data without effects.
+        
+        sim_remaining = total_hearts.copy() # Start fresh
         final_lives_data = []
+        
         for live_id in p.live_zone:
              if live_id in self.live_db:
                  l = self.live_db[live_id]
+                 req = l.required_hearts.copy()
+                 
+                 # Apply reductions again for display accuracy
+                 red = 0
+                 for ce in p.continuous_effects:
+                     if ce['effect'].effect_type == EffectType.REDUCE_HEART_REQ:
+                         red += ce['effect'].value
+                 if red > 0: req[6] = max(0, req[6] - red)
+                 
+                 # Calculate "Filled" count for visualization
+                 filled, used_sim = self._simulate_live_requirement(sim_remaining, req)
+                 
+                 # Update simulation remaining hearts ONLY if this card was actually passed
+                 # OR should we show "If you reached this card, this is what you'd have"?
+                 # User wants to see "3/5" for failed cards too.
+                 # If card N passed, we consume. If card N failed, we do NOT consume (game rules),
+                 # but for card N+1, it effectively has 0 available because N failed?
+                 # Actually, usually if N fails, N+1 isn't even attempted. 
+                 # UI shows N+1 as "Did not attempt" or just empty.
+                 # So: If passed matches real result, consume. If failed, don't consume (start next with same? No, process stops).
+                 
+                 is_passed = live_id in p.passed_lives
+                 reason = ""
+                 if not is_passed:
+                     _, reason = self._check_hearts_meet_requirement(sim_remaining, req)
+                 
+                 if self.verbose: # Force debug
+                     print(f"DEBUG_PERF: Card {l.name} | Req: {req} | SimRem: {sim_remaining} | Filled: {filled} | Passed: {is_passed} | Reason: {reason}")
+
                  final_lives_data.append({
                      'name': l.name,
-                     'required': l.required_hearts.tolist(),
-                     'passed': live_id in temp_passed,
+                     'score': l.score,
+                     'required': req.tolist(),
+                     'filled': filled.tolist(), # [PinkFilled, RedFilled, ..., AnyFilled]
+                     'passed': is_passed,
+                     'reason': reason,
                      'img': l.img_path
                  })
+                 
+                 if is_passed:
+                     # Destructively update sim_remaining for the next card
+                     sim_remaining -= used_sim
+                 else:
+                     # If this card failed, subsequent hearts are effectively 0 for next simulations
+                     sim_remaining = np.zeros(7, dtype=np.int32)
 
         self.performance_results[player_idx] = {
             'player_idx': player_idx,
@@ -2884,42 +3058,148 @@ class GameState:
         
         self._advance_performance()
     
-    def _check_hearts_meet_requirement(self, have: np.ndarray, need: np.ndarray) -> bool:
-        """Check if hearts meet live card requirements"""
+    def _simulate_live_requirement(self, sim_remaining: np.ndarray, req: np.ndarray):
+        """Helper to simulate heart consumption for a single live card visualization"""
+        # (Copied from simulation logic in _do_performance)
+        filled = np.zeros(7, dtype=np.int32)
+        used_sim = np.zeros(7, dtype=np.int32)
+        
+        # Color Reqs
+        for i in range(6):
+            use = min(sim_remaining[i], req[i])
+            filled[i] = use
+            used_sim[i] += use
+            
+            deficit = req[i] - use
+            if deficit > 0:
+                rainbow_available = sim_remaining[6] - used_sim[6]
+                take_rainbow = min(rainbow_available, deficit)
+                filled[i] += take_rainbow
+                used_sim[6] += take_rainbow
+        
+        # Any Reqs
+        if len(req) > 6 and req[6] > 0:
+            needed_any = req[6]
+            leftover_sum = sum(sim_remaining[i] - used_sim[i] for i in range(7))
+            filled[6] = min(leftover_sum, needed_any)
+            
+            rem_for_any = needed_any
+            for i in range(7):
+                available = sim_remaining[i] - used_sim[i]
+                if available > 0 and rem_for_any > 0:
+                    take = min(available, rem_for_any)
+                    used_sim[i] += take
+                    rem_for_any -= take
+                    
+        return filled, used_sim
+
+    def get_performance_guide(self, player_idx: int) -> Dict:
+        """Calculate projected performance results using currently visible stage/yell state"""
+        p = self.players[player_idx]
+        stage_hearts = p.get_total_hearts(self.member_db)
+        total_blades = p.get_total_blades(self.member_db)
+        
+        # Support for Meta Rule: ALL Blade -> Any Heart
+        if 'heart_rule' in p.meta_rules:
+            # Check stage members for blade hearts at index 6 (b_all)
+            for i in range(3):
+                if p.stage[i] >= 0 and not p.tapped_members[i]:
+                    cid = p.stage[i]
+                    if cid in self.member_db:
+                        m = self.member_db[cid]
+                        if m.blade_hearts.size > 6 and m.blade_hearts[6] > 0:
+                            stage_hearts[6] += m.blade_hearts[6]
+        
+        live_previews = []
+        sim_remaining = stage_hearts.copy()
+        
+        for live_id in p.live_zone:
+            if live_id in self.live_db:
+                l = self.live_db[live_id]
+                req = l.required_hearts.copy()
+                
+                # Apply reductions (REDUCE_HEART_REQ)
+                red = 0
+                for ce in p.continuous_effects:
+                    if ce['effect'].effect_type == EffectType.REDUCE_HEART_REQ:
+                        red += ce['effect'].value
+                if red > 0: req[6] = max(0, req[6] - red)
+                
+                filled, used_sim = self._simulate_live_requirement(sim_remaining, req)
+                passed, reason = self._check_hearts_meet_requirement(sim_remaining, req)
+                
+                live_previews.append({
+                    'name': l.name,
+                    'score': l.score,
+                    'required': req.tolist(),
+                    'filled': filled.tolist(),
+                    'passed': passed,
+                    'reason': reason,
+                    'img': l.img_path
+                })
+                
+                if passed:
+                    sim_remaining -= used_sim
+                else:
+                    # Sequential failure
+                    sim_remaining = np.zeros(7, dtype=np.int32)
+                    
+        return {
+            'total_hearts': stage_hearts.tolist(),
+            'total_blades': total_blades,
+            'lives': live_previews
+        }
+
+    def _check_hearts_meet_requirement(self, have: np.ndarray, need: np.ndarray) -> Tuple[bool, str]:
+        """Check if hearts meet live card requirements and return reason if failed"""
         # need[0:6] are color requirements, need[6] is "any" requirement
         remaining = have.copy()
-        total_needed = 0
+        COLOR_NAMES = ['Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple']
         
-        # First satisfy color requirements
+        # First satisfy specific color requirements
+        # Rainbow hearts (index 6) can fill ANY color requirement!
+        specific_deficit = 0
         for i in range(6):
             if need[i] > remaining[i]:
-                return False
-            remaining[i] -= need[i]
-            total_needed += need[i]
+                missing = need[i] - remaining[i]
+                specific_deficit += missing
+                remaining[i] = 0
+            else:
+                remaining[i] -= need[i]
         
-        # "Any" requirement can be satisfied by remaining hearts
-        total_needed += need[6] if len(need) > 6 else 0
-        if np.sum(have) < total_needed:
-            return False
+        # Can we cover the specific color deficit using Rainbow hearts (index 6)?
+        if specific_deficit > 0:
+            if remaining[6] >= specific_deficit:
+                remaining[6] -= specific_deficit
+            else:
+                return False, f"Missing {specific_deficit - remaining[6]} color hearts (even after using Rainbow)"
+        
+        # "Any" requirement can be satisfied by what's left in remaining
+        total_remaining = np.sum(remaining)
+        needed_any = need[6] if len(need) > 6 else 0
+        
+        if total_remaining < needed_any:
+            return False, f"Missing {needed_any - total_remaining} 'Any' hearts"
             
-        return True
+        return True, ""
     
     def _consume_hearts(self, have: np.ndarray, need: np.ndarray) -> None:
-        """Destructively consume hearts from 'have' based on 'need'"""
-        # 1. Colors
+        """Destructively consume hearts from 'have' based on 'need' (Rule 8.3.15.1)"""
+        # 1. First satisfy specific colors using available color hearts
         for i in range(6):
             if need[i] > 0:
-                have[i] -= need[i]
+                take = min(have[i], need[i])
+                have[i] -= take
+                # If take < need[i], we have a deficit that MUST be filled by Rainbow (index 6)
+                deficit = need[i] - take
+                if deficit > 0:
+                    have[6] -= deficit # Validated by _check_hearts_meet_requirement beforehand
         
-        # 2. 'Any' requirement (index 6, if exists)
+        # 2. 'Any' requirement (Target index 6, Source index 0-6)
         if len(need) > 6 and need[6] > 0:
             any_needed = need[6]
-            # Naive consumption strategy: consume from first available colors
-            # In a real solver we might want to save specific colors for next card, 
-            # but standard Love Live rules usually verify total capacity.
-            # However, since we process cards efficiently, just taking from first available is defined behavior?
-            # Actually, players usually choose. But for auto-logic, greedy is fine for now.
-            for i in range(6):
+            # Greedy consumption: colors first, then index 6
+            for i in range(7):
                 if any_needed <= 0:
                     break
                 if have[i] > 0:
