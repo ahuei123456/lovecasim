@@ -1359,7 +1359,7 @@ class GameState:
             group_filter = effect.params.get("group")
             if group_filter:
                 live_cards_in_discard = [
-                    cid for cid in live_cards_in_discard if group_filter in self.live_db[cid].group
+                    cid for cid in live_cards_in_discard if group_filter in self.live_db[cid].groups
                 ]
 
             if live_cards_in_discard:
@@ -2881,9 +2881,9 @@ class GameState:
                         if all_blade_count > 0:
                             draw_bonus -= all_blade_count  # Remove from draw
                             blade_hearts_padded[6] += all_blade_count  # Add to Any Heart
-                            total_hearts[
-                                6
-                            ] += all_blade_count  # CRITICAL: Also add to total hearts for requirement check
+                            total_hearts[6] += (
+                                all_blade_count  # CRITICAL: Also add to total hearts for requirement check
+                            )
                             self.log_rule("Meta Rule", f"ALL Blade on {card_obj.name} treated as Any Heart.")
 
                 draw_bonus += card_obj.draw_icons

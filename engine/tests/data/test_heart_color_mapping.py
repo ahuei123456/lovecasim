@@ -1,4 +1,4 @@
-from engine.game.game_state import HeartColor
+from engine.models.enums import HeartColor
 
 
 def test_color_order():

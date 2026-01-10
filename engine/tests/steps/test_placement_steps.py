@@ -52,18 +52,6 @@ def activate_place_under(context, game_state, count, slot):
 
     game_state._resolve_pending_effect(0, context={"area": slot})
 
-    # The method mutates IN PLACE. No new state return from internal method (usually).
-    # Wait, step() logic: new_state = self.copy(); new_state._resolve...
-    # If we call on `game_state` fixture which is an instance, it mutates involved objects.
-    # We must ensure `context["game_state"]` is updated if we want consistency,
-    # but here we are mutating the object referenced by `context["game_state"]` (if shared) or `game_state` fixture.
-    # Ideally, `test_generic_steps` stored `gs` in `context`.
-    # So `game_state` arg IS `context["game_state"]`? No.
-    # `test_generic_steps.py` defines `game_state` fixture.
-    # `player_with_stage_slot` uses `game_state` fixture.
-    # If we just mutate `game_state` (the fixture instance), it's fine.
-
-    # But wait, did I update `context["game_state"]`?
     # `test_generic_steps` updates `context`.
     # So `context["game_state"]` IS the fixture instance.
     # So direct mutation works.

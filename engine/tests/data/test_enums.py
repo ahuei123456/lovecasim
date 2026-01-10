@@ -1,6 +1,7 @@
 import numpy as np
 
-from engine.game.game_state import Group, MemberCard, Unit, ensure_group_list, ensure_unit_list
+from engine.models.card import MemberCard
+from engine.models.enums import Group, Unit, ensure_group_list, ensure_unit_list
 
 # --- Group Tests ---
 
@@ -26,7 +27,7 @@ def test_member_card_parsing_multiline():
         hearts=np.zeros(6),
         blade_hearts=np.zeros(7),
         blades=1,
-        groups="ラブライブ！\nラブライブ！サンシャイン!!",
+        groups="ラブライブ！\nラブライブ！サンシャイン!!",  # type: ignore
     )
 
     assert len(card.groups) == 2

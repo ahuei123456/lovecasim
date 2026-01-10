@@ -3,6 +3,7 @@ import pytest
 from pytest_bdd import given, scenario, then, when
 
 from engine.game.game_state import Condition, ConditionType, GameState, MemberCard
+from engine.models.enums import Group
 
 
 @pytest.fixture
@@ -32,7 +33,9 @@ def cond_group():
 
 @given('a member card of group "Aqours"', target_fixture="context")
 def member_aqours(game_state):
-    m = MemberCard(1, "A1", "Aq", 1, np.zeros(7, dtype=int), np.zeros(7, dtype=int), 1, groups="Aqours")
+    m = MemberCard(
+        1, "A1", "Aq", 1, np.zeros(7, dtype=int), np.zeros(7, dtype=int), 1, groups=[Group.from_japanese_name("Aqours")]
+    )
     game_state.member_db[1] = m
     return {"card_id": 1}
 

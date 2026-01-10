@@ -1,8 +1,10 @@
 import numpy as np
 from pytest_bdd import given, parsers, scenarios, then, when
 
-from engine.game.game_state import GameState, MemberCard
+from engine.game.game_state import GameState
 from engine.models.ability import Effect, EffectType
+from engine.models.card import LiveCard, MemberCard
+from engine.models.enums import Group
 
 scenarios("../features/recovery.feature")
 
@@ -28,11 +30,18 @@ def add_live_to_discard(context, game_state, data, name, cid):
         # Create a mock/real live card
         # We need to insert it into the DB fixture?
         # The data fixture loads from JSON. We can monkeypatch into the generic DB.
-        live_db[cid] = type(
-            "LiveCardMock",
-            (object,),
-            {"card_id": cid, "name": name, "score": 0, "img_path": "", "required_hearts": np.zeros(7)},
-        )()
+        # Use real LiveCard
+        live_db[cid] = LiveCard(
+            card_id=cid,
+            card_no=f"LIVE-{cid}",
+            name=name,
+            score=1000,
+            required_hearts=np.zeros(7),
+            abilities=[],
+            groups=[],
+            units=[],
+            img_path="",
+        )
 
     p.discard.append(cid)
     context[f"card_id_{name}"] = cid
@@ -106,7 +115,7 @@ def add_test_members_filtering(context, game_state, data):
             card_no=f"TEST-{cid}",
             name=name,
             cost=cost,
-            groups=[group],
+            groups=[Group.from_japanese_name(group)],
             hearts=np.zeros(6),
             blade_hearts=np.zeros(7),
             blades=1,
@@ -130,9 +139,6 @@ def activate_recover_live(context, game_state):
 
     # Check pending
     print(f"DEBUG: Pending effects: {game_state.pending_effects}")
-
-    game_state = game_state.step(0)
-    context["game_state"] = game_state
 
     print(f"DEBUG: Post-step pending choices: {game_state.pending_choices}")
 

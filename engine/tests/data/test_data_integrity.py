@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 
 from engine.game.data_loader import CardDataLoader
-from engine.game.game_state import GameState, HeartColor, Phase
+from engine.game.game_state import GameState, Phase
+from engine.models.enums import HeartColor
 
 
 @pytest.fixture(scope="module")

@@ -41,16 +41,16 @@ def compile_cards(input_path: str, output_path: str):
 
         try:
             if ctype == "メンバー":
-                card = parse_member(m_idx, key, item)
-                compiled_data["member_db"][str(m_idx)] = member_adapter.dump_python(card, mode="json")
+                m_card = parse_member(m_idx, key, item)
+                compiled_data["member_db"][str(m_idx)] = member_adapter.dump_python(m_card, mode="json")
                 m_idx += 1
             elif ctype == "ライブ":
-                card = parse_live(l_idx, key, item)
-                compiled_data["live_db"][str(l_idx)] = live_adapter.dump_python(card, mode="json")
+                l_card = parse_live(l_idx, key, item)
+                compiled_data["live_db"][str(l_idx)] = live_adapter.dump_python(l_card, mode="json")
                 l_idx += 1
             elif ctype == "エネルギー":
-                card = parse_energy(e_idx, key, item)
-                compiled_data["energy_db"][str(e_idx)] = energy_adapter.dump_python(card, mode="json")
+                e_card = parse_energy(e_idx, key, item)
+                compiled_data["energy_db"][str(e_idx)] = energy_adapter.dump_python(e_card, mode="json")
                 e_idx += 1
 
             success_count += 1
@@ -61,8 +61,8 @@ def compile_cards(input_path: str, output_path: str):
     print(f"Compilation complete. Processed {success_count} cards.")
     if errors:
         print(f"Encountered {len(errors)} errors:")
-        for e in errors:
-            print(f"  - {e}")
+        for err_msg in errors:
+            print(f"  - {err_msg}")
 
     # Write output
     print(f"Writing compiled data to {output_path}...")

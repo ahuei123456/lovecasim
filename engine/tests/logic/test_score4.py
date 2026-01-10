@@ -11,6 +11,7 @@ from engine.models.ability import (
     TargetType,
     TriggerType,
 )
+from engine.models.enums import Group
 
 
 @pytest.fixture
@@ -41,7 +42,7 @@ def test_honoka_blade_buff(game_state):
         blade_hearts=np.zeros(7),
         blades=3,
         abilities=[ability],
-        groups="ラブライブ！",
+        groups=[Group.from_japanese_name("ラブライブ！")],
     )
     state.member_db[1] = honoka
     p0.stage[0] = 1
@@ -83,7 +84,7 @@ def test_nico_score_bonus(game_state):
         blade_hearts=np.zeros(6),
         blades=1,
         abilities=[ability],
-        groups="ラブライブ！",
+        groups=[Group.from_japanese_name("ラブライブ！")],
     )
     state.member_db[9] = nico
     p0.stage[0] = 9
@@ -92,7 +93,14 @@ def test_nico_score_bonus(game_state):
     p0.discard = [i for i in range(24)]
     for i in range(24):
         state.member_db[i] = MemberCard(
-            i, f"TEST-{i}", f"Card{i}", 1, np.zeros(6), np.zeros(7), 1, groups="ラブライブ！"
+            i,
+            f"TEST-{i}",
+            f"Card{i}",
+            1,
+            np.zeros(6),
+            np.zeros(7),
+            1,
+            groups=[Group.from_japanese_name("ラブライブ！")],
         )
 
     # Trigger live start (simplified)
@@ -101,7 +109,9 @@ def test_nico_score_bonus(game_state):
 
     # 2. Add 1 more for 25 cards
     p0.discard.append(24)
-    state.member_db[24] = MemberCard(24, "TEST-24", "Card24", 1, np.zeros(6), np.zeros(7), 1, groups="ラブライブ！")
+    state.member_db[24] = MemberCard(
+        24, "TEST-24", "Card24", 1, np.zeros(6), np.zeros(7), 1, groups=[Group.from_japanese_name("ラブライブ！")]
+    )
 
     state._play_automatic_ability(0, ability, {"area": 0})
     assert p0.live_score_bonus == 1, "Should gain score bonus with 25 cards"
@@ -129,7 +139,7 @@ def test_ginko_draw(game_state):
         blade_hearts=np.zeros(6),
         blades=1,
         abilities=[ability],
-        groups="蓮ノ空",
+        groups=[Group.from_japanese_name("蓮ノ空")],
     )
     state.member_db[20] = ginko
 

@@ -9,7 +9,7 @@ from engine.models.ability import Ability
 from engine.models.enums import Group, Unit, ensure_group_list, ensure_unit_list
 
 
-def ensure_ndarray(v: Any) -> np.ndarray:
+def ensure_ndarray(v: Any) -> Any:
     """Validator to convert list/dict to numpy array"""
     if isinstance(v, list):
         return np.array(v, dtype=np.int32)
