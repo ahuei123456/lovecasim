@@ -125,7 +125,7 @@ class TestScore4Execution(unittest.TestCase):
         # Create Effect
         eff = Effect(EffectType.LOOK_AND_CHOOSE, 1, params={'filter': 'member'})
         
-        # Inject choice generation logic from game_state (simplified reproduction)
+        # Inject choice generation logic from game.game_state (simplified reproduction)
         # In actual game_state.py, it creates SELECT_FROM_LIST choice.
         # But we need to ensure the choice allows 0 if "up to 1" or implicit.
         # Current game_state logic:
@@ -195,7 +195,7 @@ class TestScore4Execution(unittest.TestCase):
         # Execute logic manually (simulate _resolve_pending_effect)
         # We need to invoke the logic block for RECOVER_LIVE
         eff = abi.effects[0]
-        # Copy-paste logic from game_state.py or rely on unit test to call a method?
+        # Copy-paste logic from game.game_state.py or rely on unit test to call a method?
         # Ideally we call a method. But _resolve_pending_effect is complex.
         # Let's just check _check_condition mainly, as Effect logic is standard.
         # But let's verification RECOVER_LIVE filter logic.

@@ -1,6 +1,6 @@
 
 import unittest
-from game_state import GameState, Phase
+from game.game_state import GameState, Phase
 from ability import Effect, EffectType, TargetType
 import numpy as np
 

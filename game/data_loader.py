@@ -11,7 +11,7 @@ try:
     from game.game_state import MemberCard, LiveCard
     from game.ability import AbilityParser
 except ImportError:
-    from game_state import MemberCard, LiveCard
+    from game.game_state import MemberCard, LiveCard
     from ability import AbilityParser
 
 class CardDataLoader:
