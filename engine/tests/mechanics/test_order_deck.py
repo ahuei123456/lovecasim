@@ -1,7 +1,7 @@
 import pytest
 
-from engine.game.ability import Effect, EffectType, TargetType
 from engine.game.game_state import GameState, Phase
+from engine.models.ability import Effect, EffectType, TargetType
 
 
 @pytest.fixture

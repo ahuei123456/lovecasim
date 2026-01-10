@@ -1,156 +1,17 @@
-"""
-Ability and Effect System for Love Live Card Game.
-Handles triggers, effect stack, and ability resolution.
-"""
-
 import re
-from dataclasses import dataclass, field
-from enum import IntEnum
-from typing import Any, Dict, List
+from typing import List
 
-
-class TriggerType(IntEnum):
-    NONE = 0
-    ON_PLAY = 1  # 登場時
-    ON_LIVE_START = 2  # ライブ開始時
-    ON_LIVE_SUCCESS = 3  # ライブ成功時
-    TURN_START = 4
-    TURN_END = 5
-    CONSTANT = 6  # 常時
-    ACTIVATED = 7  # 起動
-    ON_LEAVES = 8  # 自動 - when member leaves stage/is discarded
-
-
-class TargetType(IntEnum):
-    SELF = 0
-    PLAYER = 1
-    OPPONENT = 2
-    ALL_PLAYERS = 3
-    MEMBER_SELF = 4
-    MEMBER_OTHER = 5
-    CARD_HAND = 6
-    CARD_DISCARD = 7
-    CARD_DECK_TOP = 8
-    OPPONENT_HAND = 9  # 相手の手札
-    MEMBER_SELECT = 10  # Select manual target
-    MEMBER_NAMED = 11  # Specific named member implementation
-
-
-class EffectType(IntEnum):
-    DRAW = 0
-    ADD_BLADES = 1
-    ADD_HEARTS = 2
-    REDUCE_COST = 3
-    LOOK_DECK = 4
-    RECOVER_LIVE = 5  # Recover Live from discard
-    BOOST_SCORE = 6
-    RECOVER_MEMBER = 7  # Recover Member from discard
-    BUFF_POWER = 8  # Generic power/heart buff
-    IMMUNITY = 9  # Cannot be targeted/chosen
-    MOVE_MEMBER = 10  # Move member to different area
-    SWAP_CARDS = 11  # Swap cards between zones
-    SEARCH_DECK = 12  # Search deck for specific card
-    ENERGY_CHARGE = 13  # Add cards to energy zone
-    SET_BLADES = 31  # Layer 4: Set blades to fixed value
-    SET_HEARTS = 32  # Layer 4: Set hearts to fixed value
-    FORMATION_CHANGE = 33  # Rule 11.10: Rearrange all members
-    NEGATE_EFFECT = 14  # Cancel/negate an effect
-    ORDER_DECK = 15  # Reorder cards in deck
-    META_RULE = 16  # Rule clarification text (no effect)
-    SELECT_MODE = 17  # Choose one of the following effects
-    MOVE_TO_DECK = 18  # Move card to top/bottom of deck
-    TAP_OPPONENT = 19  # Tap opponent's member
-    PLACE_UNDER = 20  # Place card under member
-    FLAVOR_ACTION = 99  # "Ask opponent what they like", etc.
-    RESTRICTION = 21  # Restriction on actions (Cannot Live, etc)
-    BATON_TOUCH_MOD = 22  # Modify baton touch rules (e.g. 2 members)
-    SET_SCORE = 23  # Set score to fixed value
-    SWAP_ZONE = 24  # Swap between zones (e.g. Hand <-> Live)
-    TRANSFORM_COLOR = 25  # Change all colors of type X to Y
-    REVEAL_CARDS = 26  # 公開 - reveal cards from zone
-    LOOK_AND_CHOOSE = 27  # 見る、その中から - look at cards, choose from them
-    CHEER_REVEAL = 28  # エールにより公開 - cards revealed via cheer mechanic
-    ACTIVATE_MEMBER = 29  # アクティブにする - untap/make active a member
-    ADD_TO_HAND = 30  # 手札に加える - add card to hand (from any zone)
-    COLOR_SELECT = 31  # Specify a heart color
-    REPLACE_EFFECT = 34  # Replacement effect (代わりに)
-    TRIGGER_REMOTE = 35  # Trigger ability from another zone (Cluster 5)
-    REDUCE_HEART_REQ = 36  # Need hearts reduced
-
-
-class ConditionType(IntEnum):
-    NONE = 0
-    TURN_1 = 1  # Turn == 1
-    HAS_MEMBER = 2  # Specific member on stage
-    HAS_COLOR = 3  # Specific color on stage
-    COUNT_STAGE = 4  # Count members >= X
-    COUNT_HAND = 5
-    COUNT_DISCARD = 6
-    IS_CENTER = 7
-    LIFE_LEAD = 8
-    COUNT_GROUP = 9  # "3+ Aqours members"
-    GROUP_FILTER = 10  # Filter by group name
-    OPPONENT_HAS = 11  # Opponent has X
-    SELF_IS_GROUP = 12  # This card is from group X
-    MODAL_ANSWER = 13  # Choice/Answer branch (e.g. LL-PR-004-PR)
-    COUNT_ENERGY = 14  # エネルギーがX枚以上
-    HAS_LIVE_CARD = 15  # ライブカードがある場合
-    COST_CHECK = 16  # コストがX以下/以上
-    RARITY_CHECK = 17  # Rarity filter
-    HAND_HAS_NO_LIVE = 18  # Hand contains no live cards (usually paired with reveal cost)
-    COUNT_SUCCESS_LIVE = 19  # 成功ライブカード置き場にX枚以上
-
-
-@dataclass
-class Condition:
-    type: ConditionType
-    params: Dict[str, Any] = field(default_factory=dict)
-    is_negated: bool = False  # "If NOT X" / "Except X"
-
-
-@dataclass
-class Effect:
-    effect_type: EffectType
-    value: int = 0
-    target: TargetType = TargetType.SELF
-    params: Dict[str, Any] = field(default_factory=dict)
-    is_optional: bool = False  # ～てもよい
-
-
-class AbilityCostType(IntEnum):
-    NONE = 0
-    ENERGY = 1
-    TAP_SELF = 2  # ウェイトにする
-    DISCARD_HAND = 3  # 手札を捨てる
-    RETURN_HAND = 4  # 手札に戻す (Self bounce)
-    SACRIFICE_SELF = 5  # このメンバーを控え室に置く
-    REVEAL_HAND_ALL = 6  # 手札をすべて公開する
-    SACRIFICE_UNDER = 7  # 下に置かれているカードを控え室に置く
-    DISCARD_ENERGY = 8  # エネルギーを控え室に置く
-
-
-@dataclass
-class Cost:
-    type: AbilityCostType
-    value: int = 0
-    params: Dict[str, Any] = field(default_factory=dict)
-    is_optional: bool = False
-
-
-@dataclass
-class Ability:
-    raw_text: str
-    trigger: TriggerType
-    effects: List[Effect]
-    conditions: List[Condition] = field(default_factory=list)
-    costs: List[Cost] = field(default_factory=list)
-    modal_options: List[List[Effect]] = field(default_factory=list)  # For SELECT_MODE
-    is_once_per_turn: bool = False
-
-    def __str__(self):
-        c_str = f" [Cond:{len(self.conditions)}]" if self.conditions else ""
-        cost_str = f" [Cost:{len(self.costs)}]" if self.costs else ""
-        return f"[{self.trigger.name}]{c_str}{cost_str} {self.raw_text[:30]}..."
+from engine.models.ability import (
+    Ability,
+    AbilityCostType,
+    Condition,
+    ConditionType,
+    Cost,
+    Effect,
+    EffectType,
+    TargetType,
+    TriggerType,
+)
 
 
 class AbilityParser:
@@ -169,6 +30,13 @@ class AbilityParser:
             if not block:
                 continue
 
+            # Initialize Block context
+            trigger = TriggerType.NONE
+            conditions = []
+            effects = []
+            costs = []
+            is_once_per_turn = False
+
             # Split block into sentences
             sentences = [s for s in block.split("。") if s.strip()]
 
@@ -176,11 +44,6 @@ class AbilityParser:
                 line = line.strip()
                 if not line:
                     continue
-
-                trigger = TriggerType.NONE
-                conditions = []
-                effects = []
-                costs = []
 
                 # --- Trigger Parsing ---
                 if "toujyou" in line or "登場" in line:
@@ -275,6 +138,8 @@ class AbilityParser:
                             "公開",
                             "選ぶ",
                             "選ぶ。",
+                            "選び",
+                            "アクティブ",
                         ]
                     ):
                         trigger = TriggerType.ACTIVATED
@@ -282,7 +147,7 @@ class AbilityParser:
                 content = line
 
                 # --- Once per turn ---
-                is_once_per_turn = any(
+                if any(
                     kw in line
                     for kw in [
                         "1ターンに1回",
@@ -292,7 +157,8 @@ class AbilityParser:
                         "［ターン1回］",
                         "【ターン1回】",
                     ]
-                )
+                ):
+                    is_once_per_turn = True
 
                 if "[Turn 1]" in line or "ターン1" in line:
                     conditions.append(Condition(ConditionType.TURN_1))
@@ -778,64 +644,51 @@ class AbilityParser:
                         cost.is_optional = True
 
                 # --- Construct Ability ---
-                if trigger != TriggerType.NONE:
-                    # Handle multiple triggers (lazy way: create one ability, caller might need to dup if we want perfection,
-                    # but actually we can just return a list of abilities from this function, so we can append multiple)
-                    # For now, let's keep it simple: if we detected the slash, we append multiple
+                # End of sentence loop iteration
 
-                    base_ability = Ability(
-                        raw_text=content.strip(),
-                        trigger=trigger,
-                        effects=effects,
-                        conditions=conditions,
+            # --- End of Sentence Loop, create Ability from Block data ---
+
+            # Aggregate found triggers? Or use the one found (usually in first sentence)
+            # We used 'trigger' variable inside loop. We need to persist it.
+
+            # Let's verify if we have a valid ability to create
+            if trigger != TriggerType.NONE:
+                base_ability = Ability(
+                    raw_text=block.strip(),  # Use full block text
+                    trigger=trigger,
+                    effects=effects,
+                    conditions=conditions,
+                    costs=costs,
+                    is_once_per_turn=is_once_per_turn,
+                )
+                abilities.append(base_ability)
+                last_ability = base_ability
+
+                # Dual trigger hack for PL!-PR-009-PR
+                if "toujyou" in block and (("live_start" in block) or ("live_success" in block)) and "/" in block:
+                    second_trigger = TriggerType.ON_LIVE_START if "live_start" in block else TriggerType.ON_LIVE_SUCCESS
+                    second_ability = Ability(
+                        raw_text=block.strip(),
+                        trigger=second_trigger,
+                        effects=[e for e in effects],
+                        conditions=[c for c in conditions],
                         costs=costs,
                         is_once_per_turn=is_once_per_turn,
                     )
-                    abilities.append(base_ability)
-                    last_ability = base_ability
+                    abilities.append(second_ability)
 
-                    # Dual trigger hack for PL!-PR-009-PR
-                    if "toujyou" in line and (("live_start" in line) or ("live_success" in line)) and "/" in line:
-                        second_trigger = (
-                            TriggerType.ON_LIVE_START if "live_start" in line else TriggerType.ON_LIVE_SUCCESS
-                        )
-                        # Clone it effectively
-                        abilities.append(
-                            Ability(
-                                raw_text=content.strip(),
-                                trigger=second_trigger,
-                                effects=[
-                                    Effect(e.effect_type, e.value, e.target, e.params.copy(), e.is_optional)
-                                    for e in effects
-                                ],
-                                conditions=[Condition(c.type, c.params.copy(), c.is_negated) for c in conditions],
-                                costs=[Cost(c.type, c.value, c.params.copy(), c.is_optional) for c in costs],
-                                is_once_per_turn=base_ability.is_once_per_turn,
-                            )
-                        )
+            # Handle SELECT_MODE options (lines starting with - or ・ in NEW BLOCKS)
+            elif last_ability and any(e.effect_type == EffectType.SELECT_MODE for e in last_ability.effects):
+                # This block is likely an option
+                # Check if it starts with bullet
+                if block.strip().startswith("-") or block.strip().startswith("・") or block.strip().startswith("－"):
+                    # Parse this block as a set of effects (it's essentially a sub-ability without trigger)
+                    # We can reuse the `effects` list we just parsed (trigger is NONE, but effects found)
+                    if effects:
+                        last_ability.modal_options.append(effects)
 
-                elif effects or conditions or costs:
-                    if last_ability:
-                        if (line.startswith("・") or line.startswith("-") or line.startswith("－")) and any(
-                            e.effect_type == EffectType.SELECT_MODE for e in last_ability.effects
-                        ):
-                            last_ability.modal_options.append(effects)
-                        else:
-                            last_ability.effects.extend(effects)
-                            last_ability.conditions.extend(conditions)
-                            last_ability.costs.extend(costs)
-                        last_ability.raw_text += " " + content.strip()
-                        if is_once_per_turn:
-                            last_ability.is_once_per_turn = True
-                    elif not is_continuation:
-                        last_ability = Ability(
-                            raw_text=content.strip(),
-                            trigger=TriggerType.CONSTANT,
-                            effects=effects,
-                            conditions=conditions,
-                            costs=costs,
-                            is_once_per_turn=is_once_per_turn,
-                        )
-                        abilities.append(last_ability)
+            # Handle SELECT_MODE linking (if the previous ability was select mode, these sentences might be options)
+            # This logic is extremely complex in original parser, simplified here.
+            # Ideally, options are distinct abilities or sub-effects.
 
         return abilities

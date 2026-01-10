@@ -1,7 +1,8 @@
 import pytest
 
-from engine.game.ability import AbilityParser, EffectType
+from compiler.parser import AbilityParser
 from engine.game.game_state import GameState
+from engine.models.ability import EffectType
 
 
 @pytest.fixture

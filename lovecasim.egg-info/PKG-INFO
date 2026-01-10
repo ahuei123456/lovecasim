@@ -8,3 +8,4 @@ Requires-Dist: flask==3.0.0
 Requires-Dist: gunicorn==21.2.0
 Requires-Dist: numba>=0.58.0
 Requires-Dist: numpy>=1.26.0
+Requires-Dist: pydantic>=2.12.5

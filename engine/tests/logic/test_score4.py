@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
 
-from engine.game.ability import (
+from engine.game.game_state import GameState, LiveCard, MemberCard
+from engine.models.ability import (
     Ability,
     Condition,
     ConditionType,
@@ -10,7 +11,6 @@ from engine.game.ability import (
     TargetType,
     TriggerType,
 )
-from engine.game.game_state import GameState, LiveCard, MemberCard
 
 
 @pytest.fixture

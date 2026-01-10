@@ -1,4 +1,4 @@
-from engine.game.ability import AbilityParser
+from compiler.parser import AbilityParser
 
 
 def test_debug_parser():

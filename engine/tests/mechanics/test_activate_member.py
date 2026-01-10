@@ -5,8 +5,9 @@ Unit test for interactive ACTIVATE_MEMBER mechanic.
 import numpy as np
 import pytest
 
-from engine.game.ability import AbilityParser, Effect, EffectType
+from compiler.parser import AbilityParser
 from engine.game.game_state import GameState, MemberCard
+from engine.models.ability import Effect, EffectType
 
 
 @pytest.fixture

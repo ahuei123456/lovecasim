@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 from pytest_bdd import given, scenario, then, when
 
-from engine.game.ability import Effect, EffectType
 from engine.game.game_state import GameState, MemberCard
+from engine.models.ability import Effect, EffectType
 
 
 @pytest.fixture

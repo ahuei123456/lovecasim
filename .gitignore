@@ -43,6 +43,7 @@ test_results.json
 verification_results.txt
 
 # Generated JSON (keep cards.json and rule_map.json)
+engine/data/cards_compiled.json
 analysis_*.json
 verified_parsing_status.json
 scan_results.json

@@ -1,7 +1,7 @@
 import numpy as np
 
-from engine.game.ability import Ability, AbilityCostType, Cost, TriggerType
 from engine.game.game_state import GameState, MemberCard, Phase
+from engine.models.ability import Ability, AbilityCostType, Cost, TriggerType
 
 
 def test_activated_ability():

@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from engine.game.ability import Ability, TriggerType
 from engine.game.game_state import Effect, EffectType, GameState, LiveCard, MemberCard, Phase
+from engine.models.ability import Ability, TriggerType
 
 
 @pytest.fixture

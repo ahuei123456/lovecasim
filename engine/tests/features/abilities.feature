@@ -18,6 +18,12 @@ Feature: Card Abilities and Effects
         When the player searches the deck for "μ's"
         Then the player should find "μ's" members
 
+    Scenario: Formation Change
+        Given a player with members on stage
+        When the player activates formation change
+        And the player selects to swap member at slot 0 with slot 1
+        Then the members at slot 0 and 1 should be swapped
+
     Scenario: Recover member from discard
         Given a player has a member in discard
         When the player recovers the member from discard

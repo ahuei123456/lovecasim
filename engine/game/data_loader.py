@@ -1,185 +1,60 @@
-"""
-Data loader for Love Live Card Game.
-Parses the cards.json file and converts it into GameState objects.
-"""
-
 import json
-from typing import Dict, Tuple
+import os
+from typing import Any, Dict, Tuple
 
-import numpy as np
+from pydantic import TypeAdapter
 
-from engine.game.ability import AbilityParser
-from engine.game.game_state import LiveCard, MemberCard
+from engine.models.card import EnergyCard, LiveCard, MemberCard
 
 
 class CardDataLoader:
     def __init__(self, json_path: str):
         self.json_path = json_path
 
-    def _resolve_img_path(self, data: dict) -> str:
-        """Resolve local image path, falling back to URL or deriving from URL."""
-        img_path = str(data.get("_img", ""))
-        if img_path:
-            # Strip 'img/' prefix since Flask route /img/ adds it
-            if img_path.startswith("img/"):
-                return img_path[4:]  # Remove 'img/' prefix
-            return img_path
+    def load(self) -> Tuple[Dict[int, MemberCard], Dict[int, LiveCard], Dict[int, Any]]:
+        # Auto-detect compiled file
+        target_path = self.json_path
+        if target_path.endswith("cards.json"):
+            compiled_path = target_path.replace("cards.json", "cards_compiled.json")
+            if os.path.exists(compiled_path):
+                target_path = compiled_path
 
-        raw_url = str(data.get("img", ""))
-        if raw_url and "cardlist/" in raw_url:
-            # Example: .../cardlist/PLSD01/LL-E-001-SD.png
-            try:
-                parts = raw_url.split("cardlist/")[-1].split("/")
-                if len(parts) >= 2:
-                    product = parts[0]
-                    filename = parts[1]
-                    # Server route is /img/<path>, so return cards/PRODUCT/FILENAME
-                    return f"cards/{product}/{filename}"
-            except Exception as e:
-                print(f"Error parsing image URL: {e}")
-        return raw_url
+        # Fallback to relative path search if absolute fails (common in tests)
+        if not os.path.exists(target_path):
+            # Try assuming path is relative to project root
+            # But we don't know project root easily.
+            pass
 
-    def load(self) -> Tuple[Dict[int, MemberCard], Dict[int, LiveCard], Dict[int, MemberCard]]:
-        with open(self.json_path, "r", encoding="utf-8") as f:
+        print(f"Loading card data from {target_path}...")
+        with open(target_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         members = {}
         lives = {}
         energy = {}
 
-        # Consistent mapping for string IDs to ints
-        # We need a stable hash or a saved mapping, but for this session we'll generate one
-        # Ideally, we should sort keys to ensure deterministic ID assignment
+        if "member_db" in data:
+            # Compiled format (v1.0)
+            m_adapter = TypeAdapter(MemberCard)
+            l_adapter = TypeAdapter(LiveCard)
+            e_adapter = TypeAdapter(EnergyCard)
 
-        sorted_keys = sorted(data.keys())
-        # Use a simple counter for IDs to keep them small for array indexing
-        # 0-999: Members
-        # 1000-1999: Lives
-        # 2000+: Energy (handled separately or as generic)
+            for k, v in data["member_db"].items():
+                members[int(k)] = m_adapter.validate_python(v)
 
-        m_idx = 0
-        l_idx = 1000
-        e_idx = 2000
+            for k, v in data["live_db"].items():
+                lives[int(k)] = l_adapter.validate_python(v)
 
-        for key in sorted_keys:
-            card_data = data[key]
-            ctype = card_data.get("type")
+            for k, v in data["energy_db"].items():
+                energy[int(k)] = e_adapter.validate_python(v)
 
-            if ctype == "メンバー":
-                m_card = self._parse_member(m_idx, key, card_data)
-                members[m_idx] = m_card
-                m_idx += 1
-            elif ctype == "ライブ":
-                l_card = self._parse_live(l_idx, key, card_data)
-                lives[l_idx] = l_card
-                l_idx += 1
-            elif ctype == "エネルギー":
-                # Use simple MemberCard struct for energy for now or just dict
-                # Standard Energy Card ID is usually fixed, but we'll assign dynamic
-                e_card = self._parse_member(e_idx, key, card_data)  # Structure is similar enough
-                energy[e_idx] = e_card
-                e_idx += 1
+        else:
+            # Legacy raw format
+            # Since we removed runtime parsing from the engine to separate concerns,
+            # we cannot load raw cards anymore.
+            raise RuntimeError(
+                "Legacy cards.json format detected. Runtime parsing is disabled. "
+                "Please run 'uv run compiler/main.py' to generate 'data/cards_compiled.json'."
+            )
 
         return members, lives, energy
-
-    def _parse_hearts(self, heart_dict: dict) -> np.ndarray:
-        """
-        Parses heart dictionary: {"heart01": 1, "heart06": 2}
-        Returns array of 6 ints.
-        """
-        hearts = np.zeros(6, dtype=np.int32)
-        if not heart_dict:
-            return hearts
-
-        # Mapping: heart01 -> 0, heart02 -> 1, ... heart06 -> 5
-        for k, v in heart_dict.items():
-            if k.startswith("heart"):
-                try:
-                    idx = int(k.replace("heart", "")) - 1
-                    if 0 <= idx < 6:
-                        hearts[idx] = int(v)
-                except ValueError:
-                    pass
-        return hearts
-
-    def _parse_live_reqs(self, req_dict: dict) -> np.ndarray:
-        """
-        Parses live requirements. Like hearts but index 6 is 'any'.
-        """
-        reqs = np.zeros(7, dtype=np.int32)
-        if not req_dict:
-            return reqs
-
-        # Standard colors
-        base_hearts = self._parse_hearts(req_dict)
-        reqs[:6] = base_hearts
-
-        # 'star' or 'any' or 'common'
-        for k, v in req_dict.items():
-            if k in ["star", "any", "common"]:
-                reqs[6] = int(v)
-
-        return reqs
-
-    def _parse_blade_hearts(self, heart_dict: dict) -> np.ndarray:
-        """
-        Parses blade heart dictionary: {"b_heart06": 1, "b_all": 1}
-        Returns array of 7 ints (Index 6 = b_all).
-        """
-        hearts = np.zeros(7, dtype=np.int32)
-        if not heart_dict:
-            return hearts
-
-        # Mapping: b_heart01 -> 0, ... b_heart06 -> 5
-        for k, v in heart_dict.items():
-            if k == "b_all":
-                hearts[6] = int(v)
-            elif k.startswith("b_heart"):
-                try:
-                    idx = int(k.replace("b_heart", "")) - 1
-                    if 0 <= idx < 6:
-                        hearts[idx] = int(v)
-                except ValueError:
-                    pass
-        return hearts
-
-    def _parse_member(self, card_id: int, card_no: str, data: dict) -> MemberCard:
-        spec = data.get("special_heart", {})
-        raw_ability = str(data.get("ability", ""))
-
-        return MemberCard(
-            card_id=card_id,
-            card_no=card_no,
-            name=str(data.get("name", "Unknown")),
-            cost=data.get("cost", 0),
-            hearts=self._parse_hearts(data.get("base_heart", {})),
-            blade_hearts=self._parse_blade_hearts(data.get("blade_heart", {})),
-            blades=data.get("blade", 0),
-            groups=str(data.get("series", "")),
-            units=str(data.get("unit", "")),
-            abilities=AbilityParser.parse_ability_text(raw_ability),
-            img_path=self._resolve_img_path(data),
-            ability_text=raw_ability,
-            volume_icons=spec.get("score", 0),
-            draw_icons=spec.get("draw", 0),
-        )
-
-    def _parse_live(self, card_id: int, card_no: str, data: dict) -> LiveCard:
-        spec = data.get("special_heart", {})
-        raw_ability = str(data.get("ability", ""))
-
-        return LiveCard(
-            card_id=card_id,
-            card_no=card_no,
-            name=str(data.get("name", "Unknown")),
-            score=data.get("score", 0),
-            required_hearts=self._parse_live_reqs(data.get("need_heart", {})),
-            abilities=AbilityParser.parse_ability_text(raw_ability),
-            groups=str(data.get("series", "")),
-            units=str(data.get("unit", "")),
-            img_path=self._resolve_img_path(data),
-            ability_text=raw_ability,
-            volume_icons=spec.get("score", 0),
-            draw_icons=spec.get("draw", 0),
-            blade_hearts=self._parse_blade_hearts(data.get("blade_heart", {})),
-        )

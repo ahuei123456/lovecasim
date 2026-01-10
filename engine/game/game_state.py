@@ -25,15 +25,12 @@ Key Design Decisions:
 # Rule 1.3.5: Numerical selections must be non-negative integers.
 
 import random
-from dataclasses import dataclass, field
 from enum import IntEnum
-from typing import Annotated, Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-import pydantic
-from pydantic import BeforeValidator, ConfigDict
 
-from engine.game.ability import (
+from engine.models.ability import (
     Ability,
     AbilityCostType,
     Condition,
@@ -44,6 +41,8 @@ from engine.game.ability import (
     TargetType,
     TriggerType,
 )
+from engine.models.card import LiveCard, MemberCard
+from engine.models.enums import Group, Unit
 
 # Import Numba utils
 # Import Numba utils
@@ -118,217 +117,8 @@ class Phase(IntEnum):
     LIVE_RESULT = 8  # Determine live winner
 
 
-class CardType(IntEnum):
-    """Card types in the game"""
-
-    MEMBER = 0
-    LIVE = 1
-    ENERGY = 2
-
-
-class HeartColor(IntEnum):
-    """Heart/color types (6 colors + any + rainbow)"""
-
-    PINK = 0
-    RED = 1
-    YELLOW = 2
-    GREEN = 3
-    BLUE = 4
-    PURPLE = 5
-    ANY = 6  # Colorless requirement
-    RAINBOW = 7  # Can be any color
-
-
-class Group(IntEnum):
-    """Card Groups (Series/Schools)"""
-
-    MUSE = 0
-    AQOURS = 1
-    NIJIGASAKI = 2
-    LIELLA = 3
-    HASUNOSORA = 4
-    OTHER = 99
-
-    @classmethod
-    def from_japanese_name(cls, name: str) -> "Group":
-        name = name.strip()
-        if "ラブライブ！" == name or "μ's" in name:
-            return cls.MUSE
-        if "サンシャイン" in name or "Aqours" in name:
-            return cls.AQOURS
-        if "虹ヶ咲" in name:
-            return cls.NIJIGASAKI
-        if "スーパースター" in name or "Liella" in name:
-            return cls.LIELLA
-        if "蓮ノ空" in name:
-            return cls.HASUNOSORA
-        return cls.OTHER
-
-
-def ensure_group_list(v: Any) -> List[Group]:
-    """Validator to convert string/single Group to List[Group]"""
-    if isinstance(v, list):
-        return [g if isinstance(g, Group) else Group.from_japanese_name(str(g)) for g in v]
-    if isinstance(v, Group):
-        return [v]
-    if isinstance(v, str):
-        if not v:
-            return []
-        # Support multiple groups separated by newlines
-        parts = [p.strip() for p in v.split("\n") if p.strip()]
-        return [Group.from_japanese_name(p) for p in parts]
-    return []
-
-
-class Unit(IntEnum):
-    """Card Units"""
-
-    PRINTEMPS = 0
-    LILY_WHITE = 1
-    BIBI = 2
-    CYARON = 3
-    AZALEA = 4
-    GUILTY_KISS = 5
-    DIVER_DIVA = 6
-    A_ZU_NA = 7
-    QU4RTZ = 8
-    R3BIRTH = 9
-    CATCHU = 10
-    KALEIDOSCORE = 11
-    SYNCRISE = 12
-    CERISE_BOUQUET = 13
-    DOLLCHESTRA = 14
-    MIRA_CRA_PARK = 15
-    EDEL_NOTE = 16
-    OTHER = 99
-
-    @classmethod
-    def from_japanese_name(cls, name: str) -> "Unit":
-        name = name.strip()
-        name_lower = name.lower()
-        if "printemps" in name_lower:
-            return cls.PRINTEMPS
-        if "lily white" in name_lower or "lilywhite" in name_lower:
-            return cls.LILY_WHITE
-        if "bibi" in name_lower:
-            return cls.BIBI
-        if "cyaron" in name_lower or "cyaron！" in name_lower:
-            return cls.CYARON
-        if "azalea" in name_lower:
-            return cls.AZALEA
-        if "guilty kiss" in name_lower or "guiltykiss" in name_lower:
-            return cls.GUILTY_KISS
-        if "diverdiva" in name_lower:
-            return cls.DIVER_DIVA
-        if "azuna" in name_lower or "a・zu・na" in name_lower:
-            return cls.A_ZU_NA
-        if "qu4rtz" in name_lower:
-            return cls.QU4RTZ
-        if "r3birth" in name_lower:
-            return cls.R3BIRTH
-        if "catchu" in name_lower:
-            return cls.CATCHU
-        if "kaleidoscore" in name_lower:
-            return cls.KALEIDOSCORE
-        if "5yncri5e" in name_lower:
-            return cls.SYNCRISE
-        if "スリーズブーケ" in name:
-            return cls.CERISE_BOUQUET
-        if "dollchestra" in name_lower:
-            return cls.DOLLCHESTRA
-        if "みらくらぱーく" in name:
-            return cls.MIRA_CRA_PARK
-        if "edelnote" in name_lower:
-            return cls.EDEL_NOTE
-        if not name:
-            return cls.OTHER  # Or handle empty string differently if needed, but OTHER is safe
-        return cls.OTHER
-
-
-def ensure_unit_list(v: Any) -> List[Unit]:
-    """Validator to convert string/single Unit to List[Unit]"""
-    if isinstance(v, list):
-        return [u if isinstance(u, Unit) else Unit.from_japanese_name(str(u)) for u in v]
-    if isinstance(v, Unit):
-        return [v]
-    if isinstance(v, str):
-        if not v:
-            return []
-        parts = [p.strip() for p in v.split("\n") if p.strip()]
-        # Filter out OTHER if it came from empty/unknown? Maybe not, keep explicit
-        units = [Unit.from_japanese_name(p) for p in parts]
-        # Optional: remove OTHER if it represents 'unknown'?
-        # For now, keep it to be safe.
-        return units
-    return []
-
-
-class Area(IntEnum):
-    """Member areas on stage"""
-
-    LEFT = 0
-    CENTER = 1
-    RIGHT = 2
-
-
-@pydantic.dataclasses.dataclass(config=ConfigDict(arbitrary_types_allowed=True))
-class MemberCard:
-    """Represents a member card with all attributes"""
-
-    card_id: int
-    card_no: str
-    name: str
-    cost: int
-    hearts: np.ndarray  # Shape (6,) for each color count
-    blade_hearts: np.ndarray  # Shape (7,) blade hearts by color (Index 6 = ALL)
-    blades: int
-    groups: Annotated[List[Group], BeforeValidator(ensure_group_list)] = field(default_factory=list)
-    units: Annotated[List[Unit], BeforeValidator(ensure_unit_list)] = field(default_factory=list)
-    abilities: List[Ability] = field(default_factory=list)
-    img_path: str = ""
-    # Rule 2.12: カードテキスト (Card Text)
-    ability_text: str = ""
-    # Rule 2.7: ブレードハート (Blade Heart Icons)
-    volume_icons: int = 0
-    draw_icons: int = 0
-
-    def total_hearts(self) -> int:
-        return int(np.sum(self.hearts))
-
-    def total_blade_hearts(self) -> int:
-        return int(np.sum(self.blade_hearts))
-
-
-@pydantic.dataclasses.dataclass(config=ConfigDict(arbitrary_types_allowed=True))
-class LiveCard:
-    """Represents a live/song card"""
-
-    card_id: int
-    card_no: str
-    name: str
-    score: int
-    required_hearts: np.ndarray  # Shape (7,) required hearts by color (6 colors + any)
-    abilities: List[Ability] = field(default_factory=list)
-    groups: Annotated[List[Group], BeforeValidator(ensure_group_list)] = field(default_factory=list)
-    units: Annotated[List[Unit], BeforeValidator(ensure_unit_list)] = field(default_factory=list)
-    img_path: str = ""
-    ability_text: str = ""
-    volume_icons: int = 0
-    draw_icons: int = 0
-    blade_hearts: np.ndarray = field(default_factory=lambda: np.zeros(7, dtype=np.int32))
-
-    def total_required(self) -> int:
-        return int(np.sum(self.required_hearts[:6]))  # Exclude star/any
-
-    def total_blade_hearts(self) -> int:
-        return int(np.sum(self.blade_hearts))
-
-
-@dataclass
-class EnergyCard:
-    """Simple energy card"""
-
-    card_id: int
+# Enums and Card Classes moved to engine.models
+# Imported above
 
 
 class PlayerState:
@@ -2146,9 +1936,29 @@ class GameState:
 
         # Handle Pending Choices (Prioritize over Phase logic)
         # Actions 500+ are generally reserved for choices
-        if self.pending_choices and action >= 500:
-            self._handle_choice(action)
-            return
+        if self.pending_choices:
+            # Handle Optional Skip (Action 0)
+            if action == 0:
+                choice_type, params = self.pending_choices[0]
+                if params.get("is_optional"):
+                    if self.verbose:
+                        print("Player chose to skip optional action.")
+                    # Clear this choice
+                    self.pending_choices.pop(0)
+                    # If this was a cost for an ability, we might need to cancel the ability?
+                    # If pending_effects are queued, clear them?
+                    # Rule: cancelling cost cancels execution.
+                    if params.get("reason") == "cost":
+                        if self.verbose:
+                            print("Optional cost skipped -> Cancelling pending effects.")
+                        self.pending_effects.clear()
+                        # Also clear any remaining choices (e.g. if cost was discard 2 and we skipped 1st)
+                        self.pending_choices.clear()
+                    return
+
+            if action >= 500:
+                self._handle_choice(action)
+                return
 
         if self.phase == Phase.ACTIVE:
             self._do_active_phase()
@@ -2374,7 +2184,12 @@ class GameState:
                 # It handles ONE card.
                 # So we need to loop cost.value times.
                 for _ in range(cost.value):
-                    self.pending_choices.append(("TARGET_HAND", {"reason": "cost", "effect": "discard"}))
+                    self.pending_choices.append(
+                        (
+                            "TARGET_HAND",
+                            {"reason": "cost", "effect": "discard", "is_optional": cost.is_optional},
+                        )
+                    )
 
         return True
 

@@ -6,6 +6,9 @@ ai/mcts.py
 ai/network.py
 ai/network_torch.py
 ai/train.py
+compiler/__init__.py
+compiler/main.py
+compiler/parser.py
 engine/__init__.py
 lovecasim.egg-info/PKG-INFO
 lovecasim.egg-info/SOURCES.txt
@@ -80,7 +83,6 @@ tools/sample_abilities.py
 tools/scan_fixed_cards.py
 tools/semantic_validation.py
 tools/stress_test_game.py
-tools/test_complex_abilities.py
 tools/test_regex.py
 tools/timed_ai_runner.py
 tools/tournament_benchmark.py

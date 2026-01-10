@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["engine", "ai", "tools"]
+packages = ["engine", "ai", "tools", "compiler"]
 
 [dependency-groups]
 dev = [
