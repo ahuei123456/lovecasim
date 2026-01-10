@@ -39,8 +39,10 @@ uv run mypy .
 ```
 
 ### Testing
-All tests have been migrated to **Pytest**.
+Tests are run using **Pytest**, though some legacy tests still utilize `unittest.TestCase`.
+
 - **Run all tests:** `uv run pytest`
+- **New Tests:** MUST use strict `pytest` style (fixtures, functions), NOT `unittest.TestCase`.
 - **Structure:**
     - `engine/tests/features/`: BDD tests (Gherkin syntax).
     - `engine/tests/cards/`: Card ability verification.
