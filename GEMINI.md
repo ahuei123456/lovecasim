@@ -45,8 +45,12 @@ Tests are run using **Pytest**, though some legacy tests still utilize `unittest
 - **New Tests:** MUST use strict `pytest` style (fixtures, functions), NOT `unittest.TestCase`.
 - **Structure:**
     - `engine/tests/features/`: BDD tests (Gherkin syntax).
+    - `engine/tests/steps/`: BDD step definitions.
     - `engine/tests/cards/`: Card ability verification.
-    - `engine/tests/mechanics/`: Core logic (Energy, Turns, Zones).
+    - `engine/tests/mechanics/`: Core mechanics (Energy, Turns, Zones).
+    - `engine/tests/logic/`: Game rules and scoring logic.
+    - `engine/tests/scenarios/`: Complex integration scenarios.
+    - `engine/tests/data/`: Data integrity and loading tests.
 
 ## Logic Quirks & Learnings
 - **Pre-compiled Data:** The engine now relies on `cards_compiled.json` for performance and consistency.
