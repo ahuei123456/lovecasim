@@ -1383,6 +1383,20 @@
                     </div>
                 </div>
             </div>
+            <div class="sidebar-section performance-guide" id="perf-guide-panel"
+                style="display:none; border: 1px solid var(--accent-gold); background: rgba(0,0,0,0.2);">
+                <h3 style="color: var(--accent-gold);">🌟 ライブガイド (Live Guide)</h3>
+                <div id="perf-guide-content" style="font-size: 0.8rem; padding: 5px; color: #ddd;">
+                    <!-- Content populated by JS -->
+                </div>
+            </div>
+            <div class="sidebar-section looked-cards-panel" id="looked-cards-panel"
+                style="display:none; border: 1px solid var(--accent-pink); background: rgba(255,100,180,0.1);">
+                <h3 style="color: var(--accent-pink);">👁️ デッキを見る (Looked Cards)</h3>
+                <div id="looked-cards-content" style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
             <div class="sidebar-section">
                 <h3> Rule Audit Log</h3>
                 <div class="turn-navigator" id="turn-navigator">
@@ -1541,6 +1555,8 @@
             renderCards('my-success', p0.success_lives);
             renderLiveZone('my-live', p0.live_zone, p0.live_zone_revealed);
 
+            renderPerformanceGuide();
+            renderLookedCards();
             renderActions();
             renderLogs();
 
@@ -2624,11 +2640,12 @@
             }
         }
 
+
         function renderPerformanceResult(results) {
             const content = document.getElementById('perf-content');
             if (!content) return;
 
-            let html = '<div style="display:flex; gap:20px;">';
+            let html = '<div style="display:flex; flex-direction:column; gap:20px;">';
 
             const fixImg = (path) => {
                 if (!path) return 'cards/back.png';
@@ -2639,99 +2656,297 @@
             // Iterate over all players who might have performed
             [0, 1].forEach(pid => {
                 const res = results[pid];
-                const playerName = pid === 0 ? "Player" : "Opponent";
-                const bgColor = pid === 0 ? "rgba(255,100,200,0.1)" : "rgba(100,200,255,0.1)";
-
-                html += `<div style="flex:1; background:${bgColor}; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">`;
-                html += `<h3 style="text-align:center; margin-top:0;">${playerName}</h3>`;
+                const playerName = pid === 0 ? "Player (You)" : "Opponent (AI)";
+                // Use a darker, more premium background
+                const bgColor = pid === 0 ? "rgba(255,105,180,0.15)" : "rgba(100,200,255,0.15)";
+                const borderColor = pid === 0 ? "#ff69b4" : "#64c8ff";
 
                 if (!res) {
-                    html += `<div style="text-align:center; color:#666; padding:40px 0;">Did not perform / Skip</div></div>`;
+                    html += `<div style="background:${bgColor}; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); opacity:0.6;">
+                        <h3 style="margin:0; color:${borderColor};">${playerName}</h3>
+                        <div style="text-align:center; padding:20px;">No Performance / Skip</div>
+                    </div>`;
                     return;
                 }
 
-                // Header
-                const statusClass = res.success ? 'perf-success' : 'perf-failure';
-                const lStatus = res.success ? '✅ SUCCESS' : '❌ FAILURE';
-                html += `<div class="${statusClass}" style="text-align:center; padding: 5px; border-radius: 6px; margin-bottom: 10px; font-weight: bold; font-size: 0.9rem;">${lStatus}</div>`;
+                html += `<div style="background:${bgColor}; padding:15px; border-radius:12px; border:1px solid ${borderColor};">`;
 
-                // Members
-                html += `<div style="display:flex; justify-content:center; gap:5px; margin-bottom: 10px;">`;
+                // Header (Status)
+                const statusColor = res.success ? '#4f4' : '#f44';
+                const statusIcon = res.success ? '🎉 SUCCESS' : '💔 FAILURE';
+                const statusBg = res.success ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)';
+
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="margin:0; font-size:1.2rem; color:${borderColor};">${playerName}</h3>
+                    <div style="background:${statusBg}; color:${statusColor}; padding:5px 15px; border-radius:20px; font-weight:bold; border:1px solid ${statusColor}; animation: ${res.success ? 'pulse 2s infinite' : 'none'};">
+                        ${statusIcon} ${res.success ? `(${res.lives.reduce((acc, l) => acc + (l.passed ? l.score : 0), 0)} PTS)` : ''}
+                    </div>
+                </div>`;
+
+                // Main Layout: 3 Columns (Sources -> Total -> Goal)
+                html += `<div style="display:flex; gap:15px; align-items:stretch; flex-wrap:wrap;">`;
+
+                // 1. SOURCES (Members + Yells)
+                html += `<div style="flex:1; min-width:200px; background:rgba(0,0,0,0.3); border-radius:8px; padding:10px;">
+                    <div style="font-size:0.85rem; color:#aaa; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Heart Sources</div>
+
+                    <!-- Members -->
+                    <div style="display:flex; gap:5px; justify-content:center; margin-bottom:10px;">`;
                 res.member_contributions.forEach(m => {
                     html += `
-                    <div style="text-align:center; width: 32%;">
-                        <img src="${fixImg(m.img)}" style="width:100%; height:auto; border-radius:4px; border:1px solid rgba(255,255,255,0.2);">
-                        <div class="heart-row" style="justify-content:center; margin-top:2px; transform:scale(0.8);">
-                            ${renderHearts(m.hearts)}
-                        </div>
-                    </div>`;
+                        <div style="position:relative; width:30%;">
+                            <img src="${fixImg(m.img)}" style="width:100%; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.5);">
+                            <div style="position:absolute; bottom:-5px; left:0; right:0; text-align:center;">
+                                <div style="display:inline-block; background:rgba(0,0,0,0.8); border-radius:10px; padding:2px 4px; border:1px solid #555;">
+                                    ${renderHeartsCompact(m.hearts)}
+                                </div>
+                            </div>
+                        </div>`;
                 });
                 html += `</div>`;
 
                 // Yells
                 if (res.yell_cards.length > 0) {
-                    html += `<div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 6px;">`;
+                    html += `<div style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                        <div style="font-size:0.75rem; color:#aaa; margin-bottom:4px;">Yell Bonus</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:4px;">`;
                     res.yell_cards.forEach(y => {
-                        html += `<img src="${fixImg(y.img)}" style="width:25px; height:auto; border-radius:2px; opacity:0.8;">`;
+                        // Determine if this yell card added hearts
+                        const hasHearts = y.blade_hearts && y.blade_hearts.some(h => h > 0);
+                        const border = hasHearts ? 'border:1px solid #ffaa00;' : 'border:1px solid #555; opacity:0.7;';
+                        html += `<div style="position:relative;">
+                                <img src="${fixImg(y.img)}" style="height:35px; border-radius:3px; ${border}">
+                                ${hasHearts ? `<div style="position:absolute; bottom:-5px; right:-5px; background:rgba(0,0,0,0.9); border-radius:8px; padding:1px 3px; border:1px solid #ffaa00; transform:scale(0.8);">${renderBladeHeartsCompact(y.blade_hearts)}</div>` : ''}
+                             </div>`;
                     });
-                    html += `</div>`;
+                    html += `</div></div>`;
+                } else {
+                    html += `<div style="font-size:0.75rem; color:#666; font-style:italic; margin-top:10px;">No Yell Cards</div>`;
                 }
 
-                // Total
-                html += `<div class="heart-row" style="justify-content:center; background:rgba(0,0,0,0.3); padding:5px; border-radius:6px; margin-bottom:10px; transform:scale(0.9);">
-                    ${renderHearts(res.total_hearts)}
+                html += `</div>`; // End Sources
+
+                // Arrow
+                html += `<div style="display:flex; align-items:center; justify-content:center; color:#666; font-size:1.5rem;">➜</div>`;
+
+                // 2. TOTAL (The Bank)
+                html += `<div style="flex:0 0 140px; background:rgba(0,0,0,0.3); border-radius:8px; padding:10px; display:flex; flex-direction:column; justify-content:center;">
+                    <div style="font-size:0.85rem; color:#aaa; margin-bottom:8px; text-align:center; text-transform:uppercase;">Total Hearts</div>
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        ${renderTotalHeartsBreakdown(res.total_hearts)}
+                    </div>
                 </div>`;
 
-                // Lives
+                // Arrow
+                html += `<div style="display:flex; align-items:center; justify-content:center; color:#666; font-size:1.5rem;">➜</div>`;
+
+                // 3. GOAL (Live Cards)
+                html += `<div style="flex:1; min-width:200px; background:rgba(0,0,0,0.3); border-radius:8px; padding:10px;">
+                    <div style="font-size:0.85rem; color:#aaa; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Live Requirements</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">`;
+
                 res.lives.forEach(l => {
                     const lColor = l.passed ? '#4f4' : '#f44';
-                    html += `
-                    <div style="display:flex; align-items:center; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 4px; border-left: 3px solid ${lColor}; margin-bottom:4px; font-size:0.75rem;">
-                        <img src="${fixImg(l.img)}" style="width:25px; height:auto; margin-right: 6px;">
-                        <div style="flex-grow:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${l.name}</div>
-                        <div style="font-weight:bold; color: ${lColor};">${l.passed ? '✓' : '✗'}</div>
-                    </div>`;
+                    const lBg = l.passed ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)';
+
+                    html += `<div style="background:${lBg}; border:1px solid ${lColor}; border-radius:6px; padding:8px; display:flex; align-items:center; gap:10px;">
+                            <img src="${fixImg(l.img)}" style="height:50px; border-radius:3px;">
+                            <div style="flex-grow:1;">
+                                <div style="font-size:0.85rem; font-weight:bold; color:white; margin-bottom:4px;">${l.name}</div>
+                                <div style="font-size:0.75rem; color:#ccc;">Progress:</div>
+                                <div style="display:flex; gap:6px; margin-top:2px;">
+                                    ${renderHeartProgress(l.filled, l.required)}
+                                </div>
+                                ${l.reason ? `<div style="font-size:0.7rem; color:#ff8080; margin-top:4px; font-style:italic;">${l.reason}</div>` : ''}
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:1.5rem; color:${lColor}; font-weight:bold;">${l.passed ? '✓' : '✗'}</div>
+                                <div style="font-size:0.6rem; color:${lColor};">${l.passed ? 'PASSED' : 'FAILED'}</div>
+                                ${l.passed ? `<div style="font-size:0.7rem; color:#4f4; margin-top:4px; font-weight:bold;">+${l.score} PTS</div>` : ''}
+                            </div>
+                        </div>`;
                 });
 
-                html += `</div>`;
+                html += `</div></div>`; // End Goals
+
+                html += `</div>`; // End Flex Row
+                html += `</div>`; // End Player Box
             });
 
             html += '</div>';
             content.innerHTML = html;
         }
 
-        // Helper to render heart pips
-        function renderHearts(hearts) {
-            let html = '';
-            hearts.forEach((count, idx) => {
-                if (count > 0) {
-                    for (let i = 0; i < count; i++) {
-                        // Use idx matched to CSS color classes: 0=pink, 1=red, etc.
-                        // idx 6 is 'any'
-                        const cls = idx === 6 ? 'color-any' : `color-${idx}`;
-                        html += `<div class="heart-pip ${cls}"></div>`;
-                    }
-                }
-            });
-            return html || '<span style="color:#666; font-size:0.8rem;">None</span>';
-        }
+        function renderHeartProgress(filled, required) {
+            if (!required) return '';
+            // If filled is missing (backward compat), assume 0 or equal to req if passed?
+            // Better safe:
+            const safeFilled = filled || new Array(7).fill(0);
 
-        function renderBladeHearts(hearts) {
-            let html = '';
-            hearts.forEach((count, idx) => {
-                if (count > 0) {
-                    for (let i = 0; i < count; i++) {
-                        const cls = idx === 6 ? 'color-any' : `color-${idx}`;
-                        html += `<div class="blade-pip ${cls}" style="width:8px; height:8px;"></div>`;
+            let html = '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
+            // Python Order: Pink, Red, Yellow, Green, Blue, Purple
+            const colors = ['#ff8da1', '#ef5350', '#ffd32a', '#76d672', '#4aaef7', '#ba68c8', 'white'];
+
+            required.forEach((reqCount, idx) => {
+                if (reqCount > 0) {
+                    const fillCount = safeFilled[idx] || 0;
+                    const emptyCount = Math.max(0, reqCount - fillCount);
+                    const color = colors[idx];
+                    const isAny = idx === 6;
+
+                    // Group container
+                    html += `<div style="display:flex; align-items:center; background:rgba(0,0,0,0.5); padding:2px 4px; border-radius:6px; border:1px solid #444;">`;
+
+                    // Filled Pips
+                    for (let i = 0; i < fillCount; i++) {
+                        const style = isAny ?
+                            'width:10px; height:10px; border-radius:50%; border:2px solid white; background:white; margin-right:2px;' :
+                            `width:10px; height:10px; background:${color}; border-radius:50%; margin-right:2px; box-shadow:0 0 3px ${color};`;
+                        html += `<div style="${style}"></div>`;
                     }
+
+                    // Empty Pips
+                    for (let i = 0; i < emptyCount; i++) {
+                        const style = isAny ?
+                            'width:10px; height:10px; border-radius:50%; border:1px dashed #aaa; background: rgba(255,255,255,0.1); margin-right:2px;' :
+                            `width:10px; height:10px; border:1px solid ${color}; background: ${color}; border-radius:50%; margin-right:2px; opacity:0.2;`;
+                        html += `<div style="${style}"></div>`;
+                    }
+
+                    html += `</div>`;
                 }
             });
+            html += '</div>';
             return html;
         }
+
+        function renderHeartsCompact(hearts) {
+            // Renders hearts as grouped numbers (e.g. [Pink Icon]x2) instead of individual pips
+            if (!hearts) return '';
+            let html = '<div style="display:flex; gap:4px; flex-wrap:wrap; justify-content:center;">';
+            // Python Order: Pink, Red, Yellow, Green, Blue, Purple
+            const colors = ['#ff8da1', '#ef5350', '#ffd32a', '#76d672', '#4aaef7', '#ba68c8', 'white'];
+            let hasAny = false;
+
+            hearts.forEach((count, idx) => {
+                if (count > 0) {
+                    hasAny = true;
+                    const color = colors[idx] || '#ccc';
+                    // Special case for "Any" (idx 6)
+                    const isAny = idx === 6;
+                    const iconStyle = isAny ?
+                        'width:12px; height:12px; border-radius:50%; border:2px solid white;' :
+                        `width:12px; height:12px; background:${color}; border-radius:50%; box-shadow:0 0 5px ${color};`;
+
+                    html += `<div style="display:flex; align-items:center; background:rgba(0,0,0,0.6); padding:2px 5px; border-radius:10px; border:1px solid #444;">
+                        <div style="${iconStyle} margin-right:3px;"></div>
+                        <span style="font-size:0.8rem; font-weight:bold; color:white;">${count}</span>
+                    </div>`;
+                }
+            });
+
+            if (!hasAny) return '<span style="color:#666; font-size:0.7rem;">-</span>';
+            html += '</div>';
+            return html;
+        }
+
+        function renderBladeHeartsCompact(hearts) {
+            return renderHeartsCompact(hearts).replace(/border-radius:50%/g, 'clip-path: polygon(50% 0%, 100% 85%, 50% 100%, 0% 85%)'); // Crude blade shape
+        }
+
+        function renderTotalHeartsBreakdown(hearts) {
+            if (!hearts) return '';
+            let html = '';
+            // Python Order: Pink, Red, Yellow, Green, Blue, Purple
+            const colors = ['Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple', 'Any'];
+            const colorCodes = ['#ff8da1', '#ef5350', '#ffd32a', '#76d672', '#4aaef7', '#ba68c8', 'white'];
+
+            hearts.forEach((count, idx) => {
+                if (count > 0) {
+                    html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:4px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex; align-items:center;">
+                            <div style="width:10px; height:10px; background:${colorCodes[idx]}; border-radius:50%; margin-right:6px; box-shadow:0 0 4px ${colorCodes[idx]};"></div>
+                            <span style="font-size:0.8rem; color:#ddd;">${colors[idx]}</span>
+                        </div>
+                        <span style="font-size:0.9rem; font-weight:bold; color:white;">${count}</span>
+                     </div>`;
+                }
+            });
+            if (html === '') return '<div style="text-align:center; color:#666;">None</div>';
+            return html;
+        }
+
 
         // Render Report Modal
         function renderReportModal() {
             // ... existing report modal code if present or just placeholder
+        }
+
+        function renderPerformanceGuide() {
+            const p0 = state.players[0];
+            const guide = p0.performance_guide;
+            const panel = document.getElementById('perf-guide-panel');
+            if (!guide || guide.lives.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+            panel.style.display = 'block';
+
+            let html = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
+                <span title="The number of cards you will yell">Blades: <b>${guide.total_blades}</b></span>
+                <span>Hearts: ${renderHeartsCompact(guide.total_hearts)}</span>
+            </div>`;
+
+            const fixImg = (path) => {
+                if (!path) return 'cards/back.png';
+                if (path.startsWith('/') || path.startsWith('http')) return path;
+                return '/img/' + path;
+            };
+
+            guide.lives.forEach(l => {
+                const color = l.passed ? '#4f4' : '#f44';
+                html += `<div style="margin-bottom:8px; display:flex; align-items:center; gap:8px; opacity: ${l.passed ? 1 : 0.7}">
+                    <img src="${fixImg(l.img)}" style="width:25px; height:25px; border-radius:3px; border:1px solid ${color}">
+                    <div style="flex-grow:1; overflow:hidden;">
+                        <div style="font-size:0.75rem; font-weight:bold; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${l.name} <span style="font-size:0.65rem; color:#aaa;">(${l.score}pts)</span></div>
+                        <div style="display:flex; gap:3px; margin-top:2px;">
+                            ${renderHeartProgress(l.filled, l.required)}
+                        </div>
+                        ${!l.passed ? `<div style="font-size:0.6rem; color:#f88; margin-top:2px;">${l.reason}</div>` : ''}
+                    </div>
+                    <div style="color:${color}; font-weight:bold; font-size:1.1rem; flex-shrink:0;">${l.passed ? '✓' : '✗'}</div>
+                </div>`;
+            });
+
+            document.getElementById('perf-guide-content').innerHTML = html;
+        }
+
+        function renderLookedCards() {
+            const panel = document.getElementById('looked-cards-panel');
+            const content = document.getElementById('looked-cards-content');
+            const cards = state.looked_cards || [];
+
+            if (cards.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+            panel.style.display = 'block';
+
+            const fixImg = (path) => {
+                if (!path) return 'cards/back.png';
+                if (path.startsWith('/') || path.startsWith('http')) return path;
+                return '/img/' + path;
+            };
+
+            let html = '';
+            cards.forEach((c, idx) => {
+                const actionId = 600 + idx; // SELECT action IDs start at 600
+                html += `<div style="position:relative; cursor:pointer;" onclick="execAction(${actionId})" title="Select: ${c.name}">
+                    <img src="${fixImg(c.img)}" style="width:50px; border-radius:4px; border:2px solid var(--accent-pink); transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.8); font-size:0.55rem; text-align:center; padding:1px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">${c.name}</div>
+                </div>`;
+            });
+            content.innerHTML = html;
         }
 
         // Initial setup

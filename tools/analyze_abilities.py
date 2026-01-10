@@ -1,12 +1,17 @@
+"""
+Analyze ability coverage across all cards.
+Counts effect types and condition types to prioritize testing.
+"""
+
 import json
 import os
 import sys
 from typing import Dict
 
-# Add parent dir to path to import game modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from game.ability import AbilityParser, ConditionType, EffectType, TriggerType
+from compiler.parser import AbilityParser
+from engine.models.ability import ConditionType, EffectType, TriggerType
 
 # Define what is currently implemented in game_state.py
 SUPPORTED_TRIGGERS = {
@@ -37,10 +42,23 @@ SUPPORTED_CONDITIONS = {
 
 def analyze_coverage():
     try:
-        with open("data/cards.json", "r", encoding="utf-8") as f:
+        # Use compiled data if available, or fall back to raw
+        path = "engine/data/cards_compiled.json"
+        if not os.path.exists(path):
+            path = "data/cards.json"
+
+        with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
+            # If compiled, data is {member_db: {}, live_db: {}}
+            if "member_db" in data:
+                # Flask compiled structure to flat dict for analysis
+                flat_data = {}
+                flat_data.update(data["member_db"])
+                flat_data.update(data["live_db"])
+                data = flat_data
+
     except FileNotFoundError:
-        print("Error: data/cards.json not found")
+        print(f"Error: {path} not found")
         return
 
     total_cards = 0
@@ -54,11 +72,22 @@ def analyze_coverage():
     print(f"Analyzing {len(data)} cards...")
 
     for _cid, card in data.items():
-        if card.get("type") not in ("メンバー", "ライブ"):
+        # Handle both raw and compiled formats
+        # Compiled: 'type' might be missing if inferred from DB, check keys
+        # Raw: 'type' is strict
+
+        # If compiled, struct is different. Let's assume raw text is preserved or reconstructable?
+        # Actually compiled data has 'ability_text' preserved.
+
+        raw_text = card.get("ability_text", card.get("ability", ""))
+
+        # Filter types if raw
+        ctype = card.get("type", "")
+        if ctype and ctype not in ("メンバー", "ライブ") and not card.get("card_no"):
             continue
 
         total_cards += 1
-        raw_text = card.get("ability", "")
+
         if not raw_text:
             fully_supported += 1  # No ability = supported
             continue
@@ -104,11 +133,12 @@ def analyze_coverage():
 
     print("\n=== Coverage Report ===")
     print(f"Total Cards: {total_cards}")
-    print(f"Fully Supported: {fully_supported} ({fully_supported / total_cards * 100:.1f}%)")
-    print(
-        f"Partially Supported (Need Handlers): {partially_supported} ({partially_supported / total_cards * 100:.1f}%)"
-    )
-    print(f"Parse Failures: {parse_failures} ({parse_failures / total_cards * 100:.1f}%)")
+    if total_cards > 0:
+        print(f"Fully Supported: {fully_supported} ({fully_supported / total_cards * 100:.1f}%)")
+        print(
+            f"Partially Supported (Need Handlers): {partially_supported} ({partially_supported / total_cards * 100:.1f}%)"
+        )
+        print(f"Parse Failures: {parse_failures} ({parse_failures / total_cards * 100:.1f}%)")
 
     print("\n--- Top Missing Effects (Need Implementation) ---")
     for k, v in sorted(unsupported_effects.items(), key=lambda x: x[1], reverse=True)[:10]:

@@ -1448,8 +1448,8 @@ if __name__ == "__main__":
 
             # HACK: We can't easily change the hardcoded string inside init_game without rewriting it.
             # However, we can patch CardDataLoader class to fix the path!
-            # Assuming CardDataLoader is imported from game.data_loader
-            from game.data_loader import CardDataLoader
+            # Assuming CardDataLoader is imported from engine.game.data_loader
+            from engine.game.data_loader import CardDataLoader
 
             ops_init = CardDataLoader.__init__
 
@@ -1461,7 +1461,7 @@ if __name__ == "__main__":
                         filepath = bundle_path
                 ops_init(self, filepath)
 
-            CardDataLoader.__init__ = new_init
+            CardDataLoader.__init__ = new_init  # type: ignore[method-assign]
 
         original_init_game(deck_type)
 
