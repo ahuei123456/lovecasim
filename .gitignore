@@ -62,3 +62,6 @@ Thumbs.db
 *.tmp
 *.log
 *_old.html
+
+.gemini/
+engine/data/cards_compiled.json
