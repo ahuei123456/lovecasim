@@ -1,17 +1,12 @@
-import os
-import sys
-import unittest
+import pytest
 
 from compiler.parser import AbilityParser
-
-# Adjust path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from engine.game.game_state import EffectType, GameState
 
 
-class TestCardIssues(unittest.TestCase):
-    def setUp(self):
+class TestCardIssues:
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.game = GameState()
         self.p0 = self.game.players[0]
         self.p1 = self.game.players[1]
@@ -33,18 +28,16 @@ class TestCardIssues(unittest.TestCase):
         self.p1.hand = [1]  # 1 card
         # Diff = 1 - 3 = -2. Condition (>=2) should be False.
 
-        # If no conditions are parsed, check_condition returns True by default (if empty list passed? No, check_condition iterates)
-        # Actually check if any condition logic exists for this
         if not ab.conditions:
             print("FAILURE: Chika has NO conditions parsed!")
-            self.fail("Chika parsed with NO conditions.")
+            pytest.fail("Chika parsed with NO conditions.")
 
         allowed = True
         for cond in ab.conditions:
             if not self.game._check_condition(self.p0, cond):
                 allowed = False
                 break
-        self.assertFalse(allowed, "Chika ability allowed despite Condition Failure (Opponent has less cards)")
+        assert not allowed, "Chika ability allowed despite Condition Failure (Opponent has less cards)"
 
         # Scenario 2: Opponent has +2 cards (Should be True)
         self.p0.hand = [1]
@@ -54,7 +47,7 @@ class TestCardIssues(unittest.TestCase):
             if not self.game._check_condition(self.p0, cond):
                 allowed = False
                 break
-        self.assertTrue(allowed, "Chika ability NOT allowed despite Condition Met (Opponent has +2 cards)")
+        assert allowed, "Chika ability NOT allowed despite Condition Met (Opponent has +2 cards)"
 
     def test_wien_look_and_choose(self):
         """
@@ -69,17 +62,12 @@ class TestCardIssues(unittest.TestCase):
 
         # Check 1: LOOK_DECK effect exists
         has_look = any(e.effect_type == EffectType.LOOK_DECK and e.value == 5 for e in ab.effects)
-        self.assertTrue(has_look, "Missing LOOK_DECK 5 effect")
+        assert has_look, "Missing LOOK_DECK 5 effect"
 
         # Check 2: LOOK_AND_CHOOSE effect exists AND has filter
         choose_eff = next((e for e in ab.effects if e.effect_type == EffectType.LOOK_AND_CHOOSE), None)
-        self.assertIsNotNone(choose_eff, "Missing LOOK_AND_CHOOSE effect")
-        assert choose_eff is not None
+        assert choose_eff is not None, "Missing LOOK_AND_CHOOSE effect"
 
         print(f"Choose Params: {choose_eff.params}")
-        self.assertEqual(choose_eff.params.get("group"), "Liella!", "Missing 'group: Liella!' in choose effect params")
-        self.assertEqual(choose_eff.params.get("source"), "looked", "Missing 'source: looked' in choose effect params")
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert choose_eff.params.get("group") == "Liella!", "Missing 'group: Liella!' in choose effect params"
+        assert choose_eff.params.get("source") == "looked", "Missing 'source: looked' in choose effect params"

@@ -66,7 +66,7 @@ class EffectType(IntEnum):
     CHEER_REVEAL = 28  # エールにより公開 - cards revealed via cheer mechanic
     ACTIVATE_MEMBER = 29  # アクティブにする - untap/make active a member
     ADD_TO_HAND = 30  # 手札に加える - add card to hand (from any zone)
-    COLOR_SELECT = 31  # Specify a heart color
+    COLOR_SELECT = 37  # Specify a heart color
     REPLACE_EFFECT = 34  # Replacement effect (代わりに)
     TRIGGER_REMOTE = 35  # Trigger ability from another zone (Cluster 5)
     REDUCE_HEART_REQ = 36  # Need hearts reduced

@@ -15,19 +15,16 @@ FAQ (Q79):
 """
 
 import os
-import sys
-import unittest
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from typing import Any
+
+import pytest
 
 from engine.game.data_loader import CardDataLoader
 from engine.game.game_state import GameState, LiveCard, MemberCard, Phase
 from engine.models.ability import AbilityCostType, EffectType, TriggerType
 
 
-class TestEriSacrificeAbility(unittest.TestCase):
+class TestEriSacrificeAbility:
     """Test 絢瀬 絵里 (PL!-sd1-002-SD) sacrifice-recover ability."""
 
     member_db: dict[int, MemberCard]
@@ -35,24 +32,21 @@ class TestEriSacrificeAbility(unittest.TestCase):
     energy_db: dict[int, Any]
     eli_card_id: int
 
-    @classmethod
-    def setUpClass(cls):
+    @pytest.fixture(scope="class", autouse=True)
+    def setup_class(self):
         """Load real card data once for all tests."""
         loader = CardDataLoader(
             os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/cards_compiled.json"))
         )
-        cls.member_db, cls.live_db, cls.energy_db = loader.load()
+        self.__class__.member_db, self.__class__.live_db, self.__class__.energy_db = loader.load()
 
         # Find Eli's card ID
-        # Find Eli's card ID
-        eli_id = next((cid for cid, m in cls.member_db.items() if m.card_no == "PL!-sd1-002-SD"), None)
+        eli_id = next((cid for cid, m in self.__class__.member_db.items() if m.card_no == "PL!-sd1-002-SD"), None)
         assert eli_id is not None
-        cls.eli_card_id = eli_id
+        self.__class__.eli_card_id = eli_id
 
-        if cls.eli_card_id is None:
-            raise ValueError("Could not find PL!-sd1-002-SD in database")
-
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def setup(self):
         # Assign databases to class level (as done in server.py)
         GameState.member_db = self.__class__.member_db
         GameState.live_db = self.__class__.live_db
@@ -68,20 +62,20 @@ class TestEriSacrificeAbility(unittest.TestCase):
         """Verify Eli's ability is parsed with correct trigger/cost/effect."""
         eli = self.__class__.member_db[self.__class__.eli_card_id]
 
-        self.assertTrue(len(eli.abilities) >= 1, f"Eli should have at least 1 ability, found {len(eli.abilities)}")
+        assert len(eli.abilities) >= 1, f"Eli should have at least 1 ability, found {len(eli.abilities)}"
 
         ability = eli.abilities[0]
 
         # Check trigger
-        self.assertEqual(ability.trigger, TriggerType.ACTIVATED, f"Trigger should be ACTIVATED, got {ability.trigger}")
+        assert ability.trigger == TriggerType.ACTIVATED, f"Trigger should be ACTIVATED, got {ability.trigger}"
 
         # Check cost (sacrifice self)
         sacrifice_cost = next((c for c in ability.costs if c.type == AbilityCostType.SACRIFICE_SELF), None)
-        self.assertIsNotNone(sacrifice_cost, "Should have SACRIFICE_SELF cost")
+        assert sacrifice_cost is not None, "Should have SACRIFICE_SELF cost"
 
         # Check effect (recover member)
         recover_effect = next((e for e in ability.effects if e.effect_type == EffectType.RECOVER_MEMBER), None)
-        self.assertIsNotNone(recover_effect, "Should have RECOVER_MEMBER effect")
+        assert recover_effect is not None, "Should have RECOVER_MEMBER effect"
 
     def test_eli_sacrifice_produces_correct_state_change(self):
         """Verify sacrificing Eli moves her to discard and allows recovery."""
@@ -97,7 +91,7 @@ class TestEriSacrificeAbility(unittest.TestCase):
         initial_stage = self.p0.stage[0]
 
         # Verify Eli is on stage
-        self.assertEqual(initial_stage, self.eli_card_id)
+        assert initial_stage == self.eli_card_id
 
         # Find the ability action (should be action 200 for left area ability)
         legal_mask = self.game.get_legal_actions()
@@ -109,19 +103,19 @@ class TestEriSacrificeAbility(unittest.TestCase):
             p0_new = new_state.players[0]
 
             # Eli should be moved to discard (sacrifice cost paid)
-            self.assertIn(self.eli_card_id, p0_new.discard, "Eli should be in discard after sacrifice")
-            self.assertEqual(p0_new.stage[0], -1, "Left stage area should be empty after sacrifice")
+            assert self.eli_card_id in p0_new.discard, "Eli should be in discard after sacrifice"
+            assert p0_new.stage[0] == -1, "Left stage area should be empty after sacrifice"
 
             # Check if a choice was created for which member to recover
             if new_state.pending_choices:
                 choice_type, params = new_state.pending_choices[0]
-                self.assertEqual(choice_type, "SELECT_FROM_DISCARD", "Should create SELECT_FROM_DISCARD choice")
+                assert choice_type == "SELECT_FROM_DISCARD", "Should create SELECT_FROM_DISCARD choice"
 
                 # The other member should be in the choices (but NOT Eli since she's just added)
                 # Actually, Eli is now in discard too - the filter should be 'member'
-                self.assertTrue(len(params["cards"]) > 0, "Should have at least 1 card to choose from")
+                assert len(params["cards"]) > 0, "Should have at least 1 card to choose from"
         else:
-            self.fail("Eli's ability action should be legal")
+            pytest.fail("Eli's ability action should be legal")
 
     def test_eli_cannot_recover_if_discard_empty(self):
         """If no members in discard, ability can still be used but no recovery."""
@@ -144,12 +138,10 @@ class TestEriSacrificeAbility(unittest.TestCase):
             p0_new = new_state.players[0]
 
             # Eli should still be sacrificed
-            self.assertIn(
-                self.__class__.eli_card_id, p0_new.discard, "Eli should be in discard even with no recovery target"
-            )
+            assert self.__class__.eli_card_id in p0_new.discard, "Eli should be in discard even with no recovery target"
 
 
-class TestHonokaConstantAbility(unittest.TestCase):
+class TestHonokaConstantAbility:
     """Test 高坂 穂乃果 (PL!-sd1-001-SD) blade buff ability."""
 
     member_db: dict[int, MemberCard]
@@ -157,18 +149,19 @@ class TestHonokaConstantAbility(unittest.TestCase):
     energy_db: dict[int, Any]
     honoka_card_id: int
 
-    @classmethod
-    def setUpClass(cls):
+    @pytest.fixture(scope="class", autouse=True)
+    def setup_class(self):
         loader = CardDataLoader(
             os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/cards_compiled.json"))
         )
-        cls.member_db, cls.live_db, cls.energy_db = loader.load()
+        self.__class__.member_db, self.__class__.live_db, self.__class__.energy_db = loader.load()
 
-        honoka_id = next((cid for cid, m in cls.member_db.items() if m.card_no == "PL!-sd1-001-SD"), None)
+        honoka_id = next((cid for cid, m in self.__class__.member_db.items() if m.card_no == "PL!-sd1-001-SD"), None)
         assert honoka_id is not None
-        cls.honoka_card_id = honoka_id
+        self.__class__.honoka_card_id = honoka_id
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def setup(self):
         GameState.member_db = self.__class__.member_db
         GameState.live_db = self.__class__.live_db
 
@@ -198,13 +191,7 @@ class TestHonokaConstantAbility(unittest.TestCase):
         expected_increase = len(self.p0.success_lives)
         actual_increase = effective_blades_2 - effective_blades_0
 
-        self.assertEqual(
-            actual_increase,
-            expected_increase,
+        assert actual_increase == expected_increase, (
             f"Blades should increase by {expected_increase} with {len(self.p0.success_lives)} success lives, "
-            f"but got increase of {actual_increase} (base:{base_blades}, before:{effective_blades_0}, after:{effective_blades_2})",
+            f"but got increase of {actual_increase} (base:{base_blades}, before:{effective_blades_0}, after:{effective_blades_2})"
         )
-
-
-if __name__ == "__main__":
-    unittest.main(verbosity=2)

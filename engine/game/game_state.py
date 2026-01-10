@@ -30,6 +30,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from engine.game.data_loader import CardDataLoader
 from engine.models.ability import (
     Ability,
     AbilityCostType,
@@ -1722,6 +1723,11 @@ class GameState:
                 if self.verbose:
                     print("No members to rearrange.")
 
+        elif effect.effect_type == EffectType.COLOR_SELECT:
+            self.pending_choices.append(("COLOR_SELECT", {"effect": "set_color", "target": "player_preference"}))
+            if self.verbose:
+                print("Effect: Select a heart color.")
+
         # After resolution, check triggers again?
         pass
 
@@ -1769,13 +1775,11 @@ class GameState:
             my_life = len(player.success_lives)
             opp_life = len(self.players[1 - player.player_id].success_lives)
             met = my_life > opp_life
-        elif cond.type in (ConditionType.COUNT_GROUP, ConditionType.GROUP_FILTER):
+        elif cond.type == ConditionType.COUNT_GROUP:
             # Count members of group in zone
             group_str = cond.params.get("group", "").strip("『』")
             zone = cond.params.get("zone", "STAGE")
-            min_count = cond.params.get(
-                "count", cond.params.get("min", 1 if cond.type == ConditionType.GROUP_FILTER else 0)
-            )
+            min_count = cond.params.get("count", cond.params.get("min", 0))
 
             if not group_str:
                 return False
@@ -1797,8 +1801,6 @@ class GameState:
                 cards_to_check = player.hand
             elif zone == "DECK":
                 cards_to_check = player.main_deck
-
-                cards_to_check = self.looked_cards
 
             for cid in cards_to_check:
                 if cid in self.member_db:
@@ -1872,6 +1874,9 @@ class GameState:
             met = count >= cond.params.get("min", 0)
         elif cond.type == ConditionType.GROUP_FILTER:
             group_str = cond.params.get("group", "")
+            zone = cond.params.get("zone", "STAGE")  # Default zone unless context used
+            min_count = cond.params.get("count", cond.params.get("min", 1))
+
             if not group_str:
                 met = False
             else:
@@ -1879,15 +1884,47 @@ class GameState:
                 target_unit = Unit.from_japanese_name(group_str)
 
                 context_cards = []
+                # Strategy:
+                # 1. If context="revealed", use looked_cards.
+                # 2. If valid card_id in context AND no zone implied?
+                # BDD test case: checks context card.
+                # Standard Umi case: checks ZONE (Deck).
+                # Logic: If params contain 'zone', check Zone.
+                # If params contain 'context'="revealed", check Revealed.
+                # If Neither, and context has 'card_id', check Card?
+                # Or checks Stage (default zone)?
+
+                # BDD test: params={"group": "Aqours"}, context={"card_id": 1}.
+                # No 'zone' param. Defaults to STAGE?
+                # If defaults to STAGE, BDD fails.
+                # If defaults to checking card_id if present?
+
+                cid = context.get("card_id")
+
+                # Check priority
                 if cond.params.get("context") == "revealed":
                     context_cards = self.looked_cards
+                elif "zone" in cond.params:  # Explicit zone
+                    z = cond.params["zone"]
+                    if z == "STAGE":
+                        context_cards = [c for c in player.stage if c >= 0]
+                    elif z == "DISCARD":
+                        context_cards = player.discard
+                    elif z == "HAND":
+                        context_cards = player.hand
+                    elif z == "DECK":
+                        context_cards = player.main_deck
+                elif cid is not None:
+                    # Implicit context check (BDD style)
+                    context_cards = [cid]
                 else:
-                    cid = context.get("card_id")
-                    if cid is not None:
-                        context_cards = [cid]
+                    # Default fallback to STAGE if nothing else?
+                    context_cards = [c for c in player.stage if c >= 0]
 
                 if not context_cards:
-                    met = False
+                    met = False  # Or True if min_count == 0? Usually min 1.
+                    if min_count <= 0:
+                        met = True
                 else:
                     match_count = 0
                     for cid in context_cards:
@@ -1904,7 +1941,8 @@ class GameState:
                             if match_group or match_unit:
                                 match_count += 1
 
-                    met = (match_count == len(context_cards)) if context_cards else False
+                    # If checking single context card, match_count must be >= 1 (which is same as == len if len=1)
+                    met = match_count >= min_count
         elif cond.type == ConditionType.COST_CHECK:
             cid = context.get("card_id")
             if cid is not None and cid in self.member_db:
@@ -3448,11 +3486,6 @@ def initialize_game(use_real_data: bool = True) -> GameState:
     # Try loading real data
     if use_real_data and not GameState.member_db:
         try:
-            try:
-                from game.data_loader import CardDataLoader
-            except ImportError:
-                from data_loader import CardDataLoader
-
             # Assuming path relative to execution or fixed
             loader = CardDataLoader("c:/Users/trios/.gemini/antigravity/scratch/loveca-copy/data/cards.json")
             m, l, _ = loader.load()

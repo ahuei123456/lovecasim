@@ -1,19 +1,13 @@
-import os
-import sys
-import unittest
-
 import numpy as np
+import pytest
 
 from compiler.parser import AbilityParser
-
-# Adjust path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from engine.game.game_state import ConditionType, GameState, Group, LiveCard, MemberCard
 
 
-class TestRealScenarios(unittest.TestCase):
-    def setUp(self):
+class TestRealScenarios:
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.game = GameState()
         self.p0 = self.game.players[0]
 
@@ -62,7 +56,7 @@ class TestRealScenarios(unittest.TestCase):
         """Test Umi's ability: Group Filter with DECK zone inference."""
         # Parse
         abilities = AbilityParser.parse_ability_text(self.text_umi)
-        self.assertTrue(len(abilities) > 0)
+        assert len(abilities) > 0
         ab = abilities[0]
 
         # Check if parser added GROUP_FILTER
@@ -80,7 +74,7 @@ class TestRealScenarios(unittest.TestCase):
         self.p0.main_deck = [20, 11]
 
         # Should pass (Deck has u's)
-        self.assertTrue(self.game._check_condition(self.p0, group_conds[0]), "Should pass when Deck has target")
+        assert self.game._check_condition(self.p0, group_conds[0]), "Should pass when Deck has target"
 
         # Setup Empty Deck
         self.p0.main_deck = []
@@ -88,8 +82,8 @@ class TestRealScenarios(unittest.TestCase):
         # If strict: False. If lenient: True.
         # Based on current implementation (defaulting to False context), it likely returns False.
         # Let's assert behavior match implementation
-        self.assertFalse(
-            self.game._check_condition(self.p0, group_conds[0]), "Should fail when Deck is empty (current behavior)"
+        assert not self.game._check_condition(self.p0, group_conds[0]), (
+            "Should fail when Deck is empty (current behavior)"
         )
 
     def test_kotori_discard_condition(self):
@@ -103,12 +97,8 @@ class TestRealScenarios(unittest.TestCase):
 
         # Setup Discard: Has u's
         self.p0.discard = [10]
-        self.assertTrue(self.game._check_condition(self.p0, group_conds[0]))
+        assert self.game._check_condition(self.p0, group_conds[0])
 
         # Setup Discard: Only Aqours
         self.p0.discard = [11]
-        self.assertFalse(self.game._check_condition(self.p0, group_conds[0]))
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert not self.game._check_condition(self.p0, group_conds[0])

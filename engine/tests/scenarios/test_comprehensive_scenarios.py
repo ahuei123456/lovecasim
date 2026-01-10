@@ -1,19 +1,13 @@
-import os
-import sys
-import unittest
-
 import numpy as np
+import pytest
 
 from compiler.parser import AbilityParser
-
-# Adjust path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from engine.game.game_state import Condition, ConditionType, GameState, Group, MemberCard
 
 
-class TestComprehensiveGroupLogic(unittest.TestCase):
-    def setUp(self):
+class TestComprehensiveGroupLogic:
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.game = GameState()
         self.p0 = self.game.players[0]
 
@@ -50,11 +44,11 @@ class TestComprehensiveGroupLogic(unittest.TestCase):
             self.p0.stage[0] = cid
 
             cond = Condition(ConditionType.GROUP_FILTER, {"group": alias, "zone": "STAGE"})
-            self.assertTrue(self.game._check_condition(self.p0, cond), f"Alias {alias} should match member {cid}")
+            assert self.game._check_condition(self.p0, cond), f"Alias {alias} should match member {cid}"
 
             # Negative check
             self.p0.stage[0] = -1
-            self.assertFalse(self.game._check_condition(self.p0, cond), f"Alias {alias} should fail on empty stage")
+            assert not self.game._check_condition(self.p0, cond), f"Alias {alias} should fail on empty stage"
 
     def test_zone_handling(self):
         """Verify checking different zones works correctly."""
@@ -62,15 +56,15 @@ class TestComprehensiveGroupLogic(unittest.TestCase):
         cond = Condition(ConditionType.GROUP_FILTER, {"group": "Liella!", "zone": "DISCARD"})
 
         self.p0.discard = [400]  # Liella member
-        self.assertTrue(self.game._check_condition(self.p0, cond), "Should detect in Discard")
+        assert self.game._check_condition(self.p0, cond), "Should detect in Discard"
 
         self.p0.discard = [100]  # u's member
-        self.assertFalse(self.game._check_condition(self.p0, cond), "Should NOT detect wrong group in Discard")
+        assert not self.game._check_condition(self.p0, cond), "Should NOT detect wrong group in Discard"
 
         # Hand
         cond_hand = Condition(ConditionType.GROUP_FILTER, {"group": "Liella!", "zone": "HAND"})
         self.p0.hand = [400]
-        self.assertTrue(self.game._check_condition(self.p0, cond_hand), "Should detect in Hand")
+        assert self.game._check_condition(self.p0, cond_hand), "Should detect in Hand"
 
     def test_parser_negative_condition(self):
         """Verify parser DOES NOT create GROUP_FILTER for basic search/recovery effects."""
@@ -79,7 +73,7 @@ class TestComprehensiveGroupLogic(unittest.TestCase):
         abilities = AbilityParser.parse_ability_text(text_search)
 
         has_group_filter = any(c.type == ConditionType.GROUP_FILTER for c in abilities[0].conditions)
-        self.assertFalse(has_group_filter, "Search text without 'If/Case' should NOT have GROUP_FILTER")
+        assert not has_group_filter, "Search text without 'If/Case' should NOT have GROUP_FILTER"
 
     def test_parser_positive_condition(self):
         """Verify parser DOES create GROUP_FILTER for explicit 'If' text."""
@@ -88,11 +82,7 @@ class TestComprehensiveGroupLogic(unittest.TestCase):
         abilities = AbilityParser.parse_ability_text(text_cond)
 
         has_group_filter = any(c.type == ConditionType.GROUP_FILTER for c in abilities[0].conditions)
-        self.assertTrue(has_group_filter, "Text with '場合' SHOULD have GROUP_FILTER")
+        assert has_group_filter, "Text with '場合' SHOULD have GROUP_FILTER"
 
         cond = [c for c in abilities[0].conditions if c.type == ConditionType.GROUP_FILTER][0]
-        self.assertEqual(cond.params.get("group"), "Liella!")
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert cond.params.get("group") == "Liella!"

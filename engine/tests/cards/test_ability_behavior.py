@@ -3,23 +3,12 @@ End-to-End Behavioral Tests for Card Abilities
 
 These tests verify that abilities produce the correct game state changes,
 not just that they don't crash.
-
-Each test:
-1. Sets up a specific game state
-2. Triggers an ability
-3. Makes any required choices
-4. Verifies the expected state changes occurred
 """
 
-import os
-import sys
-import unittest
-
 import numpy as np
+import pytest
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from engine.game.game_state import GameState, Group, LiveCard, MemberCard, Phase
+from engine.game.game_state import Group, LiveCard, MemberCard, Phase
 from engine.models.ability import (
     Ability,
     Effect,
@@ -29,11 +18,12 @@ from engine.models.ability import (
 )
 
 
-class TestRecoverLiveBehavior(unittest.TestCase):
+class TestRecoverLiveBehavior:
     """Test RECOVER_LIVE effect produces correct state changes."""
 
-    def setUp(self):
-        self.game = GameState(verbose=False)
+    @pytest.fixture(autouse=True)
+    def setup(self, game_state):
+        self.game = game_state
         self.p0 = self.game.players[0]
         self.p1 = self.game.players[1]
 
@@ -78,14 +68,14 @@ class TestRecoverLiveBehavior(unittest.TestCase):
         self.game._resolve_pending_effect(0)
 
         # Verify: A choice should be created
-        self.assertTrue(len(self.game.pending_choices) > 0, "A SELECT_FROM_DISCARD choice should be pending")
+        assert len(self.game.pending_choices) > 0, "A SELECT_FROM_DISCARD choice should be pending"
 
         choice_type, params = self.game.pending_choices[0]
         print(f"DEBUG: Choice Type: {choice_type}")
         print(f"DEBUG: Params Cards: {params.get('cards')}")
-        self.assertEqual(choice_type, "SELECT_FROM_DISCARD")
-        self.assertIn(200, params["cards"], "Live card 200 should be in choices")
-        self.assertNotIn(100, params["cards"], "Member card 100 should NOT be in choices (wrong type)")
+        assert choice_type == "SELECT_FROM_DISCARD"
+        assert 200 in params["cards"], "Live card 200 should be in choices"
+        assert 100 not in params["cards"], "Member card 100 should NOT be in choices (wrong type)"
 
         # Execute selection (action 660 = select index 0 from discard choices)
         # The action ID depends on how get_legal_actions maps it
@@ -93,19 +83,18 @@ class TestRecoverLiveBehavior(unittest.TestCase):
         new_state = self.game.step(660)  # Select first card (index 0 = card 200)
 
         # Verify: Card moved from discard to hand
-        self.assertIn(200, new_state.players[0].hand, "Live card 200 should be in hand")
-        self.assertNotIn(200, new_state.players[0].discard, "Live card 200 should NOT be in discard")
-        self.assertEqual(len(new_state.players[0].hand), initial_hand_size + 1, "Hand should have 1 more card")
-        self.assertEqual(
-            len(new_state.players[0].discard), initial_discard_size - 1, "Discard should have 1 fewer card"
-        )
+        assert 200 in new_state.players[0].hand, "Live card 200 should be in hand"
+        assert 200 not in new_state.players[0].discard, "Live card 200 should NOT be in discard"
+        assert len(new_state.players[0].hand) == initial_hand_size + 1, "Hand should have 1 more card"
+        assert len(new_state.players[0].discard) == initial_discard_size - 1, "Discard should have 1 fewer card"
 
 
-class TestDrawBehavior(unittest.TestCase):
+class TestDrawBehavior:
     """Test DRAW effect produces correct state changes."""
 
-    def setUp(self):
-        self.game = GameState(verbose=False)
+    @pytest.fixture(autouse=True)
+    def setup(self, game_state):
+        self.game = game_state
         self.p0 = self.game.players[0]
 
         # Create mock cards for deck
@@ -133,8 +122,8 @@ class TestDrawBehavior(unittest.TestCase):
         self.game._draw_cards(self.p0, 3)
 
         # Verify
-        self.assertEqual(len(self.p0.hand), initial_hand_size + 3, "Hand should have 3 more cards")
-        self.assertEqual(len(self.p0.main_deck), initial_deck_size - 3, "Deck should have 3 fewer cards")
+        assert len(self.p0.hand) == initial_hand_size + 3, "Hand should have 3 more cards"
+        assert len(self.p0.main_deck) == initial_deck_size - 3, "Deck should have 3 fewer cards"
 
     def test_draw_takes_from_top_of_deck(self):
         """Verify that draw takes cards from top (end) of deck."""
@@ -144,16 +133,17 @@ class TestDrawBehavior(unittest.TestCase):
         self.game._draw_cards(self.p0, 2)
 
         # Top cards (1, 2) should be in hand (Engine pops from 0)
-        self.assertIn(1, self.p0.hand, "Card 1 (top) should be drawn")
-        self.assertIn(2, self.p0.hand, "Card 2 (second from top) should be drawn")
-        self.assertEqual(self.p0.main_deck, [3, 4, 5], "Cards 3-5 should remain in deck")
+        assert 1 in self.p0.hand, "Card 1 (top) should be drawn"
+        assert 2 in self.p0.hand, "Card 2 (second from top) should be drawn"
+        assert self.p0.main_deck == [3, 4, 5], "Cards 3-5 should remain in deck"
 
 
-class TestOnPlayAbilityBehavior(unittest.TestCase):
+class TestOnPlayAbilityBehavior:
     """Test that ON_PLAY abilities trigger correctly when a member is played."""
 
-    def setUp(self):
-        self.game = GameState(verbose=False)
+    @pytest.fixture(autouse=True)
+    def setup(self, game_state):
+        self.game = game_state
         self.p0 = self.game.players[0]
         self.game.phase = Phase.MAIN
         self.game.current_player = 0
@@ -196,18 +186,19 @@ class TestOnPlayAbilityBehavior(unittest.TestCase):
             new_state = self.game.step(action_id)
 
             # The member should be on stage
-            self.assertEqual(new_state.players[0].stage[1], 100, "Member should be in center stage")
+            assert new_state.players[0].stage[1] == 100, "Member should be in center stage"
 
             # The ON_PLAY draw effect should have triggered
             # Note: This depends on ability resolution timing
             # For now, just verify the member was played successfully
 
 
-class TestOptionalAbilityBehavior(unittest.TestCase):
+class TestOptionalAbilityBehavior:
     """Test that optional abilities can be skipped."""
 
-    def setUp(self):
-        self.game = GameState(verbose=False)
+    @pytest.fixture(autouse=True)
+    def setup(self, game_state):
+        self.game = game_state
         self.p0 = self.game.players[0]
 
         # Create mock cards
@@ -233,8 +224,4 @@ class TestOptionalAbilityBehavior(unittest.TestCase):
         legal_mask = self.game.get_legal_actions()
 
         # Action 0 (skip/pass) should be available for optional choices
-        self.assertTrue(legal_mask[0], "Action 0 (SKIP) should be available for optional cost")
-
-
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+        assert legal_mask[0], "Action 0 (SKIP) should be available for optional cost"

@@ -1,17 +1,12 @@
-import os
-import sys
-import unittest
-
 import numpy as np
-
-# Adjust path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import pytest
 
 from engine.game.game_state import GameState, LiveCard
 
 
-class TestLiveSuccess(unittest.TestCase):
-    def setUp(self):
+class TestLiveSuccess:
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.game = GameState(verbose=True)
         self.p0 = self.game.players[0]
 
@@ -60,8 +55,8 @@ class TestLiveSuccess(unittest.TestCase):
         # Verify legal actions show up
         actions = self.game.get_legal_actions()
         # indices 600 and 601 should be legal
-        self.assertTrue(actions[600], "Action 600 (Select 0) should be legal")
-        self.assertTrue(actions[601], "Action 601 (Select 1) should be legal")
+        assert actions[600], "Action 600 (Select 0) should be legal"
+        assert actions[601], "Action 601 (Select 1) should be legal"
 
         # Execute Action 601 (Select Live 2 -> ID 1002)
         # Note: step return new state
@@ -69,10 +64,6 @@ class TestLiveSuccess(unittest.TestCase):
         self.p0 = self.game.players[0]
 
         # Assertions
-        self.assertIn(1002, self.p0.success_lives, "Selected card should be in success lives")
-        self.assertEqual(len(self.p0.passed_lives), 1, "One passed live should remain")
-        self.assertFalse(self.game.pending_choices, "Pending choice should be cleared")
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert 1002 in self.p0.success_lives, "Selected card should be in success lives"
+        assert len(self.p0.passed_lives) == 1, "One passed live should remain"
+        assert not self.game.pending_choices, "Pending choice should be cleared"

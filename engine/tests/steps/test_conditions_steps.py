@@ -1,14 +1,8 @@
 import numpy as np
-import pytest
 from pytest_bdd import given, scenario, then, when
 
-from engine.game.game_state import Condition, ConditionType, GameState, MemberCard
+from engine.game.game_state import Condition, ConditionType, MemberCard
 from engine.models.enums import Group
-
-
-@pytest.fixture
-def game_state():
-    return GameState()
 
 
 @scenario("../features/conditions.feature", "Group Filter Condition")

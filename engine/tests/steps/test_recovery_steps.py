@@ -136,6 +136,13 @@ def activate_recover_live(context, game_state):
 
     effect = Effect(EffectType.RECOVER_LIVE, 1)
     game_state.pending_effects.append(effect)
+    # Use internal resolve or step for simplicity.
+    # Usually step(0) is Pass/Skip or Resolve?
+    # Actually step(0) does logic.
+    # But manual append usually needs manual resolve or step() loop.
+    # Let's use _resolve_pending_effect(0) as in other tests, or step(0) if context fits.
+    # test_modal uses _resolve_pending_effect.
+    game_state._resolve_pending_effect(0)
 
     # Check pending
     print(f"DEBUG: Pending effects: {game_state.pending_effects}")

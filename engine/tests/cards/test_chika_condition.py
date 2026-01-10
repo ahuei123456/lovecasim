@@ -1,9 +1,8 @@
-import unittest
-
 import numpy as np
+import pytest
 
 from compiler.parser import AbilityParser
-from engine.game.game_state import GameState, LiveCard, MemberCard
+from engine.game.game_state import LiveCard, MemberCard
 from engine.models.ability import Condition, ConditionType, EffectType, TriggerType
 
 """
@@ -12,9 +11,10 @@ Opponent hand >= Player hand + 2
 """
 
 
-class TestChikaHandCondition(unittest.TestCase):
-    def setUp(self):
-        self.game = GameState(verbose=True)
+class TestChikaHandCondition:
+    @pytest.fixture(autouse=True)
+    def setup(self, game_state):
+        self.game = game_state
         self.p0 = self.game.players[0]
         self.p1 = self.game.players[1]
 
@@ -51,7 +51,7 @@ class TestChikaHandCondition(unittest.TestCase):
         cond = Condition(ConditionType.OPPONENT_HAND_DIFF, {"diff": 2})
         result = self.game._check_condition(self.p0, cond)
 
-        self.assertTrue(result, "Condition should be MET when opponent has 3 more cards (6 - 3 = 3 >= 2)")
+        assert result, "Condition should be MET when opponent has 3 more cards (6 - 3 = 3 >= 2)"
 
     def test_condition_not_met_opponent_has_fewer(self):
         """Opponent has 3 cards, player has 5 -> diff is -2, NOT >= 2"""
@@ -61,7 +61,7 @@ class TestChikaHandCondition(unittest.TestCase):
         cond = Condition(ConditionType.OPPONENT_HAND_DIFF, {"diff": 2})
         result = self.game._check_condition(self.p0, cond)
 
-        self.assertFalse(result, "Condition should NOT be met when opponent has fewer cards")
+        assert not result, "Condition should NOT be met when opponent has fewer cards"
 
     def test_condition_not_met_exactly_one_more(self):
         """Opponent has 4 cards, player has 3 -> diff is 1, NOT >= 2"""
@@ -71,7 +71,7 @@ class TestChikaHandCondition(unittest.TestCase):
         cond = Condition(ConditionType.OPPONENT_HAND_DIFF, {"diff": 2})
         result = self.game._check_condition(self.p0, cond)
 
-        self.assertFalse(result, "Condition should NOT be met when opponent has only 1 more card")
+        assert not result, "Condition should NOT be met when opponent has only 1 more card"
 
     def test_condition_met_exactly_two_more(self):
         """Opponent has 5 cards, player has 3 -> diff is 2 == 2, should trigger"""
@@ -81,26 +81,26 @@ class TestChikaHandCondition(unittest.TestCase):
         cond = Condition(ConditionType.OPPONENT_HAND_DIFF, {"diff": 2})
         result = self.game._check_condition(self.p0, cond)
 
-        self.assertTrue(result, "Condition should be MET when opponent has exactly 2 more cards")
+        assert result, "Condition should be MET when opponent has exactly 2 more cards"
 
     def test_parser_extracts_condition(self):
         """Test that the parser correctly extracts the condition from card text"""
         ability_text = "{{toujyou.png|登場}}相手の手札の枚数が自分より2枚以上多い場合、自分の控え室からライブカードを1枚手札に加える。"
         abilities = AbilityParser.parse_ability_text(ability_text)
 
-        self.assertEqual(len(abilities), 1)
+        assert len(abilities) == 1
         ability = abilities[0]
 
-        self.assertEqual(ability.trigger, TriggerType.ON_PLAY)
+        assert ability.trigger == TriggerType.ON_PLAY
 
         # Check condition
         cond_found = False
         for cond in ability.conditions:
             if cond.type == ConditionType.OPPONENT_HAND_DIFF:
-                self.assertEqual(cond.params.get("diff"), 2)
+                assert cond.params.get("diff") == 2
                 cond_found = True
                 break
-        self.assertTrue(cond_found, "OPPONENT_HAND_DIFF condition should be parsed")
+        assert cond_found, "OPPONENT_HAND_DIFF condition should be parsed"
 
         # Check effect
         eff_found = False
@@ -108,8 +108,4 @@ class TestChikaHandCondition(unittest.TestCase):
             if eff.effect_type == EffectType.RECOVER_LIVE:
                 eff_found = True
                 break
-        self.assertTrue(eff_found, "RECOVER_LIVE effect should be parsed")
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert eff_found, "RECOVER_LIVE effect should be parsed"

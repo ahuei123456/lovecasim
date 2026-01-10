@@ -1,13 +1,6 @@
-import pytest
 from pytest_bdd import given, scenario, then, when
 
 from compiler.parser import AbilityParser
-from engine.game.game_state import GameState
-
-
-@pytest.fixture
-def game_state():
-    return GameState()
 
 
 @scenario("../features/modal.feature", "Select Mode")
