@@ -1,5 +1,5 @@
 from compiler.parser import AbilityParser
-from game.models.ability import (
+from engine.models.ability import (
     AbilityCostType,
     ConditionType,
     EffectType,
@@ -35,9 +35,9 @@ def test_kanata_reveal_hand():
     assert any(c.type == AbilityCostType.REVEAL_HAND_ALL for c in abi.costs), "Should have REVEAL_HAND_ALL cost"
 
     # Check Condition
-    assert any(
-        c.type == ConditionType.HAND_HAS_NO_LIVE for c in abi.conditions
-    ), "Should have HAND_HAS_NO_LIVE condition"
+    assert any(c.type == ConditionType.HAND_HAS_NO_LIVE for c in abi.conditions), (
+        "Should have HAND_HAS_NO_LIVE condition"
+    )
 
     # Check Effect
     assert abi.effects[0].effect_type == EffectType.LOOK_DECK
@@ -59,9 +59,9 @@ def test_ginko_parsing():
     assert abi.effects[1].effect_type == EffectType.LOOK_AND_CHOOSE
     assert abi.effects[1].params.get("filter") == "member", "Should capture member filter"
     # 3. Order Deck (Remainder to bottom)
-    assert any(
-        e.effect_type in (EffectType.ORDER_DECK, EffectType.MOVE_TO_DECK) for e in abi.effects
-    ), "Should handle remainder"
+    assert any(e.effect_type in (EffectType.ORDER_DECK, EffectType.MOVE_TO_DECK) for e in abi.effects), (
+        "Should handle remainder"
+    )
 
 
 def test_honoka_parsing():

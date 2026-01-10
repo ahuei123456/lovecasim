@@ -12,7 +12,7 @@ import numpy as np
 from pydantic import TypeAdapter
 
 from compiler.parser import AbilityParser
-from game.models.card import EnergyCard, LiveCard, MemberCard
+from engine.models.card import EnergyCard, LiveCard, MemberCard
 
 
 def compile_cards(input_path: str, output_path: str):

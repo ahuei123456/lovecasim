@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-from game.models.ability import (
+from engine.models.ability import (
     Ability,
     AbilityCostType,
     Condition,
