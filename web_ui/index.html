@@ -1362,10 +1362,7 @@
         <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="sidebar-section">
-                <h3>⚡ アクション
-                    <button class="perf-review-btn" onclick="showLastPerformance()"
-                        style="float:right; font-size:0.7rem; padding:2px 6px;">Last Perf</button>
-                </h3>
+                <h3>⚡ アクション</h3>
                 <div class="action-list" id="actions"></div>
             </div>
             <div class="sidebar-section diagnostic-section" id="diagnostic-panel"
@@ -1397,22 +1394,27 @@
                     <!-- Populated by JS -->
                 </div>
             </div>
+            <!-- Deck Selection -->
             <div class="sidebar-section">
-                <h3> Rule Audit Log</h3>
+                <h3>🔀 Decks (Random)</h3>
+                <div class="button-row" style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <button class="btn" style="flex:1" onclick="resetGameWithSeed(123456)">A</button>
+                    <button class="btn" style="flex:1" onclick="resetGameWithSeed(789012)">B</button>
+                    <button class="btn" style="flex:1" onclick="resetGameWithSeed(333333)">C</button>
+                    <button class="btn" style="flex:1" onclick="resetGameWithSeed(null)">Random</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>📜 プレイログ (Game Log)</h3>
+                    <button class="perf-review-btn" onclick="showLastPerformance()"
+                        style="font-size:0.7rem; padding:2px 6px;">Last Perf</button>
+                </div>
                 <div class="turn-navigator" id="turn-navigator">
                     <!-- Turn buttons added here -->
                 </div>
                 <div class="rule-log-list" id="rule-log"></div>
-            </div>
-            <div class="sidebar-section log-section">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <h3 style="margin:0">📜 ログ</h3>
-                    <div>
-                        <button class="perf-review-btn" id="view-last-perf-btn" onclick="showLastPerformance()">Last
-                            Performance</button>
-                    </div>
-                </div>
-                <div class="log-list" id="log"></div>
             </div>
             <div class="sidebar-section god-mode">
                 <h3> God Mode</h3>
@@ -1488,8 +1490,13 @@
             // Header info
             let phaseText = state.phase;
             if (state.phase === Phase.SETUP) phaseText = "セットアップ";
-            if (state.phase === Phase.MULLIGAN_P1) phaseText = "マリガン (あなた)";
-            if (state.phase === Phase.MULLIGAN_P2) phaseText = "マリガン (対戦相手)";
+
+            // Dynamic Mulligan Text
+            if (state.phase === Phase.MULLIGAN_P1 || state.phase === Phase.MULLIGAN_P2) {
+                // Check who is active
+                const isMyTurn = (state.active_player === 0);
+                phaseText = isMyTurn ? "マリガン (あなた)" : "マリガン (対戦相手)";
+            }
             if (state.phase === Phase.ACTIVE) phaseText = "アクティブ";
             if (state.phase === Phase.ENERGY) phaseText = "エネルギー";
             if (state.phase === Phase.DRAW) phaseText = "ドロー";
@@ -1614,65 +1621,130 @@
                 });
                 const sortedTurns = Array.from(uniqueTurns).sort((a, b) => a - b);
 
-                // 2. Render Turn Navigator
+                // 2. Render Turn Navigator + Category Filter
                 const nav = document.getElementById('turn-navigator');
                 if (nav) {
-                    let navHtml = `<button class="turn-nav-btn ${selectedTurn === -1 ? 'active' : ''}" onclick="selectLogTurn(-1)">ALL</button>`;
+                    // Check active category (stored in window or global, default to ALL)
+                    window.logCategory = window.logCategory || 'ALL';
+
+                    let navHtml = `
+                        <div style="display:flex; gap:4px; margin-bottom:4px; flex-wrap:wrap;">
+                            <button class="turn-nav-btn ${window.logCategory === 'ALL' ? 'active' : ''}" onclick="selectLogCategory('ALL')">全て</button>
+                            <button class="turn-nav-btn ${window.logCategory === 'PHASE' ? 'active' : ''}" onclick="selectLogCategory('PHASE')">フェーズ</button>
+                            <button class="turn-nav-btn ${window.logCategory === 'ACTION' ? 'active' : ''}" onclick="selectLogCategory('ACTION')">行動</button>
+                            <button class="turn-nav-btn ${window.logCategory === 'EFFECT' ? 'active' : ''}" onclick="selectLogCategory('EFFECT')">効果</button>
+                        </div>
+                        <div style="display:flex; gap:4px; overflow-x:auto; padding-bottom:4px;">
+                            <button class="turn-nav-btn ${selectedTurn === -1 ? 'active' : ''}" onclick="selectLogTurn(-1)">All Turns</button>
+                    `;
+
                     sortedTurns.forEach(t => {
                         navHtml += `<button class="turn-nav-btn ${selectedTurn === t ? 'active' : ''}" onclick="selectLogTurn(${t})">T${t}</button>`;
                     });
+                    navHtml += `</div>`;
                     nav.innerHTML = navHtml;
                 }
 
-                // 3. Filter log data
+                // 3. Filter log data (Turn)
                 if (selectedTurn !== -1) {
                     const turnStr = `[Turn ${selectedTurn}]`;
                     logData = logData.filter(entry => entry.includes(turnStr));
                 }
 
+                // Translation & Formatting Helper
+                const processLog = (entry) => {
+                    const match = entry.match(/\[(.*?)\] (.*)/);
+                    if (!match) return null;
+
+                    const ruleId = match[1];
+                    let content = match[2];
+                    let type = 'INFO';
+
+                    // Parse Rule ID tags
+                    if (ruleId.includes('Turn')) type = 'PHASE';
+                    if (ruleId.includes('MAIN')) type = 'PHASE';
+
+                    // Markup Cleanup: {{img|Text}} -> Text
+                    content = content.replace(/\{\{.*?\|(.*?)\}\}/g, '$1');
+
+                    // Translation
+                    content = content.replace(/Resolving effect:\s*(.*)/, '✨ [効果] $1');
+                    content = content.replace(/Effect:\s*(.*)/, '⚡ [処理] $1');
+                    content = content.replace(/activates ability of/, 'がアビリティ発動:');
+                    content = content.replace(/Player (\d+)/g, (m, p) => p === '0' ? 'あなた' : '相手');
+                    content = content.replace(/\(Value: (\d+)\)/, '(値: $1)');
+                    content = content.replace(/activate member/, 'メンバーをスタンド');
+                    content = content.replace(/untap/i, 'スタンド');
+                    content = content.replace(/tap/i, 'レスト');
+                    content = content.replace(/discard/i, '手札を捨てる');
+                    content = content.replace(/draw/i, 'ドロー');
+                    content = content.replace(/Phase Start/i, 'フェーズ開始');
+
+                    // Determine Category based on content
+                    if (content.includes('フェーズ')) type = 'PHASE';
+                    else if (content.includes('効果') || content.includes('処理') || content.includes('アビリティ')) type = 'EFFECT';
+                    else if (content.includes('activates') || content.includes('play')) type = 'ACTION';
+
+                    return { type, content, ruleId, raw: entry };
+                };
+
                 ruleLogEl.innerHTML = '';
                 let currentTurn = -1;
 
                 logData.forEach(entry => {
-                    const match = entry.match(/\[(.*?)\] (.*)/);
-                    if (match) {
-                        const ruleId = match[1];
-                        const content = match[2];
+                    const data = processLog(entry);
+                    if (!data) return;
 
-                        // Detect Turn Header
-                        const turnMatch = ruleId.match(/Turn\s+(\d+)/i);
-                        if (turnMatch) {
-                            const turnNum = parseInt(turnMatch[1]);
-                            if (turnNum !== currentTurn) {
-                                currentTurn = turnNum;
-                                const turnHeader = document.createElement('div');
-                                turnHeader.className = 'log-turn-header';
-                                turnHeader.textContent = `━━━ TURN ${turnNum} ━━━`;
-                                ruleLogEl.appendChild(turnHeader);
-                            }
-                        }
-
-                        const div = document.createElement('div');
-                        div.className = 'rule-entry';
-                        div.innerHTML = `<span class="rule-id">${ruleId}</span>${content}`;
-                        ruleLogEl.appendChild(div);
-                    } else {
-                        const div = document.createElement('div');
-                        div.className = 'rule-entry';
-                        div.textContent = entry;
-                        ruleLogEl.appendChild(div);
+                    // Filter Category
+                    if (window.logCategory && window.logCategory !== 'ALL') {
+                        if (data.type !== window.logCategory) return;
                     }
+
+                    // Turn Header
+                    const turnMatch = data.ruleId.match(/Turn\s+(\d+)/i);
+                    if (turnMatch) {
+                        const turnNum = parseInt(turnMatch[1]);
+                        if (turnNum !== currentTurn) {
+                            currentTurn = turnNum;
+                            const turnHeader = document.createElement('div');
+                            turnHeader.className = 'log-turn-header';
+                            turnHeader.textContent = `━━━ ターン ${turnNum} ━━━`;
+                            turnHeader.style.color = 'var(--accent-gold)';
+                            turnHeader.style.textAlign = 'center';
+                            turnHeader.style.marginTop = '8px';
+                            turnHeader.style.fontSize = '0.75rem';
+                            ruleLogEl.appendChild(turnHeader);
+                        }
+                    }
+
+                    const div = document.createElement('div');
+                    div.className = 'rule-entry';
+                    div.style.cursor = 'pointer';
+                    div.title = "Click for details";
+                    div.onclick = () => showLogDetails(data);
+
+                    // styling based on type
+                    let icon = '🔹';
+                    if (data.type === 'PHASE') {
+                        div.style.borderLeftColor = '#aaa';
+                        div.style.background = 'rgba(255,255,255,0.05)';
+                        icon = '⏱️';
+                    } else if (data.type === 'EFFECT') {
+                        div.style.borderLeftColor = 'var(--accent-pink)';
+                        icon = '✨';
+                    } else if (data.type === 'ACTION') {
+                        div.style.borderLeftColor = 'var(--accent-blue)';
+                        icon = '🎮';
+                    }
+
+                    div.innerHTML = `<span style="opacity:0.6; font-size:0.7em;">${icon}</span> ${data.content}`;
+                    ruleLogEl.appendChild(div);
                 });
 
-                // Only auto-scroll if NOT showing full log (viewing history)
-                if (!showingFullLog) {
-                    ruleLogEl.scrollTop = ruleLogEl.scrollHeight;
-                }
-
-                // Update toggle button text
-                const logBtn = document.getElementById('full-log-btn');
-                if (logBtn) logBtn.textContent = showingFullLog ? 'Show Recent' : 'Show Full Log History';
+                // Auto-scroll
+                ruleLogEl.scrollTop = ruleLogEl.scrollHeight;
             }
+
 
             // Check for game over
             if (state.game_over) {
@@ -1957,8 +2029,8 @@
 
         function playCard(idx) {
             // Check if this card can be toggled for Mulligan by looking at legal_actions
-            // IMPORTANT: Backend uses 301-360 for Mulligan (300 + index + 1)
-            const mulliganActionId = 301 + idx;
+            // IMPORTANT: Backend uses 300-359 for Mulligan (300 + index)
+            const mulliganActionId = 300 + idx;
             const isMulliganAction = state.legal_actions && state.legal_actions.find(a => a.id === mulliganActionId);
 
             if (isMulliganAction) {
@@ -1995,7 +2067,8 @@
 
             // Try to play selected card to this area
             // Action ID = 1 + (card_idx * 3) + area_idx
-            // Range 1-180
+            // Range 1-180: This packs hand index and stage area into a single byte-friendly integer,
+            // which is essential for efficient Reinforcement Learning (AlphaZero) action spaces.
             const actionId = 1 + (selectedHandIdx * 3) + areaIdx;
             console.log('[DEBUG] Trying to play card:', selectedHandIdx, 'to area:', areaIdx, 'actionId:', actionId);
 
@@ -2470,6 +2543,40 @@
             render();
         }
 
+        function selectLogCategory(cat) {
+            window.logCategory = cat;
+            render();
+        }
+
+        function showLogDetails(data) {
+            let modal = document.getElementById('log-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'log-modal';
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+                modal.innerHTML = `
+                    <div class="modal-content" style="border-color:var(--accent-blue);">
+                        <div class="modal-header">
+                            <div class="modal-title">Log Details</div>
+                            <button class="btn btn-danger" onclick="document.getElementById('log-modal').style.display='none'">Close</button>
+                        </div>
+                        <div class="modal-body">
+                            <div style="margin-bottom:10px; font-size:0.8rem; color:#aaa;" id="log-meta"></div>
+                            <div style="padding:15px; background:rgba(0,0,0,0.3); border-radius:8px; font-size:1rem; line-height:1.5; color:white; white-space:pre-wrap;" id="log-text"></div>
+                            <div style="margin-top:15px; padding-top:10px; border-top:1px solid #444; font-size:0.7rem; color:#666; font-family:monospace;" id="log-raw"></div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            const meta = `Rule: ${data.ruleId} | Category: ${data.type}`;
+            document.getElementById('log-meta').textContent = meta;
+            document.getElementById('log-text').textContent = data.content;
+            document.getElementById('log-raw').textContent = `Raw: ${data.raw}`;
+            modal.style.display = 'flex';
+        }
+
         // ===== REPLAY SYSTEM =====
         let replayMode = false;
         let replayData = null;
@@ -2549,6 +2656,28 @@
             if (replayData && currentFrame < replayData.states.length - 1) {
                 currentFrame++; displayReplayFrame();
             } else if (playInterval) stopPlay();
+        };
+
+        window.resetGameWithSeed = async function (seed) {
+            log(`Restarting game with seed: ${seed} ...`);
+            try {
+                const res = await fetch('/api/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ seed: seed, deck_type: 'normal' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    log('Game Restarted!');
+                    // Force refresh state immediately
+                    fetchState();
+                } else {
+                    log('Error restarting: ' + data.error);
+                }
+            } catch (e) {
+                log('Connection Error during reset');
+                console.error(e);
+            }
         };
 
         window.replayPrevTurn = function () {

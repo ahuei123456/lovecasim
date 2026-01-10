@@ -143,12 +143,15 @@ def save_replay():
     except Exception as e:
         print(f"Failed to save replay: {e}")
 
-def init_game(deck_type='normal'):
+def init_game(deck_type='normal', seed=None):
     global game_state, member_db, live_db, energy_db, game_history
     
     # Ensure true randomness for each game
     import time
-    random.seed(int(time.time() * 1000) % (2**31))
+    if seed:
+        random.seed(seed)
+    else:
+        random.seed(int(time.time() * 1000) % (2**31))
     
     loader = CardDataLoader("data/cards.json")
     member_db, live_db, energy_db = loader.load()
@@ -299,21 +302,26 @@ def init_game(deck_type='normal'):
     
     # Initialize history with starting state
     game_history = [serialize_state()]
-    
-    # Initialize history with starting state
-    game_history = [serialize_state()]
 
-def local_img_path(remote_url):
-    """Convert remote official URLs to local /img/ paths."""
-    if not remote_url: return '/img/cards/back.png'
-    if 'llofficial-cardgame.com' in remote_url:
-        # Extract set and filename: .../cardlist/SET/FILE.png
-        parts = remote_url.split('/')
+def local_img_path(path):
+    """Convert remote official URLs or internal relative paths to local /img/ paths."""
+    if not path: return '/img/cards/back.png'
+    
+    # Handle remote URLs
+    if 'llofficial-cardgame.com' in path:
+        parts = path.split('/')
         if len(parts) >= 2:
             filename = parts[-1]
             set_folder = parts[-2]
             return f'/img/cards/{set_folder}/{filename}'
-    return remote_url
+    
+    # Handle internal relative paths (e.g., 'cards/BP01/...')
+    if path.startswith('cards/'):
+        return f'/img/{path}'
+    if not path.startswith('/img/') and not path.startswith('http'):
+        return f'/img/{path}'
+        
+    return path
 
 def serialize_card(cid, is_viewable=True, peek=False):
     if not is_viewable and not peek:
@@ -325,23 +333,9 @@ def serialize_card(cid, is_viewable=True, peek=False):
             'hidden': True
         }
     
-    card_data = {}
     if cid in member_db:
         m = member_db[cid]
-        # ... (rest of member serialization) ...
-        # We need to construct the full object or call a helper if we want to avoid code duplication.
-        # However, to minimize changes, let's just grab the object if it was already resolved or rebuild it.
-        # Actually, let's restructure slightly to allow fall-through.
-        pass # Handle below
-    elif cid in live_db:
-        pass # Handle below
-    else:
-        # Fallback for truly unknown ID if that happens, or just return hidden
-        return {'id': cid, 'name': 'Unknown', 'img': 'cards/back.png'}
-
-    # Re-implementing the logic below to handle flow correctly
-    if cid in member_db:
-        m = member_db[cid]
+        # Format ability text for display
         ability_text = getattr(m, 'ability_text', '')
         if hasattr(m, 'abilities') and m.abilities:
             ability_lines = []
@@ -362,13 +356,13 @@ def serialize_card(cid, is_viewable=True, peek=False):
             'card_no': m.card_no,
             'name': m.name,
             'type': 'member',
-            'cost': m.cost,
-            'hp': 1, # Default HP/Life for members if tracked, or just omit if not in model
-            'blade': m.blades, # Corrected from .blade to .blades
+            'cost': int(m.cost),
+            'hp': int(m.total_hearts()),
+            'blade': int(m.blades),
             'img': local_img_path(m.img_path),
             'hearts': m.hearts.tolist(),
             'blade_hearts': m.blade_hearts.tolist(),
-            'color': 'Unknown', # Could derive from hearts
+            'color': 'Unknown',
             'text': ability_text
         }
     elif cid in live_db:
@@ -389,65 +383,14 @@ def serialize_card(cid, is_viewable=True, peek=False):
             'card_no': l.card_no,
             'name': l.name,
             'type': 'live',
-            'score': l.score,
+            'score': int(l.score),
             'img': local_img_path(l.img_path),
             'required_hearts': l.required_hearts.tolist(),
             'text': ability_text
         }
-    
-    if not is_viewable and peek:
-        card_data['hidden'] = True # Mark as hidden generally
-        card_data['face_down'] = True # Explicit flag for UI to show "peek" state
-        
-    return card_data
-
-    if cid in member_db:
-        m = member_db[cid]
-        
-        # Format ability text for display
-        ability_text = getattr(m, 'ability_text', '')
-        if hasattr(m, 'abilities') and m.abilities:
-            # Concatenate all ability descriptions
-            ability_lines = []
-            from game.ability import TriggerType
-            for ab in m.abilities:
-                trigger_icon = {
-                    TriggerType.ACTIVATED: '【起動】',
-                    TriggerType.ON_PLAY: '【登場】',
-                    TriggerType.CONSTANT: '【常時】',
-                    TriggerType.ON_LIVE_START: '【ライブ開始】',
-                    TriggerType.ON_LIVE_SUCCESS: '【ライブ成功】',
-                }.get(ab.trigger, '【能力】')
-                ability_lines.append(f"{trigger_icon} {ab.raw_text}")
-            ability_text = '\\n'.join(ability_lines)
-        
-        return {
-            'id': int(cid), 
-            'name': m.name, 
-            'cost': int(m.cost), 
-            'type': 'member', 
-            'img': m.img_path,
-            'hp': int(m.total_hearts()),
-            'blade': int(m.blades),
-            'hearts': m.hearts.tolist(),  # Array of 6 colors
-            'blade_hearts': m.blade_hearts.tolist(),  # Yell contribution
-            'text': ability_text
-        }
-    elif cid in live_db:
-        l = live_db[cid]
-        return {
-            'id': int(cid), 
-            'name': l.name, 
-            'cost': int(l.total_required()), 
-            'type': 'live', 
-            'img': local_img_path(l.img_path),
-            'score': int(l.score),
-            'required_hearts': l.required_hearts.tolist(),  # Array of 7 (6 colors + any)
-            'text': getattr(l, 'ability_text', '')
-        }
     elif cid in energy_db:
         e = energy_db[cid]
-        return {
+        card_data = {
             'id': int(cid),
             'name': e.name,
             'type': 'energy',
@@ -456,10 +399,17 @@ def serialize_card(cid, is_viewable=True, peek=False):
     else:
         # Fallback for special IDs or unknown cards
         if cid == 888:
-            return {'id': 888, 'name': 'Member (Easy)', 'cost': 1, 'img': 'cards/PLSD01/PL!-sd1-001-SD.png', 'type': 'member', 'hp': 1, 'blade': 1, 'hearts': [1,0,0,0,0,0], 'blade_hearts': [0,0,0,0,0,0], 'text': ''}
+            return {'id': 888, 'name': 'Member (Easy)', 'cost': 1, 'img': '/img/cards/SPSD01/PL!-sd1-001-SD.png', 'type': 'member', 'hp': 1, 'blade': 1, 'hearts': [1,0,0,0,0,0], 'blade_hearts': [0,0,0,0,0,0], 'text': ''}
         if cid == 999:
-            return {'id': 999, 'name': 'Live (Easy)', 'score': 1, 'img': 'cards/PLSD01/PL!-pb1-019-SD.png', 'type': 'live', 'cost': 1, 'required_hearts': [0,0,0,0,0,0,1], 'text': ''}
-        return {'id': int(cid), 'name': f'Card {cid}', 'type': 'unknown', 'img': None}
+            return {'id': 999, 'name': 'Live (Easy)', 'score': 1, 'img': '/img/cards/SPSD01/PL!-pb1-019-SD.png', 'type': 'live', 'cost': 1, 'required_hearts': [0,0,0,0,0,0,1], 'text': ''}
+        return {'id': int(cid), 'name': f'Card {cid}', 'type': 'unknown', 'img': 'cards/back.png'}
+
+    if not is_viewable and peek:
+        card_data['hidden'] = True
+        card_data['face_down'] = True
+        
+    return card_data
+
 
 def serialize_player(p, player_idx, viewer_idx=0, is_viewable=True):
     """Serialize one player's state."""
@@ -1126,7 +1076,7 @@ def do_action():
                 # 2. AI Turn (P1 is always the AI)
                 if game_state.current_player == 1:
                     if game_state.phase in (Phase.MULLIGAN_P1, Phase.MULLIGAN_P2):
-                        # Force-confirm AI mulligan to speed up and prevent info leak
+                        # Force-confirm AI mulligan (Action 0)
                         aid = 0
                     else:
                         aid = ai_agent.choose_action(game_state, 1)
@@ -1166,14 +1116,35 @@ def reset():
     try:
         # Re-import Phase for safety
         from game.game_state import Phase
+        import random
         import time
-        random.seed(time.time()) # Ensure fresh seed
-        print("DEBUG: Reset called")
-
+        
         data = request.json or {}
         deck_type = data.get('deck_type', 'normal')
-        print(f"DEBUG: Initializing game with {deck_type}")
-        init_game(deck_type)
+        seed_val = data.get('seed')
+        
+        # Process preset deck selection
+        deck_id = data.get('deck_id')
+        global custom_deck_p0, custom_energy_deck_p0
+        if deck_id:
+            # Clear previous custom deck if selecting a preset
+            # But wait, logic: if selecting 'preset', we might want to clear user upload?
+            pass # We'll implement seed logic mostly
+            
+        print(f"DEBUG: Reset called. Seed={seed_val}, DeckType={deck_type}")
+        
+        # Set seed if provided, otherwise random
+        if seed_val is not None:
+            try:
+               seed_int = int(seed_val)
+               random.seed(seed_int)
+            except:
+               random.seed(seed_val)
+        else:
+            random.seed(time.time())
+
+        print(f"DEBUG: Initializing game with {deck_type} and seed {seed_val}")
+        init_game(deck_type, seed=seed_int if seed_val is not None else None)
         print(f"DEBUG: Game initialized. Phase is {game_state.phase}")
         print(f"DEBUG: P0 Energy: {len(game_state.players[0].energy_zone)}")
         
@@ -1307,7 +1278,7 @@ if __name__ == '__main__':
 
     # Patched init_game for Frozen state to find data
     original_init_game = init_game
-    def frozen_init_game(deck_type='normal'):
+    def frozen_init_game(deck_type='normal', seed=None):
         if getattr(sys, 'frozen', False):
             bundle_dir = sys._MEIPASS
             data_path = os.path.join(bundle_dir, 'data', 'cards.json')
@@ -1335,7 +1306,7 @@ if __name__ == '__main__':
                 ops_init(self, filepath)
             CardDataLoader.__init__ = new_init
                 
-        original_init_game(deck_type)
+        original_init_game(deck_type, seed=seed)
         
     init_game = frozen_init_game
 
