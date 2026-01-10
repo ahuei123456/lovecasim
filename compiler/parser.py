@@ -237,18 +237,21 @@ class AbilityParser:
                     )
 
                 # Group filter 『...』
-                for g in re.findall(r"『(.*?)』", content):
-                    if not any(c.type == ConditionType.COUNT_GROUP and c.params.get("group") == g for c in conditions):
-                        params = {"group": g}
-                        if "名前の異なる" in content:
-                            params["distinct_names"] = True
-                        if context_zone:
-                            params["zone"] = context_zone
-                        if match := re.search(r"(\d+)(人|枚)以上", content):
-                            params["count"] = int(match.group(1))
-                            conditions.append(Condition(ConditionType.COUNT_GROUP, params))
-                        else:
-                            conditions.append(Condition(ConditionType.GROUP_FILTER, params))
+                if "場合" in content:
+                    for g in re.findall(r"『(.*?)』", content):
+                        if not any(
+                            c.type == ConditionType.COUNT_GROUP and c.params.get("group") == g for c in conditions
+                        ):
+                            params = {"group": g}
+                            if "名前の異なる" in content:
+                                params["distinct_names"] = True
+                            if context_zone:
+                                params["zone"] = context_zone
+                            if match := re.search(r"(\d+)(人|枚)以上", content):
+                                params["count"] = int(match.group(1))
+                                conditions.append(Condition(ConditionType.COUNT_GROUP, params))
+                            else:
+                                conditions.append(Condition(ConditionType.GROUP_FILTER, params))
 
                 # Specific Member names 「...」
                 if any(kw in content for kw in ["がある場合", "がいる場合", "登場している場合"]):
@@ -299,6 +302,8 @@ class AbilityParser:
                     conditions.append(Condition(ConditionType.LIFE_LEAD))
                 if "スコア" in content and "相手より高い" in content:
                     conditions.append(Condition(ConditionType.LIFE_LEAD, {"type": "score"}))
+                if match := re.search(r"相手の手札の枚数が自分より(\d+)枚以上多い場合", content):
+                    conditions.append(Condition(ConditionType.OPPONENT_HAND_DIFF, {"diff": int(match.group(1))}))
                 if "相手" in content and any(kw in content for kw in ["ある場合", "いる場合"]):
                     conditions.append(Condition(ConditionType.OPPONENT_HAS))
                 if match := re.search(r"回答が(.*?)の場合", content):
@@ -357,6 +362,8 @@ class AbilityParser:
                         params["filter"] = "member"
                     if "ライブ" in content:
                         params["filter"] = "live"
+                    if match := re.search(r"『(.*?)』", content):
+                        params["group"] = match.group(1)
                     effects.append(Effect(EffectType.LOOK_AND_CHOOSE, 1, params=params))
                 if match := re.search(r"(\d+)枚.*?公開", content):
                     effects.append(Effect(EffectType.REVEAL_CARDS, int(match.group(1))))

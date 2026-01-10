@@ -1,3 +1,0 @@
-ID:PL!SP-bp1-010-R - ability has bad action text, when the action is hit nothing happens, we need draw 5 pick one type abilities to actually ow the 5 ddrawn cards, maybe in the action bar?
-ID:PL!S-pb1-001-R - seems to pull ability even with opponent having less cards in hand
-ID:PL!N-bp1-012-R＋ - Constant effect (3+ active live cards, 1+ Nijigasaki) not parsing/triggering correctly: "自分のライブ中のカードが3枚以上あり..."

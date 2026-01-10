@@ -93,6 +93,7 @@ class ConditionType(IntEnum):
     RARITY_CHECK = 17  # Rarity filter
     HAND_HAS_NO_LIVE = 18  # Hand contains no live cards (usually paired with reveal cost)
     COUNT_SUCCESS_LIVE = 19  # 成功ライブカード置き場にX枚以上
+    OPPONENT_HAND_DIFF = 20  # Opponent has more/less/diff cards in hand
 
 
 @dataclass

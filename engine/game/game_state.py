@@ -255,10 +255,10 @@ class PlayerState:
 
     def copy_to(self, new: "PlayerState") -> None:
         """In-place copy to an existing object to avoid allocation"""
-        new.hand[:] = self.hand
-        new.main_deck[:] = self.main_deck
-        new.energy_deck[:] = self.energy_deck
-        new.discard[:] = self.discard
+        new.hand = list(self.hand)
+        new.main_deck = list(self.main_deck)
+        new.energy_deck = list(self.energy_deck)
+        new.discard = list(self.discard)
         new.energy_zone[:] = self.energy_zone
         new.success_lives[:] = self.success_lives
         new.live_zone[:] = self.live_zone
@@ -568,6 +568,37 @@ class GameState:
         new.triggered_abilities[:] = self.triggered_abilities
         new.state_history[:] = self.state_history
         new.loop_draw = self.loop_draw
+
+    def inject_card(self, player_idx: int, card_id: int, zone: str, position: int = -1) -> None:
+        """Inject a card into a specific zone for testing purposes."""
+        if player_idx < 0 or player_idx >= len(self.players):
+            raise ValueError("Invalid player index")
+
+        p = self.players[player_idx]
+
+        if zone == "hand":
+            if position == -1:
+                p.hand.append(card_id)
+            else:
+                p.hand.insert(position, card_id)
+        elif zone == "energy":
+            if position == -1:
+                p.energy_zone.append(card_id)
+            else:
+                p.energy_zone.insert(position, card_id)
+        elif zone == "live":
+            if position == -1:
+                p.live_zone.append(card_id)
+                p.live_zone_revealed.append(False)
+            else:
+                p.live_zone.insert(position, card_id)
+                p.live_zone_revealed.insert(position, False)
+        elif zone == "stage":
+            if position < 0 or position >= 3:
+                raise ValueError("Stage position must be 0-2")
+            p.stage[position] = card_id
+        else:
+            raise ValueError(f"Invalid zone: {zone}")
 
     @property
     def active_player(self) -> PlayerState:
@@ -1738,7 +1769,7 @@ class GameState:
             my_life = len(player.success_lives)
             opp_life = len(self.players[1 - player.player_id].success_lives)
             met = my_life > opp_life
-        elif cond.type == ConditionType.COUNT_GROUP:
+        elif cond.type in (ConditionType.COUNT_GROUP, ConditionType.GROUP_FILTER):
             # Count members of group in zone
             group_str = cond.params.get("group", "").strip("『』")
             zone = cond.params.get("zone", "STAGE")
@@ -1754,13 +1785,19 @@ class GameState:
 
             count = 0
             cards_to_check = []
-            if zone == "STAGE":
+            if cond.params.get("context") == "revealed":
+                cards_to_check = self.looked_cards
+            elif zone == "STAGE":
                 for cid in player.stage:
                     if cid >= 0:
                         cards_to_check.append(cid)
             elif zone == "DISCARD":
                 cards_to_check = player.discard
-            elif cond.params.get("context") == "revealed":
+            elif zone == "HAND":
+                cards_to_check = player.hand
+            elif zone == "DECK":
+                cards_to_check = player.main_deck
+
                 cards_to_check = self.looked_cards
 
             for cid in cards_to_check:
@@ -1790,6 +1827,13 @@ class GameState:
             idx = color_map.get(color)
             if idx is not None:
                 met = active_hearts[idx] > 0
+
+        elif cond.type == ConditionType.OPPONENT_HAND_DIFF:
+            diff_needed = cond.params.get("diff", 0)
+            opp_id = 1 - player.player_id
+            opp_hand = len(self.players[opp_id].hand)
+            my_hand = len(player.hand)
+            met = (opp_hand - my_hand) >= diff_needed
         elif cond.type == ConditionType.COUNT_ENERGY:
             met = len(player.energy_zone) >= cond.params.get("min", 0)
         elif cond.type == ConditionType.HAS_LIVE_CARD:
