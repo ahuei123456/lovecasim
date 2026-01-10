@@ -1,56 +1,56 @@
 # Lovecasim Project Context
 
 ## Overview
-This project is a web-based implementation of the "Love Live! School Idol Collection" Trading Card Game (TCG). It features a Python/Flask backend and a vanilla HTML/JS frontend.
+This project is a web-based implementation of the "Love Live! School Idol Collection" Trading Card Game (TCG).
 
 ## Architecture
+The project follows a modular architecture separating the game engine, backend server, and frontend assets.
 
-### Backend
-- **Framework:** Flask (`server.py` is the entry point).
-- **Core Logic:** Located in `game/`. `GameState` manages the flow, while `CardDataLoader` loads card definitions.
-- **AI/Simulation:** `headless_runner.py` appears to be for AI agent simulation or training.
-- **Data:** JSON files in `data/` drive the card database (`cards.json`) and rules (`rule_map.json`).
-
-### Frontend
-- **Tech Stack:** Vanilla HTML/JS, with some Vue.js references (`deck_builder_vue.html`).
-- **Assets:** Served from `web_ui/`, `css/`, `js/`, and `img/`.
-- **Entry Points:** Several HTML files in root (`deck_viewer.html`, `interactive_deck_viewer.html`).
+- **Engine** (`engine/`): Core game logic, state management, and data models. Type-safe and fully tested.
+- **Backend** (`server.py`): Flask server exposing the game via API.
+- **Frontend** (`web_ui/`): Vanilla HTML/JS interface.
+- **Compiler** (`compiler/`): Utilities for processing raw card data into `cards_compiled.json`.
 
 ## Key Directories
 | Directory | Purpose |
 |O---|---|
-| `game/` | Core game logic (State, Player, Card models). |
-| `web_ui/` | Static assets for the game interface. |
-| `docs/` | Detailed documentation on game rules, ability coverage, and analysis. |
-| `data/` | JSON data files for cards and rules. |
-| `tools/` | Utility scripts (likely for data extraction/maintenance). |
-| `tests/` | Python test files. |
+| `engine/game/` | Game state, logic, and turn orchestration. |
+| `engine/models/` | Pydantic models for Cards, Effects, and Actions. |
+| `engine/tests/` | Comprehensive test suite (Pytest + BDD). |
+| `data/` | JSON data source (`cards.json`, `rule_map.json`, `cards_compiled.json`). |
+| `web_ui/` | Static assets (CSS, JS, Images). |
 
-## Development Guidelines
-- **Run Server:** `uv run server.py`
-- **Testing:** `uv run python -m pytest`
-- **Style:** Python: **Ruff** (User preference). JS: Keep as is for now.
-- **Deployment:** Heroku (`Procfile` present), but currently "as is".
-- **Architecture Strategy:**
-    - Phase 1: Cleanup root directory.
-    - Phase 2: Separate into `frontend/`, `backend/`, and `engine/`.
+## Development Standards
 
-## Test Architecture (New)
-- **Framework:** `pytest` + `pytest-bdd`
-- **Location:** `engine/tests/`
-- **Features:** `engine/tests/features/*.feature` (Gherkin syntax)
-- **Step Definitions:** `engine/tests/steps/test_*_steps.py`
-- **Status:**
-    - Core properties (Mechanics, Conditions, Deck Ops, Energy) migrated to BDD.
-    - Legacy logic tests (`test_score4*`, `test_rules`) still exist but need migration or fixing.
-- **Running Tests:** `uv run pytest engine/tests`
+### Static Analysis
+We enforce high code quality using pre-commit hooks.
+- **Linting & Formatting:** `ruff` (replaces black/isort/flake8).
+- **Type Checking:** `mypy` (strict mode compliant).
+- **Automation:** `pre-commit` runs these checks on every commit.
 
-## Engine Quirks & Learnings
-- **GameState.member_db/live_db:** These are **Class Variables**, not instance variables. Tests must handle them carefully (resetting them or mocking at class level).
+**Commands:**
+```bash
+# Run all checks
+uv run pre-commit run --all-files
+
+# Manual checks
+uv run ruff check .
+uv run mypy .
+```
+
+### Testing
+All tests have been migrated to **Pytest**.
+- **Run all tests:** `uv run pytest`
+- **Structure:**
+    - `engine/tests/features/`: BDD tests (Gherkin syntax).
+    - `engine/tests/cards/`: Card ability verification.
+    - `engine/tests/mechanics/`: Core logic (Energy, Turns, Zones).
+
+## Logic Quirks & Learnings
+- **Pre-compiled Data:** The engine now relies on `cards_compiled.json` for performance and consistency.
+- **GameState Class Vars:** `member_db` and `live_db` are class-level for memory efficiency; tests must handle this.
+- **Conditionals:** `GROUP_FILTER` checks prioritize `context` (e.g., revealed card) over global state.
+- **Arrays:** `tapped_energy` is a fixed-size NumPy array.
 - **Action IDs:**
     - **Color Select:** 580-585 (Pink, Red, Yellow, Green, Blue, Purple)
     - **Target Opponent:** 600-602 (Stage Slots)
-- **Conditions:** `GROUP_FILTER` logic was fixed to correctly handle context-based filtering (e.g., "revealed card is Aqours").
-- **Arrays:** `tapped_energy` is a fixed-size NumPy array (typically 100), not a list.
-
-## Development Guidelines
