@@ -1,0 +1,45 @@
+﻿# PR #2 Review & Feedback
+
+## Critical Issues Preventing Merge
+Our automated and manual verification of PR #2 has identified several critical regressions that prevent a direct merge. While the structural changes (Compiler integration, Model unification) are valuable, the implementation is currently incomplete and breaks the server runtime.
+
+### 1. Missing Model Definitions (Severity: **CRITICAL**)
+The `engine.models.ability` module in PR #2 is missing several Enum members required by the `AbilityParser` in `game/ability.py`.
+
+**Evidence:**
+- The parser attempts to map specific card effects to these Enums.
+- When `server.py` starts and loads cards, it crashes with `AttributeError` because these keys are missing from the Enum class.
+
+**Missing Keys in `engine/models/ability.py`:**
+| Enum Class | Missing Member | Required Value | Usage Context |
+| :--- | :--- | :--- | :--- |
+| `TriggerType` | `ON_REVEAL` | `9` | Used for cards triggered by cheering/revealing. |
+| `ConditionType` | `HAS_CHOICE` | `22` | Required for cards with modal choices. |
+| `ConditionType` | `SCORE_COMPARE` | `21` | Required for win-more/lose-more mechanics. |
+| `ConditionType` | `OPPONENT_HAND_DIFF`| `20` | Required for hand-size comparison logic. |
+
+**Recommendation:**
+Please add these members to your Enum definitions to match the parser's expectations.
+
+### 2. File Encoding & Mojibake (Severity: **HIGH**)
+Standard `git merge` operations on Windows environments are corrupting files containing Japanese characters (Mojibake). 
+
+**Impact:**
+- Files like `game/ability.py` become unreadable (e.g., `逋ｻ蝣ｴ` becomes `ﾃｧ邃｢ﾂｻﾃ･~ﾂｴ`).
+- This causes syntax errors and regex failures in the parser.
+
+**Recommendation:**
+Ensure all Python files are explicitly opened with `encoding='utf-8'` in `server.py` and other file I/O operations to enforce consistency across platforms.
+
+### 3. Data Integrity
+The `data/cards.json` file in the initial check was missing Niji-Gasaki (PL!N) cards.
+- **Status:** Resolved in latest `pr-2` commit (verified presence of `PL!N-PR-006-PR`).
+- **Action:** We have manually cherry-picked this update.
+
+## Current Solution (Manual Integration)
+To stabilize the codebase, we have performed a **Manual Integration**:
+1.  **Accepted**: All architectural changes (new `compiler` module, `engine/models` structure).
+2.  **Patched**: Manually injected the missing Enum members listed above.
+3.  **Fixed**: Rewrote `game/ability.py` and `server.py` with correct UTF-8 handling.
+
+This version is currently live and fully functional. Merging PR #2 directly in its current state would regress the server to a non-working state.
